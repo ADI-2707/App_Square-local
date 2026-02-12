@@ -1,0 +1,21 @@
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.schemas.user_schema import CreateUserRequest
+from app.utils.dependencies import get_db
+from app.utils.role_checker import require_role
+from app.services.user_service import create_user
+
+router = APIRouter(prefix="/users", tags=["Users"])
+
+@router.post("")
+def create_new_user(
+    request: CreateUserRequest,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_role("root"))
+):
+    return create_user(
+        db=db,
+        username=request.username,
+        password=request.password,
+        role=request.role
+    )

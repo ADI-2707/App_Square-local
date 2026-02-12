@@ -1,0 +1,31 @@
+from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
+from app.models.user import User
+from app.utils.security import hash_password
+
+VALID_ROLES = ["admin", "user"]
+
+def create_user(db: Session, username: str, password: str, role: str):
+    if role not in VALID_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid role"
+        )
+
+    existing = db.query(User).filter(User.username == username).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already exists"
+        )
+
+    new_user = User(
+        username=username,
+        hashed_password=hash_password(password),
+        role=role
+    )
+
+    db.add(new_user)
+    db.commit()
+
+    return {"message": "User created successfully"}
