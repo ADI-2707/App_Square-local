@@ -41,3 +41,30 @@ def list_users(db: Session):
         }
         for user in users
     ]
+
+
+def delete_user(db: Session, user_id: int, current_user: User):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+
+    if user.role == "root":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot delete root user"
+        )
+
+    if current_user.id == user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Cannot delete yourself"
+        )
+
+    db.delete(user)
+    db.commit()
+
+    return {"message": "User deleted successfully"}
