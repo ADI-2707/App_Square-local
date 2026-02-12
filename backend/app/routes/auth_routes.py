@@ -6,6 +6,7 @@ from app.models.user import User
 from app.utils.security import verify_password
 from app.utils.jwt_handler import create_access_token
 from app.utils.dependencies import get_current_user
+from app.utils.role_checker import require_role
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -40,3 +41,8 @@ def get_me(current_user = Depends(get_current_user)):
         "username": current_user.username,
         "role": current_user.role
     }
+
+
+@router.get("/root-only")
+def root_only(current_user = Depends(require_role("root"))):
+    return {"message": "Root access granted"}
