@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.schemas.user_schema import CreateUserRequest
 from app.utils.dependencies import get_db
 from app.utils.role_checker import require_role
-from app.services.user_service import create_user
+from app.services.user_service import create_user, list_users
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -19,3 +19,10 @@ def create_new_user(
         password=request.password,
         role=request.role
     )
+
+@router.get("")
+def get_all_users(
+    db: Session = Depends(get_db),
+    current_user = Depends(require_role("root"))
+):
+    return list_users(db)

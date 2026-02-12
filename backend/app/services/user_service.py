@@ -29,3 +29,15 @@ def create_user(db: Session, username: str, password: str, role: str):
     db.commit()
 
     return {"message": "User created successfully"}
+
+
+def list_users(db: Session):
+    users = db.query(User).all()
+    return [
+        {
+            "id": user.id,
+            "username": user.username,
+            "role": user.role
+        }
+        for user in users
+    ]
