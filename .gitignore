@@ -1,0 +1,10 @@
+# Backend
+backend/venv/
+backend/__pycache__/
+backend/*.db
+backend/app_square_local.db
+backend/.env
+
+# Python
+*.pyc
+__pycache__/
