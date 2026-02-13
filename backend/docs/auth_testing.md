@@ -1,7 +1,5 @@
 # App Square Local – Authentication Testing Documentation
 
----
-
 # 1. Functional Coverage
 
 This section validates that the authentication system behaves correctly under normal operating conditions.
@@ -17,12 +15,12 @@ System Model:
 
 ## FC-01: System Initialization
 
-**Objective:** Verify system auto-creates exactly two accounts on fresh database.
+**Objective:** To verify system auto-creates exactly two accounts on fresh database.
 
 **Steps:**
-1. Delete existing SQLite database file.
-2. Restart server.
-3. Inspect users table.
+1. Deleted existing SQLite database file.
+2. Restarted server.
+3. Inspected users table.
 
 **Expected Result:**
 - Exactly 2 records exist.
@@ -76,7 +74,7 @@ System Model:
 
 ## FC-04: Profile Access (Admin)
 
-**Endpoint:** POST /auth/profile
+**Endpoint:** GET /auth/profile
 **Header:**  
 **Authorization:** Bearer <guest_token>
 **Input:**
@@ -93,7 +91,7 @@ System Model:
 
 ## FC-04: Profile Access (Guest)
 
-**Endpoint:** POST /auth/profile
+**Endpoint:** GET /auth/profile
 **Header:**  
 **Authorization:** Bearer <guest_token>
 **Input:**
@@ -112,14 +110,14 @@ System Model:
 
 **Endpoint:** POST /auth/login  
 
-**Objective:**  Ensure repeated valid login requests do not destabilize system.
+**Objective:**  To ensure repeated valid login requests do not destabilize system.
 
 **Method:**
-- Send 10–15 rapid login requests using valid admin credentials.
+- Sent 10–15 rapid login requests using valid admin credentials.
 
 **Expected Result:**
-- All responses return HTTP 200
-- No server crash
+- All responses returned HTTP 200
+- No server crashed
 - Stable response time (< 50ms local)
 
 **Observed Result:**
@@ -257,9 +255,9 @@ SQLAlchemy uses parameterized queries, preventing SQL injection execution.
 **Header:** Authorization: Bearer token->Token
 
 **Procedure:**
-- Obtain valid admin token.
-- Modify one character in token.
-- Use modified token for GET /auth/profile.
+- Obtained valid admin token.
+- Modified one character in token.
+- Used modified token for GET /auth/profile.
 
 **Expected Result:**
 - HTTP 401 Unauthorized
@@ -300,6 +298,110 @@ JWT signature verification prevents tampered tokens from being accepted.
 
 **Expected Result:**
 - HTTP 422 Unprocessable Entity
+
+**Result:** PASS
+
+---
+# 3. Stability Coverage
+
+This section validates system behavior under repeated usage and verifies operational stability during normal load conditions.
+
+Focus areas:
+- Server uptime reliability
+- Repeated authentication handling
+- Database integrity
+- Resource stability
+- Consistent response performance
+
+---
+
+## ST-01: Rapid Repeated Login Requests
+
+**Objective:** tp verify server stability under burst login requests.
+
+**Method:**
+- Sent 10–15 rapid POST /auth/login requests using valid admin credentials.
+
+**Observed Metrics:**
+- HTTP 200 responses for all requests
+- Response time range: 8ms – 37ms (local environment)
+- No server crash
+- No memory spike
+- No unhandled exceptions
+
+**Expected Result:**
+- Stable responses
+- No service interruption
+
+**Result:** PASS
+
+---
+
+## ST-02: Repeated Token-Protected Access
+
+**Objective:** to ensure protected endpoint remains stable under repeated access.
+
+**Method:**
+- Called GET /auth/profile multiple times using valid admin token.
+
+**Expected Result:**
+- HTTP 200 for each request
+- Consistent response payload
+- No authentication degradation
+
+**Result:** PASS
+
+---
+
+## ST-03: Server Restart Behavior
+
+**Objective:** To validate proper initialization behavior after restart.
+
+**Procedure:**
+1. Stopped server.
+2. Restarted application.
+3. Verified user records.
+
+**Expected Result:**
+- No duplicate user creation.
+- Only two users exist in database.
+- System initializes without error.
+
+**Result:** PASS
+
+---
+
+## ST-04: Database Integrity Validation
+
+**Objective:** To ensure no duplicate records or unintended data creation during stress testing.
+
+**Method:**
+- Inspected SQLite users table after repeated login attempts.
+
+**Expected Result:**
+| id | username | role  |
+|----|----------|-------|
+| 1  | admin    | admin |
+| 2  | guest    | guest |
+
+- No additional records created.
+- No data corruption observed.
+
+**Result:** PASS
+
+---
+
+## ST-05: Authentication Failure Stability
+
+**Objective:** To ensure repeated invalid login attempts do not destabilize system.
+
+**Method:**
+- Sent multiple incorrect password attempts.
+
+**Expected Result:**
+- HTTP 401 responses
+- No server crash
+- No unexpected exception
 
 **Result:** PASS
 
