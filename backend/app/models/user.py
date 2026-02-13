@@ -35,3 +35,9 @@ class User(Base):
         DateTime,
         nullable=True
     )
+
+    token_version = Column(
+        Integer,
+        default=0,
+        nullable=False
+    )
