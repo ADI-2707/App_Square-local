@@ -7,6 +7,7 @@ from app.utils.security import verify_password
 from app.utils.jwt_handler import create_access_token
 from app.utils.dependencies import get_current_user
 from app.services.log_service import add_log
+from app.utils.rate_limiter import is_blocked, record_failure, reset_attempts
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -28,6 +29,12 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     elif request.username == "guest":
         actor = "G"
 
+    if request.username in ["admin", "guest"] and is_blocked(request.username):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Account temporarily locked due to multiple failed login attempts"
+        )
+
     if not user or not verify_password(request.password, user.hashed_password):
         if actor:
             add_log(
@@ -41,6 +48,8 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid credentials"
         )
     
+    reset_attempts(request.username)
+
     add_log(
         db=db,
         actor=actor,
