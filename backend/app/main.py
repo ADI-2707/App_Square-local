@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from app.database import Base, engine, SessionLocal
-from app.models import user
+from app.models import user, log
 from app.services.auth_service import initialize_system_users
 from app.routes import auth_routes
 
