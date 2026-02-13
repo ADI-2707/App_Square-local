@@ -21,7 +21,11 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
                     db=db,
                     actor="SYS",
                     action="SYSTEM_ERROR",
-                    status="ERROR"
+                    status="ERROR",
+                    endpoint=request.url.path,
+                    method=request.method,
+                    error_type=exc.__class__.__name__,
+                    error_message=str(exc)
                 )
             finally:
                 db.close()
