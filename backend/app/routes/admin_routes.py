@@ -47,6 +47,7 @@ def change_password(
         )
 
     target.hashed_password = hash_password(request.new_password)
+    target.token_version += 1
     db.commit()
 
     add_log(

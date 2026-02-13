@@ -83,7 +83,10 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
         status="SUCCESS"
     )
 
-    token = create_access_token({"sub": user.username})
+    token = create_access_token({
+        "sub": user.username,
+        "tv": user.token_version
+    })
 
     return {
         "access_token": token,

@@ -1,11 +1,15 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
+from jose import jwt
+from datetime import datetime
 from app.database import SessionLocal
 from app.models.user import User
-from app.utils.jwt_handler import decode_access_token
+from app.utils.jwt_handler import decode_access_token, create_access_token
+from app.config import SECRET_KEY, ALGORITHM
 
 security = HTTPBearer()
+
 
 def get_db():
     db = SessionLocal()
@@ -14,19 +18,32 @@ def get_db():
     finally:
         db.close()
 
+
 def get_current_user(
+    response: Response,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
     token = credentials.credentials
-    username = decode_access_token(token)
+    user = decode_access_token(token, db)
 
-    user = db.query(User).filter(User.username == username).first()
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        exp = payload.get("exp")
 
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
+        if exp:
+            expire_time = datetime.utcfromtimestamp(exp)
+            remaining_seconds = (expire_time - datetime.utcnow()).total_seconds()
+
+            if remaining_seconds < 600:
+                new_token = create_access_token({
+                    "sub": user.username,
+                    "tv": user.token_version
+                })
+
+                response.headers["X-Refreshed-Token"] = new_token
+
+    except Exception:
+        pass
 
     return user
