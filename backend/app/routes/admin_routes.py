@@ -6,7 +6,8 @@ from app.schemas.user_schema import PasswordChangeRequest
 from app.utils.dependencies import get_current_user
 from app.utils.security import hash_password
 from app.services.log_service import add_log
-
+from app.models.log import Log
+from sqlalchemy import desc, asc
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -56,3 +57,50 @@ def change_password(
     )
 
     return {"message": f"{request.target_user} password updated successfully"}
+
+
+@router.get("/logs")
+def view_logs(
+    page: int = 1,
+    page_size: int = 10,
+    sort_order: str = "desc",
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    if page < 1 or page_size < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid pagination parameters"
+        )
+
+    query = db.query(Log)
+
+    if sort_order == "asc":
+        query = query.order_by(asc(Log.timestamp))
+    else:
+        query = query.order_by(desc(Log.timestamp))
+
+    total_logs = query.count()
+    logs = query.offset((page - 1) * page_size).limit(page_size).all()
+
+    return {
+        "total": total_logs,
+        "page": page,
+        "page_size": page_size,
+        "logs": [
+            {
+                "id": log.id,
+                "actor": log.actor,
+                "action": log.action,
+                "status": log.status,
+                "timestamp": log.timestamp
+            }
+            for log in logs
+        ]
+    }
