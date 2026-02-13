@@ -7,9 +7,12 @@ from app.utils.security import verify_password
 from app.utils.jwt_handler import create_access_token
 from app.utils.dependencies import get_current_user
 from app.services.log_service import add_log
-from app.utils.rate_limiter import is_blocked, record_failure, reset_attempts
+from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+MAX_ATTEMPTS = 5
+BLOCK_DURATION_MINUTES = 5
 
 def get_db():
     db = SessionLocal()
@@ -29,7 +32,13 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     elif request.username == "guest":
         actor = "G"
 
-    if request.username in ["admin", "guest"] and is_blocked(request.username):
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials"
+        )
+
+    if user.blocked_until and datetime.utcnow() < user.blocked_until:
         add_log(
             db=db,
             actor=actor,
@@ -41,25 +50,31 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             detail="Account temporarily locked due to multiple failed login attempts"
         )
 
-    if not user or not verify_password(request.password, user.hashed_password):
+    if not verify_password(request.password, user.hashed_password):
 
-        if request.username in ["admin", "guest"]:
-            record_failure(request.username)
+        user.failed_attempts += 1
 
-        if actor:
-            add_log(
-                db=db,
-                actor=actor,
-                action="LOGIN_FAILURE",
-                status="FAILURE"
-            )
+        if user.failed_attempts >= MAX_ATTEMPTS:
+            user.blocked_until = datetime.utcnow() + timedelta(minutes=BLOCK_DURATION_MINUTES)
+            user.failed_attempts = 0
+
+        db.commit()
+
+        add_log(
+            db=db,
+            actor=actor,
+            action="LOGIN_FAILURE",
+            status="FAILURE"
+        )
 
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
         )
 
-    reset_attempts(request.username)
+    user.failed_attempts = 0
+    user.blocked_until = None
+    db.commit()
 
     add_log(
         db=db,
