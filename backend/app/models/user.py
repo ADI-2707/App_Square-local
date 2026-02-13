@@ -7,7 +7,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     username = Column(
-        String(50),
+        String(20),
         unique=True,
         index=True,
         nullable=False
@@ -20,6 +20,5 @@ class User(Base):
 
     role = Column(
         String(20),
-        nullable=False,
-        default="admin"
+        nullable=False
     )
