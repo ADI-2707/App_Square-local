@@ -99,6 +99,10 @@ def view_logs(
                 "actor": log.actor,
                 "action": log.action,
                 "status": log.status,
+                "endpoint": log.endpoint,
+                "method": log.method,
+                "error_type": log.error_type,
+                "error_message": log.error_message,
                 "timestamp": log.timestamp
             }
             for log in logs
