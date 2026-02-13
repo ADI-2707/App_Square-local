@@ -92,3 +92,52 @@ Retention policy configured:
 
 Retention behavior not yet time-tested (requires aging simulation).
 
+---
+
+# 6. Password Change Logging Validation
+
+This section validates logging behavior for administrative password management actions.
+
+---
+
+## LG-04: Admin Changes Guest Password
+
+**Action:**
+Admin performs:
+
+PUT /admin/change-password
+
+Body:
+```json
+{
+  "target_user": "guest",
+  "new_password": "newguest123"
+}
+```
+**Expected Result:**
+- HTTP 200 OK
+- Guest password updated
+- Log entry created
+
+**Expected Database Entry:**
+| actor | action         | status  |
+|-------|---------------|---------|
+| A     | PASSWORD_CHANGE | SUCCESS |
+
+**Result:** PASS
+
+---
+
+## LG-05: Guest Attempting Password Change
+
+**Action:**
+Guest attempts:
+
+PUT /admin/change-password
+
+**Expected Result:**
+- HTTP 403 Forbidden
+- No password change
+- No PASSWORD_CHANGE log entry
+
+---
