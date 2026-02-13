@@ -104,4 +104,3 @@ def view_logs(
             for log in logs
         ]
     }
-
