@@ -141,3 +141,45 @@ PUT /admin/change-password
 - No PASSWORD_CHANGE log entry
 
 ---
+
+# 7. Login Block Logging Validation
+
+---
+
+## LG-06: Login Block Event
+
+**Action:**
+Trigger 5 consecutive failed login attempts for admin.
+Attempt 6th login.
+
+**Expected Result:**
+- HTTP 429 Too Many Requests
+- Audit log entry created:
+
+| actor | action        | status  |
+|-------|--------------|---------|
+| A     | LOGIN_BLOCKED | FAILURE |
+
+**Result:** PASS
+
+---
+
+# Logging System Validation (Final Scope)
+
+Current logged actions:
+
+- LOGIN_SUCCESS
+- LOGIN_FAILURE
+- LOGIN_BLOCKED
+- PASSWORD_CHANGE
+
+Logging guarantees:
+
+- Actor identification (A/G)
+- Action type tracking
+- SUCCESS/FAILURE state
+- UTC timestamp
+- Retention enforcement (90 days)
+- Admin-only log viewing
+
+Audit subsystem status: PRODUCTION READY (Local Deployment Scope)

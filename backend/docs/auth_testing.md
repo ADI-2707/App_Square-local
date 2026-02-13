@@ -406,3 +406,73 @@ Focus areas:
 **Result:** PASS
 
 ---
+
+# 4. Rate Limiting & Account Lockout Validation
+
+Login rate limiting is configured with:
+
+- Maximum failed attempts: 5
+- Lock duration: 5 minutes
+- Applies per user (admin / guest)
+- Lock state stored in memory
+- Successful login resets counter
+
+---
+
+## RL-01: Failed Login Attempts Increment Counter
+
+**Action:**
+Attempted login with incorrect password for admin 5 times consecutively.
+
+**Expected Result:**
+- All 5 attempts returned HTTP 401 Unauthorized
+- LOGIN_FAILURE logs created
+- Account not yet blocked
+
+**Result:** PASS
+
+---
+
+## RL-02: Account Lock Trigger
+
+**Action:**
+Attempted 6th login after 5 consecutive failures.
+
+**Expected Result:**
+- HTTP 429 Too Many Requests
+- Response message:
+  "Account temporarily locked due to multiple failed login attempts"
+- LOGIN_BLOCKED audit log entry created
+
+**Result:** PASS
+
+---
+
+## RL-03: Successful Login Resets Counter
+
+**Action:**
+Waited for lock duration OR restart server.
+Then perform correct login.
+
+**Expected Result:**
+- HTTP 200 OK
+- LOGIN_SUCCESS logged
+- Failure counter reset
+
+**Result:** PASS
+
+---
+
+## RL-04: Guest Isolation
+
+**Action:**
+Trigger lock for admin.
+Attempt guest login.
+
+**Expected Result:**
+- Guest login unaffected
+- Lock applies per user
+
+**Result:** PASS
+
+---
