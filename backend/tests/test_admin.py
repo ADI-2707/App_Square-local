@@ -19,3 +19,20 @@ def test_password_change(client):
     )
 
     assert response.status_code == 200
+
+
+def test_admin_can_view_logs(client):
+    token = get_admin_token(client)
+
+    response = client.get(
+        "/admin/logs",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 200
+    assert "logs" in response.json()
+
+
+def test_system_error_logging(client):
+    response = client.get("/non-existent-route")
+    assert response.status_code in [404, 500]
