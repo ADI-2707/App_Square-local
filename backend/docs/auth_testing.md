@@ -110,6 +110,8 @@ System Model:
 
 ## FC-06: Multiple Rapid Login Attempts
 
+**Endpoint:** POST /auth/login  
+
 **Objective:**  Ensure repeated valid login requests do not destabilize system.
 
 **Method:**
@@ -123,6 +125,181 @@ System Model:
 **Observed Result:**
 - Stable response time (< 50ms local)
 - Response time range: 8ms – 37ms
+
+**Result:** PASS
+
+---
+
+# 2. Security Coverage
+
+This section validates that the authentication system properly defends against unauthorized access, malformed requests, and common attack vectors.
+
+Security validation focuses on:
+
+- Credential validation
+- JWT integrity
+- Input validation
+- Injection resistance
+- Access control enforcement
+
+---
+
+## SC-01: Invalid Password Attempt
+
+**Endpoint:** POST /auth/login  
+
+**Input:**
+```json
+{
+  "username": "admin",
+  "password": "wrongpassword"
+}
+```
+**Expected Result:**
+- HTTP 401 Unauthorized
+- Message: "Invalid credentials"
+
+**Result:** PASS
+
+---
+
+## SC-02: Invalid Username Attempt
+
+**Endpoint:** POST /auth/login  
+
+**Input:**
+```json
+{
+  "username": "unknown_user",
+  "password": "admin123"
+}
+```
+**Expected Result:**
+- HTTP 401 Unauthorized
+
+**Result:** PASS
+
+---
+
+## SC-03: SQL Injection Attempt in Username
+
+**Endpoint:** POST /auth/login  
+
+**Input:**
+```json
+{
+  "username": "admin' OR '1'='1",
+  "password": "admin123"
+}
+```
+**Expected Result:**
+- HTTP 401 Unauthorized
+- No bypass of authentication
+
+**Security Reasoning:**
+SQLAlchemy uses parameterized queries, preventing SQL injection execution.
+
+**Result:** PASS
+
+---
+
+## SC-04: Access Protected Endpoint Without Token
+
+**Endpoint:** GET /auth/profile
+
+**Input:**
+```json
+{
+  "username": "admin'",
+  "password": "admin123"
+}
+```
+**Header:**
+
+**Expected Result:**
+- HTTP 403 Not authenticated
+
+**Result:** PASS
+
+---
+
+## SC-05: Access With Random Invalid Token
+
+**Endpoint:** GET /auth/profile
+
+**Input:**
+```json
+{
+  "username": "admin'",
+  "password": "admin123"
+}
+```
+**Header:** Authorization: Bearer randomtoken123
+
+**Expected Result:**
+- HTTP 401 Unauthorized
+
+**Result:** PASS
+
+---
+
+## SC-06: JWT Tampering Test
+
+**Endpoint:** GET /auth/profile
+
+**Input:**
+```json
+{
+  "username": "admin'",
+  "password": "admin123"
+}
+```
+**Header:** Authorization: Bearer token->Token
+
+**Procedure:**
+- Obtain valid admin token.
+- Modify one character in token.
+- Use modified token for GET /auth/profile.
+
+**Expected Result:**
+- HTTP 401 Unauthorized
+- Token validation failure
+
+**Security Reasoning:**
+JWT signature verification prevents tampered tokens from being accepted.
+
+**Result:** PASS
+
+---
+
+## SC-07: Empty Request Body Validation
+
+**Endpoint:** POST /auth/login
+
+**Input:**
+```json
+{}
+```
+
+**Expected Result:**
+- HTTP 422 Unprocessable Entity
+- Missing required fields
+
+**Result:** PASS
+
+---
+
+## SC-08: Missing Request Body
+
+**Endpoint:** POST /auth/login
+
+**Input:**
+```json
+(No body provided)
+```
+
+**Expected Result:**
+- HTTP 422 Unprocessable Entity
 
 **Result:** PASS
 
