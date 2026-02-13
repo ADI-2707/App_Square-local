@@ -30,12 +30,22 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
         actor = "G"
 
     if request.username in ["admin", "guest"] and is_blocked(request.username):
+        add_log(
+            db=db,
+            actor=actor,
+            action="LOGIN_BLOCKED",
+            status="FAILURE"
+        )
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Account temporarily locked due to multiple failed login attempts"
         )
 
     if not user or not verify_password(request.password, user.hashed_password):
+
+        if request.username in ["admin", "guest"]:
+            record_failure(request.username)
+
         if actor:
             add_log(
                 db=db,
@@ -43,11 +53,12 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
                 action="LOGIN_FAILURE",
                 status="FAILURE"
             )
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
         )
-    
+
     reset_attempts(request.username)
 
     add_log(
