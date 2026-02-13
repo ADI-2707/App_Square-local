@@ -6,6 +6,7 @@ from app.models.user import User
 from app.utils.security import verify_password
 from app.utils.jwt_handler import create_access_token
 from app.utils.dependencies import get_current_user
+from app.services.log_service import add_log
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -21,11 +22,31 @@ def get_db():
 def login(request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == request.username).first()
 
+    actor = None
+    if request.username == "admin":
+        actor = "A"
+    elif request.username == "guest":
+        actor = "G"
+
     if not user or not verify_password(request.password, user.hashed_password):
+        if actor:
+            add_log(
+                db=db,
+                actor=actor,
+                action="LOGIN_FAILURE",
+                status="FAILURE"
+            )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials"
         )
+    
+    add_log(
+        db=db,
+        actor=actor,
+        action="LOGIN_SUCCESS",
+        status="SUCCESS"
+    )
 
     token = create_access_token({"sub": user.username})
 
@@ -33,6 +54,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
         "access_token": token,
         "token_type": "bearer"
     }
+
 
 
 @router.get("/profile")
