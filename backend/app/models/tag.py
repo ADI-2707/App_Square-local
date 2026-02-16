@@ -11,6 +11,13 @@ class Tag(Base):
 
     name = Column(String(100), nullable=False, index=True)
 
+    data_type = Column(
+        String(20),
+        nullable=False,
+        default="float",
+        index=True
+    )
+
     device_instance_id = Column(
         Integer,
         ForeignKey("device_instances.id"),
@@ -18,6 +25,10 @@ class Tag(Base):
         index=True
     )
 
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
 
     device = relationship("DeviceInstance", back_populates="tags")
