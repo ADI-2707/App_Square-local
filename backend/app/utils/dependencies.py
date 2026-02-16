@@ -25,25 +25,19 @@ def get_current_user(
     db: Session = Depends(get_db)
 ):
     token = credentials.credentials
-    user = decode_access_token(token, db)
 
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        exp = payload.get("exp")
+    user, payload = decode_access_token(token, db, return_payload=True)
 
-        if exp:
-            expire_time = datetime.utcfromtimestamp(exp)
-            remaining_seconds = (expire_time - datetime.utcnow()).total_seconds()
+    exp = payload.get("exp")
+    if exp:
+        expire_time = datetime.utcfromtimestamp(exp)
+        remaining_seconds = (expire_time - datetime.utcnow()).total_seconds()
 
-            if remaining_seconds < 600:
-                new_token = create_access_token({
-                    "sub": user.username,
-                    "tv": user.token_version
-                })
-
-                response.headers["X-Refreshed-Token"] = new_token
-
-    except Exception:
-        pass
+        if remaining_seconds < 600:
+            new_token = create_access_token({
+                "sub": user.username,
+                "tv": user.token_version
+            })
+            response.headers["X-Refreshed-Token"] = new_token
 
     return user
