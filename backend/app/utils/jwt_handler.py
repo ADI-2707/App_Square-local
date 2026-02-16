@@ -11,7 +11,7 @@ def create_access_token(data: dict):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def decode_access_token(token: str, db):
+def decode_access_token(token: str, db, return_payload: bool = False):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
 
@@ -37,6 +37,9 @@ def decode_access_token(token: str, db):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token invalidated"
             )
+
+        if return_payload:
+            return user, payload
 
         return user
 
