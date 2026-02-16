@@ -22,4 +22,4 @@ class Log(Base):
 
     error_message = Column(Text, nullable=True)
 
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
