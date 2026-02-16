@@ -2,13 +2,14 @@
   display: flex;
   height: 100vh;
   min-width: 1200px;
-  background: #f1f4f9;
+  background: var(--color-background);
 }
 
 .layout-content {
-  margin-top: 60px;
-  margin-left: 240px;
-  padding: 30px;
-  width: calc(100% - 240px);
+  margin-top: var(--navbar-height);
+  margin-left: var(--sidebar-width);
+  padding: var(--space-lg);
+  width: calc(100% - var(--sidebar-width));
+  height: calc(100vh - var(--navbar-height));
   overflow-y: auto;
 }

@@ -1,11 +1,11 @@
 .sidebar {
   position: fixed;
-  top: 60px;
+  top: var(--navbar-height);
   left: 0;
-  width: 240px;
-  height: calc(100vh - 60px);
-  background: #263238;
-  padding-top: 15px;
+  width: var(--sidebar-width);
+  height: calc(100vh - var(--navbar-height));
+  background: var(--color-sidebar-bg);
+  padding-top: var(--space-md);
   display: flex;
   flex-direction: column;
   border-right: 1px solid #1c2529;
@@ -18,7 +18,7 @@
 
 .sidebar-title {
   padding: 14px 20px;
-  color: #cfd8dc;
+  color: var(--color-text-light);
   font-weight: 600;
   cursor: pointer;
   user-select: none;
@@ -26,7 +26,7 @@
 }
 
 .sidebar-title:hover {
-  background: #37474f;
+  background: var(--color-sidebar-hover);
 }
 
 .sidebar-submenu {
@@ -50,6 +50,6 @@
 }
 
 .sidebar-submenu a.active {
-  background: #1976d2;
+  background: var(--color-sidebar-active);
   color: white;
 }

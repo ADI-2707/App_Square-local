@@ -1,0 +1,83 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f6f8;
+  color: #212121;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+input, textarea, select {
+  font-family: inherit;
+}
+
+:root {
+  --color-primary: #1976d2;
+  --color-primary-dark: #0d47a1;
+
+  --color-sidebar-bg: #263238;
+  --color-sidebar-hover: #37474f;
+  --color-sidebar-active: #1976d2;
+
+  --color-background: #f4f6f8;
+  --color-surface: #ffffff;
+
+  --color-text-primary: #212121;
+  --color-text-secondary: #616161;
+  --color-text-light: #cfd8dc;
+
+  --color-border: #e0e0e0;
+
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  --navbar-height: 60px;
+  --sidebar-width: 240px;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eceff1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b0bec5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #90a4ae;
+}
+
+#root {
+  height: 100%;
+}
