@@ -8,11 +8,16 @@ import "./login.css";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isLoading) return;
+    setIsLoading(true);
 
     try {
       const response = await api.post("/auth/login", {
@@ -24,6 +29,8 @@ export default function Login() {
       navigate("/home");
     } catch (error) {
       alert(error.response?.data?.detail || "Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,7 +66,7 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button type="submit">LOGIN</button>
+          <button type="submit" disabled={isLoading}>{isLoading ? "Logging in..." : "LOGIN"}</button>
         </form>
       </div>
     </div>
