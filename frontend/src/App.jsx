@@ -8,7 +8,7 @@ import Layout from "./components/layout/Layout/Layout";
 
 function ProtectedRoute({ children }) {
   const { token } = useContext(AuthContext);
-  return token ? children : <Navigate to="/" />;
+  return token ? children : <Navigate to="/" replace />;
 }
 
 function App() {
