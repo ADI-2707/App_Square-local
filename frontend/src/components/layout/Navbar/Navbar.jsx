@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./navbar.css";
 
 export default function Navbar() {
-  const { logout } = useContext(AuthContext);
+  const { logout, username, role } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -18,9 +18,15 @@ export default function Navbar() {
         {import.meta.env.VITE_APP_NAME}
       </div>
 
-      <button className="logout-btn" onClick={handleLogout}>
-        Logout
-      </button>
+      <div className="navbar-right">
+        <span className="user-info">
+          {username} ({role})
+        </span>
+
+        <button className="logout-btn" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
     </div>
   );
 }

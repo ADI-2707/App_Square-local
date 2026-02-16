@@ -26,3 +26,14 @@
   cursor: pointer;
   border-radius: 4px;
 }
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-info {
+  font-size: 14px;
+  font-weight: 500;
+}
