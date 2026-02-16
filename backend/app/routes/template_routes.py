@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.utils.dependencies import get_db, get_current_user
 from app.schemas.template_schema import (
@@ -22,7 +22,10 @@ def create_group(
     current_user = Depends(get_current_user)
 ):
     if current_user.role != "admin":
-        return {"detail": "Admin access required"}
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
 
     return create_template_group(db, data.name, current_user.id)
 
@@ -43,6 +46,9 @@ def create_device_route(
     current_user = Depends(get_current_user)
 ):
     if current_user.role != "admin":
-        return {"detail": "Admin access required"}
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
 
     return create_device(db, group_id, data, current_user.id)
