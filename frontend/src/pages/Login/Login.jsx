@@ -19,10 +19,10 @@ export default function Login() {
         password,
       });
 
-      login(response.data.access_token);
+      await login(response.data.access_token);
       navigate("/home");
     } catch (error) {
-      alert("Invalid credentials");
+      alert(error.response?.data?.detail || "Login failed");
     }
   };
 
