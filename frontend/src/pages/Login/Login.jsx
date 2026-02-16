@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../Utility/api";
 import { AuthContext } from "../../context/AuthContext/AuthContext";
+import loginBg from "../../assets/login-bg.png";
 import "./login.css";
 
 export default function Login() {
@@ -27,15 +28,26 @@ export default function Login() {
   };
 
   return (
-    <div className="login-container">
+    <div
+      className="login-container"
+      style={{
+        backgroundImage: `url(${loginBg})`,
+      }}
+    >
       <div className="login-box">
         <h2>{import.meta.env.VITE_APP_NAME}</h2>
+
+        <p className="login-subtitle">
+          Industrial production monitoring and recipe management system for
+          steel plant operations.
+        </p>
 
         <form onSubmit={handleSubmit}>
           <input
             type="text"
             placeholder="Username"
             required
+            value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
 
@@ -43,6 +55,7 @@ export default function Login() {
             type="password"
             placeholder="Password"
             required
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
