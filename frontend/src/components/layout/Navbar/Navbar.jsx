@@ -20,7 +20,7 @@ export default function Navbar() {
 
       <div className="navbar-right">
         <span className="user-info">
-          {username} ({role})
+          {username.toUpperCase()}
         </span>
 
         <button className="logout-btn" onClick={handleLogout}>

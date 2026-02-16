@@ -4,6 +4,7 @@
   left: 0;
   height: 60px;
   width: 100%;
+  box-sizing: border-box;
   background: #1976d2;
   color: white;
   display: flex;
@@ -27,6 +28,13 @@
   border-radius: 4px;
 }
 
+.logout-btn:hover {
+  background: red;
+  color: white;
+  scale: 1.05;
+  transition-duration: 0.15s;
+}
+
 .navbar-right {
   display: flex;
   align-items: center;
@@ -36,4 +44,5 @@
 .user-info {
   font-size: 14px;
   font-weight: 500;
+  text-decoration: underline;
 }
