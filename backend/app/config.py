@@ -11,3 +11,13 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 ROOT_ADMIN_USERNAME = os.getenv("ROOT_ADMIN_USERNAME")
 ROOT_ADMIN_PASSWORD = os.getenv("ROOT_ADMIN_PASSWORD")
+
+required_settings = [
+    SECRET_KEY,
+    ALGORITHM,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    DATABASE_URL,
+]
+
+if not all(required_settings):
+    raise ValueError("One or more required environment variables are missing.")

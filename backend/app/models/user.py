@@ -41,3 +41,9 @@ class User(Base):
         default=0,
         nullable=False
     )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
