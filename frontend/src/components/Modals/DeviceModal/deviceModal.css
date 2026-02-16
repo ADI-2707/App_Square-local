@@ -1,0 +1,42 @@
+.device-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.device-form input {
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+}
+
+.tag-section {
+  margin-top: var(--space-md);
+}
+
+.tag-input {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.tag-input button {
+  padding: 6px 12px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.modal-actions {
+  margin-top: var(--space-lg);
+  text-align: right;
+}
+
+.modal-actions button {
+  padding: 8px 16px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+}

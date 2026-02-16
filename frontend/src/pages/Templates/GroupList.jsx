@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BaseModal from "../../../components/Modals/BaseModal/BaseModal";
+import GroupModal from "../../../components/Modals/GroupModal/GroupModal";
 import "./groupList.css";
 
 export default function GroupList() {
@@ -9,25 +9,15 @@ export default function GroupList() {
     <div className="group-page">
       <div className="group-header">
         <h2>Template Groups</h2>
-        <button
-          className="create-btn"
-          onClick={() => setIsModalOpen(true)}
-        >
+        <button className="create-btn" onClick={() => setIsModalOpen(true)}>
           + Create Group
         </button>
       </div>
 
-      <div className="group-table">
-        No Groups Yet
-      </div>
+      <div className="group-table">No Groups Yet</div>
 
-      <BaseModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Create Template Group"
-      >
-        <p>Group form will go here.</p>
-      </BaseModal>
+      <GroupModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <p>Group form will go here.</p>
     </div>
   );
 }
