@@ -1,0 +1,14 @@
+.layout-container {
+  display: flex;
+  height: 100vh;
+  min-width: 1200px;
+  background: #f1f4f9;
+}
+
+.layout-content {
+  margin-top: 60px;
+  margin-left: 240px;
+  padding: 30px;
+  width: calc(100% - 240px);
+  overflow-y: auto;
+}
