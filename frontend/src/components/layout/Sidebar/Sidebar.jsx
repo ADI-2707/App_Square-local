@@ -27,7 +27,6 @@ export default function Sidebar() {
         )}
       </div>
 
-      {/* Recipe Section */}
       <div className="sidebar-section">
         <div
           className="sidebar-title"
