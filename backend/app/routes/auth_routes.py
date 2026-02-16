@@ -5,7 +5,7 @@ from app.schemas.user_schema import LoginRequest, TokenResponse
 from app.models.user import User
 from app.utils.security import verify_password
 from app.utils.jwt_handler import create_access_token
-from app.utils.dependencies import get_current_user
+from app.utils.dependencies import get_current_user, get_db
 from app.services.log_service import add_log
 from datetime import datetime, timedelta
 
@@ -13,14 +13,6 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 MAX_ATTEMPTS = 5
 BLOCK_DURATION_MINUTES = 5
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 @router.post("/login", response_model=TokenResponse)
 def login(request: LoginRequest, db: Session = Depends(get_db)):

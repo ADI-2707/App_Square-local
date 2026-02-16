@@ -3,22 +3,13 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.models.user import User
 from app.schemas.user_schema import PasswordChangeRequest
-from app.utils.dependencies import get_current_user
+from app.utils.dependencies import get_current_user, get_db
 from app.utils.security import hash_password
 from app.services.log_service import add_log
 from app.models.log import Log
 from sqlalchemy import desc, asc
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 
 @router.put("/change-password")
 def change_password(
