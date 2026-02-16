@@ -8,7 +8,6 @@ from app.database import Base
 from app.utils.dependencies import get_db
 from app.services.auth_service import initialize_system_users
 
-# Create test database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 
 engine = create_engine(
@@ -22,23 +21,25 @@ TestingSessionLocal = sessionmaker(
     bind=engine
 )
 
-Base.metadata.create_all(bind=engine)
-db = TestingSessionLocal()
-initialize_system_users(db)
-db.close()
 
-def override_get_db():
+@pytest.fixture(scope="function")
+def db_session():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
     db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    initialize_system_users(db)
+    yield db
+    db.close()
 
 
-app.dependency_overrides[get_db] = override_get_db
+@pytest.fixture(scope="function")
+def client(db_session):
 
+    def override_get_db():
+        yield db_session
 
-@pytest.fixture(scope="module")
-def client():
+    app.dependency_overrides[get_db] = override_get_db
+
     with TestClient(app) as c:
         yield c
