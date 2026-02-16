@@ -1,0 +1,64 @@
+<svg
+  width="48"
+  height="48"
+  viewBox="0 0 140 140"
+  xmlns="http://www.w3.org/2000/svg"
+>
+
+  <defs>
+    <!-- RED CUBE -->
+    <linearGradient id="redTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FCA5A5"/>
+      <stop offset="100%" stop-color="#EF4444"/>
+    </linearGradient>
+
+    <linearGradient id="redLeft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#B91C1C"/>
+      <stop offset="100%" stop-color="#7F1D1D"/>
+    </linearGradient>
+
+    <linearGradient id="redRight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#DC2626"/>
+      <stop offset="100%" stop-color="#991B1B"/>
+    </linearGradient>
+
+    <!-- YELLOW CUBE -->
+    <linearGradient id="yellowTop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FEF08A"/>
+      <stop offset="100%" stop-color="#FACC15"/>
+    </linearGradient>
+
+    <linearGradient id="yellowLeft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EAB308"/>
+      <stop offset="100%" stop-color="#A16207"/>
+    </linearGradient>
+
+    <linearGradient id="yellowRight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </linearGradient>
+  </defs>
+
+  <!-- ================= LARGE RED CUBE ================= -->
+
+  <!-- Top -->
+  <polygon points="70 18 120 46 70 74 20 46" fill="url(#redTop)"/>
+
+  <!-- Left -->
+  <polygon points="20 46 70 74 70 124 20 96" fill="url(#redLeft)"/>
+
+  <!-- Right -->
+  <polygon points="120 46 70 74 70 124 120 96" fill="url(#redRight)"/>
+
+  <!-- ================= SMALL YELLOW CUBE ================= -->
+
+  <!-- Top -->
+  <polygon points="88 8 118 24 88 40 58 24" fill="url(#yellowTop)"/>
+
+  <!-- Left -->
+  <polygon points="58 24 88 40 88 70 58 54" fill="url(#yellowLeft)"/>
+
+  <!-- Right -->
+  <polygon points="118 24 88 40 88 70 118 54" fill="url(#yellowRight)"/>
+
+</svg>
