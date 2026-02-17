@@ -1,106 +1,115 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useEntities } from "../../../context/EntityContext/EntityContext";
 import "./sidebar.css";
 
-export default function Sidebar({ groups, onOpenModal }) {
-  const [openMenu, setOpenMenu] = useState(null);
-  const [showTree, setShowTree] = useState(false);
+export default function Sidebar({ onOpenModal }) {
+
+  const {
+    groups,
+    devices,
+    tags,
+    loadGroups,
+    loadDevices,
+    loadTags
+  } = useEntities();
 
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedDevices, setExpandedDevices] = useState({});
 
-  const toggleMenu = (menu) => {
-    setOpenMenu(openMenu === menu ? null : menu);
-  };
+  useEffect(() => {
+    loadGroups();
+  }, []);
 
-  const toggleGroup = (index) => {
-    setExpandedGroups((prev) => ({
+  const toggleGroup = async (groupId) => {
+    await loadDevices(groupId);
+
+    setExpandedGroups(prev => ({
       ...prev,
-      [index]: !prev[index],
+      [groupId]: !prev[groupId]
     }));
   };
 
-  const toggleDevice = (groupIndex, deviceIndex) => {
-    const key = `${groupIndex}-${deviceIndex}`;
-    setExpandedDevices((prev) => ({
+  const toggleDevice = async (deviceId) => {
+    await loadTags(deviceId);
+
+    setExpandedDevices(prev => ({
       ...prev,
-      [key]: !prev[key],
+      [deviceId]: !prev[deviceId]
     }));
   };
 
   return (
     <div className="sidebar">
+
       <div className="sidebar-header">
         <img src="/app.svg" alt="App Logo" className="sidebar-logo" />
         <div className="sidebar-appname">APP SQUARE</div>
       </div>
 
       <div className="sidebar-section">
-        <div
-          className="sidebar-title"
-          onClick={() => toggleMenu("templates")}
-        >
+
+        <div className="sidebar-title">
           Templates
         </div>
 
-        {openMenu === "templates" && (
-          <div className="sidebar-submenu">
+        <div className="sidebar-submenu">
 
-            <button onClick={() => onOpenModal("createGroup")}>
-              Create Template
-            </button>
+          <button onClick={() => onOpenModal("createGroup")}>
+            Create Template
+          </button>
 
-            <button onClick={() => setShowTree(!showTree)}>
-              View Templates
-            </button>
+          {groups.allIds.map(groupId => {
 
-            {showTree && (
-              <div className="tree-container">
-                {groups.length === 0 && (
-                  <div className="tree-empty">No Templates Yet</div>
-                )}
+            const group = groups.byId[groupId];
+            const deviceIds = devices.byGroupId[groupId] || [];
 
-                {groups.map((group, gIndex) => (
-                  <div key={gIndex} className="tree-group">
+            return (
+              <div key={groupId}>
 
-                    <div
-                      className="tree-item group-item"
-                      onClick={() => toggleGroup(gIndex)}
-                    >
-                      ▸ {group.name}
-                    </div>
+                <div
+                  className="tree-item group-item"
+                  onClick={() => toggleGroup(groupId)}
+                >
+                  ▸ {group.name}
+                </div>
 
-                    {expandedGroups[gIndex] &&
-                      group.devices.map((device, dIndex) => {
-                        const deviceKey = `${gIndex}-${dIndex}`;
+                {expandedGroups[groupId] &&
+                  deviceIds.map(deviceId => {
 
-                        return (
-                          <div key={dIndex} className="tree-device">
+                    const device = devices.byId[deviceId];
+                    const tagIds = tags.byDeviceId[deviceId] || [];
 
-                            <div
-                              className="tree-item device-item"
-                              onClick={() => toggleDevice(gIndex, dIndex)}
-                            >
-                              ▸ {device.name}
-                            </div>
+                    return (
+                      <div key={deviceId} className="tree-device">
 
-                            {expandedDevices[deviceKey] &&
-                              device.tags.map((tag, tIndex) => (
-                                <div
-                                  key={tIndex}
-                                  className="tree-item tag-item"
-                                >
-                                  {tag.name}
-                                </div>
-                              ))}
-                          </div>
-                        );
-                      })}
-                  </div>
-                ))}
+                        <div
+                          className="tree-item device-item"
+                          onClick={() => toggleDevice(deviceId)}
+                        >
+                          ▸ {device.name}
+                        </div>
+
+                        {expandedDevices[deviceId] &&
+                          tagIds.map(tagId => {
+
+                            const tag = tags.byId[tagId];
+
+                            return (
+                              <div
+                                key={tagId}
+                                className="tree-item tag-item"
+                              >
+                                {tag.name}
+                              </div>
+                            );
+                          })}
+                      </div>
+                    );
+                  })}
               </div>
-            )}
-          </div>
-        )}
+            );
+          })}
+        </div>
       </div>
     </div>
   );
