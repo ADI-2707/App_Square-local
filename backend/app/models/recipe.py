@@ -126,20 +126,7 @@ class RecipeDevice(Base):
         index=True
     )
 
-    device_instance_id = Column(
-        Integer,
-        ForeignKey("device_instances.id"),
-        nullable=False,
-        index=True
-    )
-
-    __table_args__ = (
-        UniqueConstraint(
-            "recipe_id",
-            "device_instance_id",
-            name="uq_recipe_device_unique"
-        ),
-    )
+    device_name = Column(String(150), nullable=False)
 
     recipe = relationship(
         "Recipe",
@@ -165,12 +152,9 @@ class RecipeTagValue(Base):
         index=True
     )
 
-    tag_id = Column(
-        Integer,
-        ForeignKey("tags.id"),
-        nullable=False,
-        index=True
-    )
+    tag_name = Column(String(150), nullable=False)
+
+    data_type = Column(String(20), nullable=False)
 
     value = Column(
         Text,
@@ -183,14 +167,6 @@ class RecipeTagValue(Base):
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
         nullable=False
-    )
-
-    __table_args__ = (
-        UniqueConstraint(
-            "recipe_device_id",
-            "tag_id",
-            name="uq_recipe_tag_value_unique"
-        ),
     )
 
     recipe_device = relationship(

@@ -5,13 +5,11 @@ from app.schemas.recipe_schema import (
     RecipeGroupCreate,
     RecipeGroupResponse,
     RecipeCreate,
-    RecipeResponse,
-    AddDeviceToRecipe
+    RecipeResponse
 )
 from app.services.recipe_service import (
     create_recipe_group,
-    create_recipe,
-    add_device_to_recipe
+    create_recipe
 )
 
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
@@ -42,18 +40,4 @@ def create_recipe_route(
         data.name,
         data.recipe_group_id,
         current_user.id
-    )
-
-
-@router.post("/{recipe_id}/devices")
-def add_device(
-    recipe_id: int,
-    data: AddDeviceToRecipe,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    return add_device_to_recipe(
-        db,
-        recipe_id,
-        data.device_instance_id
     )
