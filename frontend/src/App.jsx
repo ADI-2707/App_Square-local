@@ -3,7 +3,6 @@ import { useContext } from "react";
 import { AuthContext } from "./context/AuthContext/AuthContext";
 
 import Login from "./pages/Login/Login";
-import Home from "./pages/Home/Home";
 import Layout from "./components/layout/Layout/Layout";
 
 function ProtectedRoute({ children }) {
@@ -20,9 +19,7 @@ function App() {
         path="/home"
         element={
           <ProtectedRoute>
-            <Layout>
-              <Home />
-            </Layout>
+            <Layout />
           </ProtectedRoute>
         }
       />

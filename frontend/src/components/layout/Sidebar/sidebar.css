@@ -61,16 +61,19 @@
   background: #242933;
 }
 
-.sidebar-submenu a {
+.sidebar-submenu button {
   padding: 12px 35px;
-  text-decoration: none;
+  background: none;
+  border: none;
   color: #b0bec5;
+  text-align: left;
   font-weight: 500;
   font-size: 14px;
+  cursor: pointer;
   transition: background 0.2s ease;
 }
 
-.sidebar-submenu a:hover {
+.sidebar-submenu button:hover {
   background: #3a4060;
   color: white;
 }
