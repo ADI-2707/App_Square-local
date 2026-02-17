@@ -1,9 +1,8 @@
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from app.models.template_group import TemplateGroup
 from app.models.device import DeviceInstance
 from app.models.tag import Tag
-
 
 def create_full_template_group(db: Session, data, user_id: int):
 
@@ -53,12 +52,17 @@ def create_full_template_group(db: Session, data, user_id: int):
         raise
 
 
-def get_all_groups_with_hierarchy(db: Session):
-    return (
-        db.query(TemplateGroup)
-        .options(
-            joinedload(TemplateGroup.devices)
-            .joinedload(DeviceInstance.tags)
-        )
-        .all()
-    )
+def get_all_groups(db: Session):
+    return db.query(TemplateGroup).all()
+
+
+def get_devices_by_group(db: Session, group_id: int):
+    return db.query(DeviceInstance).filter(
+        DeviceInstance.template_group_id == group_id
+    ).all()
+
+
+def get_tags_by_device(db: Session, device_id: int):
+    return db.query(Tag).filter(
+        Tag.device_instance_id == device_id
+    ).all()

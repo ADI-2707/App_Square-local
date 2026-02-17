@@ -28,7 +28,6 @@ class DeviceResponse(BaseModel):
     id: int
     name: str
     type: str
-    tags: List[TagResponse]
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -36,6 +35,5 @@ class DeviceResponse(BaseModel):
 class TemplateGroupResponse(BaseModel):
     id: int
     name: str
-    devices: List[DeviceResponse]
 
     model_config = ConfigDict(from_attributes=True)
