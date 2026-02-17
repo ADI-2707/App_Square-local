@@ -66,7 +66,7 @@ export default function Sidebar({ groups, onOpenModal }) {
                       className="tree-item group-item"
                       onClick={() => toggleGroup(gIndex)}
                     >
-                      ▸ {group.group_name}
+                      ▸ {group.name}
                     </div>
 
                     {expandedGroups[gIndex] &&
@@ -80,7 +80,7 @@ export default function Sidebar({ groups, onOpenModal }) {
                               className="tree-item device-item"
                               onClick={() => toggleDevice(gIndex, dIndex)}
                             >
-                              ▸ {device.device_name}
+                              ▸ {device.name}
                             </div>
 
                             {expandedDevices[deviceKey] &&
