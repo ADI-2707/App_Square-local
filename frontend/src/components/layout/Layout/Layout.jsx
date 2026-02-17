@@ -1,16 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../Navbar/Navbar";
 import Sidebar from "../Sidebar/Sidebar";
 import GroupModal from "../../Modals/GroupModal/GroupModal";
+import api from "../../../Utility/api";
 import "./layout.css";
 
 export default function Layout() {
   const [groups, setGroups] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
 
-  const handleCreateGroup = (groupData) => {
-    setGroups((prev) => [...prev, groupData]);
+  const fetchGroups = async () => {
+    try {
+      const res = await api.get("/templates/groups");
+      setGroups(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchGroups();
+  }, []);
+
+  const closeModal = () => {
     setActiveModal(null);
+    fetchGroups();
   };
 
   return (
@@ -28,8 +42,7 @@ export default function Layout() {
 
       <GroupModal
         isOpen={activeModal === "createGroup"}
-        onClose={() => setActiveModal(null)}
-        onSave={handleCreateGroup}
+        onClose={closeModal}
       />
     </div>
   );

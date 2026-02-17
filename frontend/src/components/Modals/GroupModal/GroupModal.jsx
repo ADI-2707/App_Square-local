@@ -2,6 +2,7 @@ import { useState } from "react";
 import BaseModal from "../BaseModal/BaseModal";
 import DeviceModal from "../DeviceModal/DeviceModal";
 import "./groupModal.css";
+import api from "../../../Utility/api";
 
 export default function GroupModal({ isOpen, onClose, onSave }) {
   const [groupName, setGroupName] = useState("");
@@ -13,17 +14,30 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
     setDevices([...devices, deviceData]);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const payload = {
-      group_name: groupName,
-      description,
-      devices,
+      name: groupName,
+      devices: devices.map((device) => ({
+        name: device.device_name,
+        type: "generic",
+        tags: device.tags.map((tag) => ({
+          name: tag.name,
+        })),
+      })),
     };
-    onSave(payload);
 
-    setGroupName("");
-    setDescription("");
-    setDevices([]);
+    try {
+      await api.post("/templates/full", payload);
+
+      setGroupName("");
+      setDescription("");
+      setDevices([]);
+
+      onClose();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to save group");
+    }
   };
 
   return (
