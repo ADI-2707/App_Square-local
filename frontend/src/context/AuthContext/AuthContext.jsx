@@ -6,8 +6,7 @@ export const AuthContext = createContext();
 const decodeToken = (token) => {
   try {
     const payload = token.split(".")[1];
-    const decoded = JSON.parse(atob(payload));
-    return decoded;
+    return JSON.parse(atob(payload));
   } catch {
     return null;
   }
@@ -15,7 +14,6 @@ const decodeToken = (token) => {
 
 const isTokenExpired = (decoded) => {
   if (!decoded?.exp) return true;
-
   const currentTime = Date.now() / 1000;
   return decoded.exp < currentTime;
 };
@@ -25,7 +23,10 @@ export const AuthProvider = ({ children }) => {
     token: null,
     username: null,
     role: null,
+    isAuthenticated: false,
   });
+
+  const [loading, setLoading] = useState(true);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -33,7 +34,16 @@ export const AuthProvider = ({ children }) => {
       token: null,
       username: null,
       role: null,
+      isAuthenticated: false,
     });
+  };
+
+  const setAxiosAuthHeader = (token) => {
+    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  };
+
+  const clearAxiosAuthHeader = () => {
+    delete api.defaults.headers.common["Authorization"];
   };
 
   const login = async (jwtToken) => {
@@ -41,10 +51,11 @@ export const AuthProvider = ({ children }) => {
 
     if (!decoded || isTokenExpired(decoded)) {
       logout();
-      return;
+      return false;
     }
 
     localStorage.setItem("token", jwtToken);
+    setAxiosAuthHeader(jwtToken);
 
     try {
       const response = await api.get("/auth/profile");
@@ -53,39 +64,53 @@ export const AuthProvider = ({ children }) => {
         token: jwtToken,
         username: response.data.username,
         role: response.data.role,
+        isAuthenticated: true,
       });
-    } catch {
+
+      return true;
+    } catch (error) {
       logout();
+      return false;
     }
   };
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem("token");
 
-    if (!storedToken) return;
+      if (!storedToken) {
+        setLoading(false);
+        return;
+      }
 
-    const decoded = decodeToken(storedToken);
+      const decoded = decodeToken(storedToken);
 
-    if (!decoded || isTokenExpired(decoded)) {
-      logout();
-      return;
-    }
+      if (!decoded || isTokenExpired(decoded)) {
+        logout();
+        setLoading(false);
+        return;
+      }
 
-    const restoreSession = async () => {
       try {
+        setAxiosAuthHeader(storedToken);
+
         const response = await api.get("/auth/profile");
 
         setAuthState({
           token: storedToken,
           username: response.data.username,
           role: response.data.role,
+          isAuthenticated: true,
         });
-      } catch {
+      } catch (error) {
         logout();
+        clearAxiosAuthHeader();
       }
+
+      setLoading(false);
     };
 
-    restoreSession();
+    initializeAuth();
   }, []);
 
   return (
@@ -94,6 +119,7 @@ export const AuthProvider = ({ children }) => {
         ...authState,
         login,
         logout,
+        loading,
       }}
     >
       {children}

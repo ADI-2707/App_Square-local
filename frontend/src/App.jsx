@@ -6,8 +6,15 @@ import Login from "./pages/Login/Login";
 import Layout from "./components/layout/Layout/Layout";
 
 function ProtectedRoute({ children }) {
-  const { token } = useContext(AuthContext);
-  return token ? children : <Navigate to="/" replace />;
+  const { isAuthenticated, loading } = useContext(AuthContext);
+
+  if (loading) return null;
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
 }
 
 function App() {
@@ -19,7 +26,7 @@ function App() {
         path="/home"
         element={
           <ProtectedRoute>
-            <Layout />
+              <Layout />
           </ProtectedRoute>
         }
       />

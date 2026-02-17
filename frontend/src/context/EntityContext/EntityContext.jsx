@@ -78,6 +78,56 @@ export function EntityProvider({ children }) {
     });
   };
 
+  const addFullTemplateGroup = (groupData) => {
+    const { id: groupId, name, devices: deviceList = [] } = groupData;
+
+    setGroups(prev => ({
+      byId: {
+        ...prev.byId,
+        [groupId]: { id: groupId, name }
+      },
+      allIds: [...prev.allIds, groupId]
+    }));
+
+    deviceList.forEach(device => {
+
+      const deviceId = device.id;
+
+      setDevices(prev => ({
+        byId: {
+          ...prev.byId,
+          [deviceId]: device
+        },
+        byGroupId: {
+          ...prev.byGroupId,
+          [groupId]: [
+            ...(prev.byGroupId[groupId] || []),
+            deviceId
+          ]
+        }
+      }));
+
+      device.tags?.forEach(tag => {
+
+        const tagId = tag.id;
+
+        setTags(prev => ({
+          byId: {
+            ...prev.byId,
+            [tagId]: tag
+          },
+          byDeviceId: {
+            ...prev.byDeviceId,
+            [deviceId]: [
+              ...(prev.byDeviceId[deviceId] || []),
+              tagId
+            ]
+          }
+        }));
+      });
+    });
+  };
+
   return (
     <EntityContext.Provider
       value={{
@@ -86,7 +136,8 @@ export function EntityProvider({ children }) {
         tags,
         loadGroups,
         loadDevices,
-        loadTags
+        loadTags,
+        addFullTemplateGroup
       }}
     >
       {children}

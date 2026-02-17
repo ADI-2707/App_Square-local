@@ -1,33 +1,40 @@
 import { useState } from "react";
+import { useEntities } from "../../../context/EntityContext/EntityContext";
 import BaseModal from "../BaseModal/BaseModal";
 import DeviceModal from "../DeviceModal/DeviceModal";
-import "./groupModal.css";
 import api from "../../../Utility/api";
+import "./groupModal.css";
 
-export default function GroupModal({ isOpen, onClose, onSave }) {
+export default function GroupModal({ isOpen, onClose }) {
+
+  const { addFullTemplateGroup } = useEntities();
+
   const [groupName, setGroupName] = useState("");
   const [description, setDescription] = useState("");
   const [devices, setDevices] = useState([]);
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
 
   const addDevice = (deviceData) => {
-    setDevices([...devices, deviceData]);
+    setDevices(prev => [...prev, deviceData]);
   };
 
   const handleSave = async () => {
+
     const payload = {
       name: groupName,
-      devices: devices.map((device) => ({
+      devices: devices.map(device => ({
         name: device.device_name,
         type: "generic",
-        tags: device.tags.map((tag) => ({
+        tags: device.tags.map(tag => ({
           name: tag.name,
         })),
       })),
     };
 
     try {
-      await api.post("/templates/full", payload);
+      const response = await api.post("/templates/full", payload);
+      
+      addFullTemplateGroup(response.data);
 
       setGroupName("");
       setDescription("");
