@@ -12,13 +12,30 @@ class DeviceCreate(BaseModel):
     tags: List[TagCreate]
 
 
-class TemplateGroupCreate(BaseModel):
+class TemplateGroupFullCreate(BaseModel):
     name: str
+    devices: List[DeviceCreate]
+
+
+class TagResponse(BaseModel):
+    id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DeviceResponse(BaseModel):
+    id: int
+    name: str
+    type: str
+    tags: List[TagResponse]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TemplateGroupResponse(BaseModel):
     id: int
     name: str
+    devices: List[DeviceResponse]
 
     model_config = ConfigDict(from_attributes=True)
-    
