@@ -1,0 +1,97 @@
+import { createContext, useContext, useState } from "react";
+import api from "../../Utility/api";
+
+const EntityContext = createContext();
+
+export function EntityProvider({ children }) {
+
+  const [groups, setGroups] = useState({
+    byId: {},
+    allIds: [],
+  });
+
+  const [devices, setDevices] = useState({
+    byId: {},
+    byGroupId: {},
+  });
+
+  const [tags, setTags] = useState({
+    byId: {},
+    byDeviceId: {},
+  });
+
+  const loadGroups = async () => {
+    const res = await api.get("/templates/groups");
+
+    const byId = {};
+    const allIds = [];
+
+    res.data.forEach(group => {
+      byId[group.id] = group;
+      allIds.push(group.id);
+    });
+
+    setGroups({ byId, allIds });
+  };
+
+  const loadDevices = async (groupId) => {
+
+    if (devices.byGroupId[groupId]) return;
+
+    const res = await api.get(`/templates/groups/${groupId}/devices`);
+
+    const newById = { ...devices.byId };
+    const newByGroupId = { ...devices.byGroupId };
+
+    newByGroupId[groupId] = [];
+
+    res.data.forEach(device => {
+      newById[device.id] = device;
+      newByGroupId[groupId].push(device.id);
+    });
+
+    setDevices({
+      byId: newById,
+      byGroupId: newByGroupId,
+    });
+  };
+
+  const loadTags = async (deviceId) => {
+
+    if (tags.byDeviceId[deviceId]) return;
+
+    const res = await api.get(`/templates/devices/${deviceId}/tags`);
+
+    const newById = { ...tags.byId };
+    const newByDeviceId = { ...tags.byDeviceId };
+
+    newByDeviceId[deviceId] = [];
+
+    res.data.forEach(tag => {
+      newById[tag.id] = tag;
+      newByDeviceId[deviceId].push(tag.id);
+    });
+
+    setTags({
+      byId: newById,
+      byDeviceId: newByDeviceId,
+    });
+  };
+
+  return (
+    <EntityContext.Provider
+      value={{
+        groups,
+        devices,
+        tags,
+        loadGroups,
+        loadDevices,
+        loadTags
+      }}
+    >
+      {children}
+    </EntityContext.Provider>
+  );
+}
+
+export const useEntities = () => useContext(EntityContext);
