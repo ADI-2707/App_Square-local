@@ -1,14 +1,36 @@
 .sidebar {
   position: fixed;
-  top: var(--navbar-height);
   left: 0;
   width: var(--sidebar-width);
-  height: calc(100vh - var(--navbar-height));
-  background: var(--color-sidebar-bg);
+  height: 100%;
+  background-color: var(--color-primary);
   padding-top: var(--space-md);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #1c2529;
+  z-index: 1001;
+  border-right: 1px solid var(--color-surface);
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--color-surface);
+}
+
+.sidebar-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.sidebar-appname {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-surface);
+  letter-spacing: 0.5px;
 }
 
 .sidebar-section {
@@ -18,7 +40,7 @@
 
 .sidebar-title {
   padding: 14px 20px;
-  color: var(--color-text-light);
+  color: var(--color-surface);
   font-weight: 600;
   cursor: pointer;
   user-select: none;
@@ -29,10 +51,14 @@
   background: var(--color-sidebar-hover);
 }
 
+.sidebar-title:active {
+  color: var(--color-text-light);
+}
+
 .sidebar-submenu {
   display: flex;
   flex-direction: column;
-  background: #2e3b40;
+  background: #242933;
 }
 
 .sidebar-submenu a {
@@ -45,11 +71,12 @@
 }
 
 .sidebar-submenu a:hover {
-  background: #455a64;
+  background: #3a4060;
   color: white;
 }
 
-.sidebar-submenu a.active {
-  background: var(--color-sidebar-active);
+.sidebar-title.active-section {
+  background: #323a56;
   color: white;
+  border-left: 4px solid var(--color-sidebar-active);
 }

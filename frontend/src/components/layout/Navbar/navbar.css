@@ -44,5 +44,6 @@
 }
 
 .logout-btn:hover {
-  background: #e3f2fd;
+  background: var(--logout-hover);
+  color: var(--color-surface);
 }

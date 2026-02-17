@@ -1,9 +1,19 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import "./sidebar.css";
 
 export default function Sidebar() {
+  const location = useLocation();
+
+  const isTemplatesActive = location.pathname.startsWith("/templates");
+  const isRecipesActive = location.pathname.startsWith("/recipes");
+
   const [openMenu, setOpenMenu] = useState(null);
+
+  useEffect(() => {
+    if (isTemplatesActive) setOpenMenu("templates");
+    else if (isRecipesActive) setOpenMenu("recipes");
+  }, [location.pathname]);
 
   const toggleMenu = (menu) => {
     setOpenMenu(openMenu === menu ? null : menu);
@@ -11,9 +21,14 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
+      <div className="sidebar-header">
+        <img src="/app.svg" alt="App Logo" className="sidebar-logo" />
+        <div className="sidebar-appname">APP SQUARE</div>
+      </div>
+
       <div className="sidebar-section">
         <div
-          className="sidebar-title"
+          className={`sidebar-title ${isTemplatesActive ? "active-section" : ""}`}
           onClick={() => toggleMenu("templates")}
         >
           Templates
@@ -29,7 +44,7 @@ export default function Sidebar() {
 
       <div className="sidebar-section">
         <div
-          className="sidebar-title"
+          className={`sidebar-title ${isRecipesActive ? "active-section" : ""}`}
           onClick={() => toggleMenu("recipes")}
         >
           Recipe Management

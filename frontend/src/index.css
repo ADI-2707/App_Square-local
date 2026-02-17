@@ -32,24 +32,26 @@ input, textarea, select {
 }
 
 :root {
-  --color-primary: #1976d2;
-  --color-primary-dark: #0d47a1;
+  --color-primary: #5c6bc0;
+  --color-primary-dark: #3f51b5;
 
-  --color-sidebar-bg: #263238;
-  --color-sidebar-hover: #37474f;
-  --color-sidebar-active: #1976d2;
+  --color-sidebar-bg: #1f242b;
+  --color-sidebar-hover: #2a2f38;
+  --color-sidebar-active: #4f5fbf;
 
-  --color-background: #f4f6f8;
+  --color-background: #f3f4f8;
   --color-surface: #ffffff;
 
-  --color-text-primary: #212121;
-  --color-text-secondary: #616161;
-  --color-text-light: #cfd8dc;
+  --color-text-primary: #1e1f26;
+  --color-text-secondary: #6b7280;
+  --color-text-light: #c7ced9;
 
-  --color-border: #e0e0e0;
+  --color-border: #e3e6ee;
 
   --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+  --logout-hover: #c45a5a;
 
   --space-xs: 4px;
   --space-sm: 8px;
