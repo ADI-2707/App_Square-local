@@ -83,3 +83,50 @@
   color: white;
   border-left: 4px solid var(--color-sidebar-active);
 }
+
+.tree-container {
+  margin-top: 8px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255,255,255,0.2);
+}
+
+.tree-group {
+  margin-top: 6px;
+}
+
+.tree-device {
+  margin-left: 15px;
+  border-left: 1px solid rgba(255,255,255,0.15);
+  padding-left: 8px;
+}
+
+.tree-item {
+  padding: 6px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #d0d4ff;
+  transition: background 0.2s;
+}
+
+.tree-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.group-item {
+  font-weight: 600;
+}
+
+.device-item {
+  font-weight: 500;
+}
+
+.tag-item {
+  margin-left: 15px;
+  font-size: 12px;
+  color: #aeb6ff;
+}
+
+.tree-empty {
+  font-size: 12px;
+  opacity: 0.7;
+}

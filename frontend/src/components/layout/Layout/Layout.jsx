@@ -2,19 +2,25 @@ import { useState } from "react";
 import Navbar from "../Navbar/Navbar";
 import Sidebar from "../Sidebar/Sidebar";
 import GroupModal from "../../Modals/GroupModal/GroupModal";
-import DeviceModal from "../../Modals/DeviceModal/DeviceModal";
 import "./layout.css";
 
 export default function Layout() {
+  const [groups, setGroups] = useState([]);
   const [activeModal, setActiveModal] = useState(null);
 
-  const closeModal = () => setActiveModal(null);
+  const handleCreateGroup = (groupData) => {
+    setGroups((prev) => [...prev, groupData]);
+    setActiveModal(null);
+  };
 
   return (
     <div className="layout-container">
       <Navbar />
 
-      <Sidebar onOpenModal={setActiveModal} />
+      <Sidebar
+        groups={groups}
+        onOpenModal={setActiveModal}
+      />
 
       <div className="layout-content">
         <h2>Welcome to APP SQUARE</h2>
@@ -22,13 +28,8 @@ export default function Layout() {
 
       <GroupModal
         isOpen={activeModal === "createGroup"}
-        onClose={closeModal}
-      />
-
-      <DeviceModal
-        isOpen={activeModal === "createDevice"}
-        onClose={closeModal}
-        onSave={(data) => console.log("Device:", data)}
+        onClose={() => setActiveModal(null)}
+        onSave={handleCreateGroup}
       />
     </div>
   );

@@ -3,7 +3,7 @@ import BaseModal from "../BaseModal/BaseModal";
 import DeviceModal from "../DeviceModal/DeviceModal";
 import "./groupModal.css";
 
-export default function GroupModal({ isOpen, onClose }) {
+export default function GroupModal({ isOpen, onClose, onSave }) {
   const [groupName, setGroupName] = useState("");
   const [description, setDescription] = useState("");
   const [devices, setDevices] = useState([]);
@@ -19,9 +19,11 @@ export default function GroupModal({ isOpen, onClose }) {
       description,
       devices,
     };
+    onSave(payload);
 
-    console.log("Group Payload:", payload);
-    onClose();
+    setGroupName("");
+    setDescription("");
+    setDevices([]);
   };
 
   return (
