@@ -13,6 +13,7 @@ export default function Sidebar({ onOpenModal }) {
     loadTags
   } = useEntities();
 
+  const [openSections, setOpenSections] = useState({});
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedDevices, setExpandedDevices] = useState({});
 
@@ -20,8 +21,17 @@ export default function Sidebar({ onOpenModal }) {
     loadGroups();
   }, []);
 
+  const toggleSection = (sectionName) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [sectionName]: !prev[sectionName]
+    }));
+  };
+
   const toggleGroup = async (groupId) => {
-    await loadDevices(groupId);
+    if (!expandedGroups[groupId]) {
+      await loadDevices(groupId);
+    }
 
     setExpandedGroups(prev => ({
       ...prev,
@@ -30,7 +40,9 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const toggleDevice = async (deviceId) => {
-    await loadTags(deviceId);
+    if (!expandedDevices[deviceId]) {
+      await loadTags(deviceId);
+    }
 
     setExpandedDevices(prev => ({
       ...prev,
@@ -48,69 +60,96 @@ export default function Sidebar({ onOpenModal }) {
 
       <div className="sidebar-section">
 
-        <div className="sidebar-title">
-          Templates
+        <div
+          className="sidebar-title"
+          onClick={() => toggleSection("templates")}
+        >
+          {openSections.templates ? "▾" : "▸"} Templates
         </div>
 
-        <div className="sidebar-submenu">
+        {openSections.templates && (
+          <div className="sidebar-submenu">
 
-          <button onClick={() => onOpenModal("createGroup")}>
-            Create Template
-          </button>
+            <button onClick={() => onOpenModal("createGroup")}>
+              Create Template
+            </button>
 
-          {groups.allIds.map(groupId => {
+            {groups.allIds.length === 0 && (
+              <div className="tree-empty">No Templates Yet</div>
+            )}
 
-            const group = groups.byId[groupId];
-            const deviceIds = devices.byGroupId[groupId] || [];
+            {groups.allIds.map(groupId => {
 
-            return (
-              <div key={groupId}>
+              const group = groups.byId[groupId];
+              const deviceIds = devices.byGroupId[groupId] || [];
 
-                <div
-                  className="tree-item group-item"
-                  onClick={() => toggleGroup(groupId)}
-                >
-                  ▸ {group.name}
-                </div>
+              return (
+                <div key={groupId}>
 
-                {expandedGroups[groupId] &&
-                  deviceIds.map(deviceId => {
+                  <div
+                    className="tree-item group-item"
+                    onClick={() => toggleGroup(groupId)}
+                  >
+                    {expandedGroups[groupId] ? "▾" : "▸"} {group.name}
+                  </div>
 
-                    const device = devices.byId[deviceId];
-                    const tagIds = tags.byDeviceId[deviceId] || [];
+                  {expandedGroups[groupId] &&
+                    deviceIds.map(deviceId => {
 
-                    return (
-                      <div key={deviceId} className="tree-device">
+                      const device = devices.byId[deviceId];
+                      const tagIds = tags.byDeviceId[deviceId] || [];
 
-                        <div
-                          className="tree-item device-item"
-                          onClick={() => toggleDevice(deviceId)}
-                        >
-                          ▸ {device.name}
+                      return (
+                        <div key={deviceId} className="tree-device">
+
+                          <div
+                            className="tree-item device-item"
+                            onClick={() => toggleDevice(deviceId)}
+                          >
+                            {expandedDevices[deviceId] ? "▾" : "▸"} {device.name}
+                          </div>
+
+                          {expandedDevices[deviceId] &&
+                            tagIds.map(tagId => {
+
+                              const tag = tags.byId[tagId];
+
+                              return (
+                                <div
+                                  key={tagId}
+                                  className="tree-item tag-item"
+                                >
+                                  {tag.name}
+                                </div>
+                              );
+                            })}
                         </div>
-
-                        {expandedDevices[deviceId] &&
-                          tagIds.map(tagId => {
-
-                            const tag = tags.byId[tagId];
-
-                            return (
-                              <div
-                                key={tagId}
-                                className="tree-item tag-item"
-                              >
-                                {tag.name}
-                              </div>
-                            );
-                          })}
-                      </div>
-                    );
-                  })}
-              </div>
-            );
-          })}
-        </div>
+                      );
+                    })}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+
+      <div className="sidebar-section">
+
+        <div
+          className="sidebar-title"
+          onClick={() => toggleSection("recipes")}
+        >
+          {openSections.recipes ? "▾" : "▸"} Recipes
+        </div>
+
+        {openSections.recipes && (
+          <div className="sidebar-submenu">
+            <button>Create Recipe</button>
+            <button>View Recipes</button>
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }
