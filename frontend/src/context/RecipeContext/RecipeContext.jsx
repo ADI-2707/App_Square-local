@@ -4,30 +4,26 @@ import api from "../../Utility/api";
 const RecipeContext = createContext();
 
 export function RecipeProvider({ children }) {
+
   const [recipeGroups, setRecipeGroups] = useState({});
   const [recipes, setRecipes] = useState({});
-  const [fullRecipeCache, setFullRecipeCache] = useState({});
+  const [activeRecipe, setActiveRecipe] = useState(null);
 
   const loadRecipeGroups = async (templateGroupId, search = "") => {
-    const res = await api.get(`/recipes/groups/${templateGroupId}`);
-    let data = res.data;
-
-    if (search) {
-      data = data.filter(g =>
-        g.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
+    const res = await api.get(`/recipes/groups/${templateGroupId}`, {
+      params: { search }
+    });
 
     setRecipeGroups(prev => ({
       ...prev,
-      [templateGroupId]: data
+      [templateGroupId]: res.data
     }));
   };
 
   const loadRecipesPaginated = async (recipeGroupId, page = 1) => {
-    const res = await api.get(
-      `/recipes/group/${recipeGroupId}?page=${page}&limit=10`
-    );
+    const res = await api.get(`/recipes/group/${recipeGroupId}`, {
+      params: { page, limit: 10 }
+    });
 
     setRecipes(prev => ({
       ...prev,
@@ -39,18 +35,16 @@ export function RecipeProvider({ children }) {
   };
 
   const getFullRecipe = async (recipeId) => {
-    if (fullRecipeCache[recipeId]) {
-      return fullRecipeCache[recipeId];
-    }
-
-    const res = await api.get(`/recipes/${recipeId}/full`);
-
-    setFullRecipeCache(prev => ({
-      ...prev,
-      [recipeId]: res.data
-    }));
-
+    const res = await api.get(`/recipes/${recipeId}`);
     return res.data;
+  };
+
+  const openRecipeInWorkspace = (fullRecipe) => {
+    setActiveRecipe(fullRecipe);
+  };
+
+  const clearActiveRecipe = () => {
+    setActiveRecipe(null);
   };
 
   const addRecipeGroupLocal = (templateGroupId, group) => {
@@ -81,9 +75,12 @@ export function RecipeProvider({ children }) {
       value={{
         recipeGroups,
         recipes,
+        activeRecipe,
         loadRecipeGroups,
         loadRecipesPaginated,
         getFullRecipe,
+        openRecipeInWorkspace,
+        clearActiveRecipe,
         addRecipeGroupLocal,
         addRecipeLocal
       }}

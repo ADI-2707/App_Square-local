@@ -12,6 +12,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
     loadRecipeGroups,
     loadRecipesPaginated,
     getFullRecipe,
+    openRecipeInWorkspace,
   } = useRecipes();
 
   const [selectedTemplate, setSelectedTemplate] = useState("");
@@ -93,9 +94,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
           </div>
 
           <div className="form-group">
-            <label className="modal-label">
-              Search Recipe Group (Debounced)
-            </label>
+            <label className="modal-label">Search Recipe Group</label>
             <input
               className="modal-input"
               type="text"
@@ -185,22 +184,38 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
           )}
 
           {fullRecipeData && (
-            <div className="tree-container">
-              {fullRecipeData.devices?.map((device) => (
-                <div key={device.id} className="tree-device">
-                  <div className="tree-item device">▸ {device.device_name}</div>
+            <>
+              <div className="tree-container">
+                {fullRecipeData.devices?.map((device) => (
+                  <div key={device.id} className="tree-device">
+                    <div className="tree-item device">
+                      ▸ {device.device_name}
+                    </div>
 
-                  <div className="tree-tags">
-                    {device.tag_values?.map((tag) => (
-                      <div key={tag.id} className="tree-item tag">
-                        └ {tag.tag_name} :{" "}
-                        <span className="tag-value">{tag.value}</span>
-                      </div>
-                    ))}
+                    <div className="tree-tags">
+                      {device.tag_values?.map((tag) => (
+                        <div key={tag.id} className="tree-item tag">
+                          └ {tag.tag_name} :{" "}
+                          <span className="tag-value">{tag.value}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              <div className="open-recipe-footer">
+                <button
+                  className="open-recipe-btn"
+                  onClick={() => {
+                    openRecipeInWorkspace(fullRecipeData);
+                    onClose();
+                  }}
+                >
+                  Open in Workspace
+                </button>
+              </div>
+            </>
           )}
         </div>
       </div>

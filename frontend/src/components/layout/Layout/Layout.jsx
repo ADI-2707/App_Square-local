@@ -1,13 +1,8 @@
-import { useState } from "react";
-import Navbar from "../Navbar/Navbar";
-import Sidebar from "../Sidebar/Sidebar";
-import GroupModal from "../../Modals/GroupModal/GroupModal";
-import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
-import ViewRecipeModal from "../../Modals/ViewRecipeModal/ViewRecipeModal";
-import "./layout.css";
+import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 
 export default function Layout() {
   const [activeModal, setActiveModal] = useState(null);
+  const { activeRecipe } = useRecipes(); // ⭐ NEW
 
   const closeModal = () => {
     setActiveModal(null);
@@ -16,11 +11,37 @@ export default function Layout() {
   return (
     <div className="layout-container">
       <Navbar />
-
       <Sidebar onOpenModal={setActiveModal} />
 
       <div className="layout-content">
-        <h2>Welcome to APP SQUARE</h2>
+        {!activeRecipe ? (
+          <h2>Welcome to APP SQUARE</h2>
+        ) : (
+          <div className="recipe-workspace">
+            <h2>Active Recipe: {activeRecipe.name}</h2>
+
+            <table className="recipe-table">
+              <thead>
+                <tr>
+                  <th>Device</th>
+                  <th>Tag</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activeRecipe.devices?.map(device =>
+                  device.tag_values?.map(tag => (
+                    <tr key={tag.id}>
+                      <td>{device.device_name}</td>
+                      <td>{tag.tag_name}</td>
+                      <td>{tag.value}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <GroupModal
@@ -34,7 +55,7 @@ export default function Layout() {
       />
 
       <ViewRecipeModal
-        isOpen={activeModal === "viewRecipes"}
+        isOpen={activeModal === "viewRecipe"}
         onClose={closeModal}
       />
     </div>
