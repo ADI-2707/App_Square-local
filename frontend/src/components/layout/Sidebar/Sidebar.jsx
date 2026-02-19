@@ -3,15 +3,8 @@ import { useEntities } from "../../../context/EntityContext/EntityContext";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal }) {
-
-  const {
-    groups,
-    devices,
-    tags,
-    loadGroups,
-    loadDevices,
-    loadTags
-  } = useEntities();
+  const { groups, devices, tags, loadGroups, loadDevices, loadTags } =
+    useEntities();
 
   const [openSections, setOpenSections] = useState({});
   const [expandedGroups, setExpandedGroups] = useState({});
@@ -22,9 +15,9 @@ export default function Sidebar({ onOpenModal }) {
   }, []);
 
   const toggleSection = (sectionName) => {
-    setOpenSections(prev => ({
+    setOpenSections((prev) => ({
       ...prev,
-      [sectionName]: !prev[sectionName]
+      [sectionName]: !prev[sectionName],
     }));
   };
 
@@ -33,9 +26,9 @@ export default function Sidebar({ onOpenModal }) {
       await loadDevices(groupId);
     }
 
-    setExpandedGroups(prev => ({
+    setExpandedGroups((prev) => ({
       ...prev,
-      [groupId]: !prev[groupId]
+      [groupId]: !prev[groupId],
     }));
   };
 
@@ -44,22 +37,20 @@ export default function Sidebar({ onOpenModal }) {
       await loadTags(deviceId);
     }
 
-    setExpandedDevices(prev => ({
+    setExpandedDevices((prev) => ({
       ...prev,
-      [deviceId]: !prev[deviceId]
+      [deviceId]: !prev[deviceId],
     }));
   };
 
   return (
     <div className="sidebar">
-
       <div className="sidebar-header">
         <img src="/app.svg" alt="App Logo" className="sidebar-logo" />
         <div className="sidebar-appname">APP SQUARE</div>
       </div>
 
       <div className="sidebar-section">
-
         <div
           className="sidebar-title"
           onClick={() => toggleSection("templates")}
@@ -69,7 +60,6 @@ export default function Sidebar({ onOpenModal }) {
 
         {openSections.templates && (
           <div className="sidebar-submenu">
-
             <button onClick={() => onOpenModal("createGroup")}>
               Create Template
             </button>
@@ -78,14 +68,12 @@ export default function Sidebar({ onOpenModal }) {
               <div className="tree-empty">No Templates Yet</div>
             )}
 
-            {groups.allIds.map(groupId => {
-
+            {groups.allIds.map((groupId) => {
               const group = groups.byId[groupId];
               const deviceIds = devices.byGroupId[groupId] || [];
 
               return (
                 <div key={groupId}>
-
                   <div
                     className="tree-item group-item"
                     onClick={() => toggleGroup(groupId)}
@@ -94,31 +82,26 @@ export default function Sidebar({ onOpenModal }) {
                   </div>
 
                   {expandedGroups[groupId] &&
-                    deviceIds.map(deviceId => {
-
+                    deviceIds.map((deviceId) => {
                       const device = devices.byId[deviceId];
                       const tagIds = tags.byDeviceId[deviceId] || [];
 
                       return (
                         <div key={deviceId} className="tree-device">
-
                           <div
                             className="tree-item device-item"
                             onClick={() => toggleDevice(deviceId)}
                           >
-                            {expandedDevices[deviceId] ? "▾" : "▸"} {device.name}
+                            {expandedDevices[deviceId] ? "▾" : "▸"}{" "}
+                            {device.name}
                           </div>
 
                           {expandedDevices[deviceId] &&
-                            tagIds.map(tagId => {
-
+                            tagIds.map((tagId) => {
                               const tag = tags.byId[tagId];
 
                               return (
-                                <div
-                                  key={tagId}
-                                  className="tree-item tag-item"
-                                >
+                                <div key={tagId} className="tree-item tag-item">
                                   {tag.name}
                                 </div>
                               );
@@ -134,22 +117,22 @@ export default function Sidebar({ onOpenModal }) {
       </div>
 
       <div className="sidebar-section">
-
-        <div
-          className="sidebar-title"
-          onClick={() => toggleSection("recipes")}
-        >
+        <div className="sidebar-title" onClick={() => toggleSection("recipes")}>
           {openSections.recipes ? "▾" : "▸"} Recipes
         </div>
 
         {openSections.recipes && (
           <div className="sidebar-submenu">
-            <button>Create Recipe</button>
+
+            <button onClick={() => onOpenModal("createRecipe")}>
+              Create Recipe
+            </button>
+
             <button>View Recipes</button>
+
           </div>
         )}
       </div>
-
     </div>
   );
 }
