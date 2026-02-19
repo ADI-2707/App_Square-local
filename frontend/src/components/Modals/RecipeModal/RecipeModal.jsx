@@ -25,15 +25,9 @@ export default function RecipeModal({ isOpen, onClose }) {
     template_group_id: parseInt(selectedTemplate),
   };
 
-  // 🔥 DEBUG 3: Recipe Group payload
-  console.log("📦 Creating Recipe Group Payload:", payload);
-
   try {
     const res = await api.post("/recipes/groups", payload);
-
-    // 🔥 DEBUG 4: Recipe Group created
-    console.log("🧩 Recipe Group Created:", res.data);
-
+    
     setCreatedGroupId(res.data.id);
     addRecipeGroupLocal(selectedTemplate, res.data);
   } catch (err) {
