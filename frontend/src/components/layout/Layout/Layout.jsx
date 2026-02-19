@@ -1,8 +1,17 @@
+import { useState } from "react";
+import Navbar from "../Navbar/Navbar";
+import Sidebar from "../Sidebar/Sidebar";
+
+import GroupModal from "../../Modals/GroupModal/GroupModal";
+import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
+import ViewRecipeModal from "../../Modals/ViewRecipeModal/ViewRecipeModal";
+
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
+import "./layout.css";
 
 export default function Layout() {
   const [activeModal, setActiveModal] = useState(null);
-  const { activeRecipe } = useRecipes(); // ⭐ NEW
+  const { activeRecipe } = useRecipes();
 
   const closeModal = () => {
     setActiveModal(null);
