@@ -24,6 +24,16 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
   useEffect(() => {
+    if (isOpen) {
+      setSelectedTemplate("");
+      setSelectedGroup(null);
+      setPage(1);
+      setSearch("");
+      setDebouncedSearch("");
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
     }, 300);
@@ -65,7 +75,6 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="View Recipes">
       <div className="view-recipe-container">
-
         <div className="view-recipe-selector">
           <div className="form-group">
             <label className="modal-label">Select Template Group</label>
@@ -179,9 +188,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
             <div className="tree-container">
               {fullRecipeData.devices?.map((device) => (
                 <div key={device.id} className="tree-device">
-                  <div className="tree-item device">
-                    ▸ {device.device_name}
-                  </div>
+                  <div className="tree-item device">▸ {device.device_name}</div>
 
                   <div className="tree-tags">
                     {device.tag_values?.map((tag) => (
