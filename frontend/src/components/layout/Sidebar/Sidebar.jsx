@@ -12,7 +12,7 @@ export default function Sidebar({ onOpenModal }) {
 
   useEffect(() => {
     loadGroups();
-  }, [loadGroups]);
+  }, []);
 
   const toggleSection = (sectionName) => {
     setOpenSections((prev) => ({

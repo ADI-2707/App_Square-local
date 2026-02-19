@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, Fragment } from "react";
 import Navbar from "../Navbar/Navbar";
 import Sidebar from "../Sidebar/Sidebar";
 
@@ -17,6 +17,32 @@ export default function Layout() {
     setActiveModal(null);
   };
 
+  const devices = activeRecipe?.devices || [];
+
+  const tableRows = useMemo(() => {
+    if (!devices.length) return [];
+
+    const maxTags = Math.max(
+      ...devices.map((device) => device.tag_values?.length || 0)
+    );
+
+    const rows = [];
+
+    for (let i = 0; i < maxTags; i++) {
+      rows.push(
+        devices.map((device) => {
+          const tag = device.tag_values?.[i];
+          return {
+            tagName: tag?.tag_name ?? "-",
+            value: tag?.value ?? "-",
+          };
+        })
+      );
+    }
+
+    return rows;
+  }, [devices]);
+
   return (
     <div className="layout-container">
       <Navbar />
@@ -29,26 +55,49 @@ export default function Layout() {
           <div className="recipe-workspace">
             <h2>Active Recipe: {activeRecipe.name}</h2>
 
-            <table className="recipe-table">
-              <thead>
-                <tr>
-                  <th>Device</th>
-                  <th>Tag</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeRecipe.devices?.map(device =>
-                  device.tag_values?.map(tag => (
-                    <tr key={tag.id}>
-                      <td>{device.device_name}</td>
-                      <td>{tag.tag_name}</td>
-                      <td>{tag.value}</td>
+            <div className="recipe-matrix-container">
+              <table className="recipe-matrix-table">
+                <thead>
+                  <tr>
+                    {devices.map((device) => (
+                      <th
+                        key={`device-header-${device.id}`}
+                        colSpan={2}
+                        className="device-header"
+                      >
+                        {device.device_name}
+                      </th>
+                    ))}
+                  </tr>
+
+                  <tr>
+                    {devices.map((device) => (
+                      <Fragment key={`subheader-${device.id}`}>
+                        <th className="sub-header">Tag</th>
+                        <th className="sub-header">Value</th>
+                      </Fragment>
+                    ))}
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {tableRows.map((row, rowIndex) => (
+                    <tr key={`row-${rowIndex}`}>
+                      {row.map((cell, colIndex) => (
+                        <Fragment key={`cell-${rowIndex}-${colIndex}`}>
+                          <td className="tag-cell">
+                            {cell.tagName}
+                          </td>
+                          <td className="value-cell">
+                            {cell.value}
+                          </td>
+                        </Fragment>
+                      ))}
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
