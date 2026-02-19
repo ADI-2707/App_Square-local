@@ -35,7 +35,7 @@ export function RecipeProvider({ children }) {
   };
 
   const getFullRecipe = async (recipeId) => {
-    const res = await api.get(`/recipes/${recipeId}`);
+    const res = await api.get(`/recipes/${recipeId}/full`);
     return res.data;
   };
 

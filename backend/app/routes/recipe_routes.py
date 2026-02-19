@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
+from typing import List
+
 from app.utils.dependencies import get_db, get_current_user
 from app.schemas.recipe_schema import (
     RecipeGroupCreate,
@@ -11,7 +13,7 @@ from app.services.recipe_service import (
     create_recipe_group,
     create_recipe,
     get_recipe_groups_by_template,
-    get_recipes_by_group,
+    get_recipes_by_group_paginated,
     get_full_recipe
 )
 
@@ -25,33 +27,66 @@ def create_group(
     current_user = Depends(get_current_user)
 ):
     return create_recipe_group(
-        db,
-        data.name,
-        data.template_group_id,
-        current_user.id
+        db=db,
+        name=data.name,
+        template_group_id=data.template_group_id,
+        user_id=current_user.id
     )
 
 
-@router.get("/groups/{template_group_id}", response_model=list[RecipeGroupResponse])
+
+@router.get(
+    "/groups/{template_group_id}",
+    response_model=List[RecipeGroupResponse]
+)
 def list_recipe_groups(
     template_group_id: int,
+    search: str = Query(default="", description="Search recipe group name"),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return get_recipe_groups_by_template(db, template_group_id)
+    return get_recipe_groups_by_template(
+        db=db,
+        template_group_id=template_group_id,
+        search=search
+    )
 
 
-@router.get("/group/{recipe_group_id}", response_model=list[RecipeResponse])
+
+@router.post("", response_model=RecipeResponse)
+def create_recipe_route(
+    data: RecipeCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return create_recipe(
+        db=db,
+        name=data.name,
+        recipe_group_id=data.recipe_group_id,
+        user_id=current_user.id
+    )
+
+
+
+@router.get(
+    "/group/{recipe_group_id}",
+    response_model=List[RecipeResponse]
+)
 def list_recipes(
     recipe_group_id: int,
-    page: int = Query(1, ge=1),
-    limit: int = Query(10, ge=1, le=50),
+    page: int = Query(1, ge=1, description="Page number"),
+    limit: int = Query(10, ge=1, le=50, description="Items per page"),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    offset = (page - 1) * limit
-    recipes = get_recipes_by_group(db, recipe_group_id)
-    return recipes[offset: offset + limit]
+
+    return get_recipes_by_group_paginated(
+        db=db,
+        recipe_group_id=recipe_group_id,
+        page=page,
+        limit=limit
+    )
+
 
 
 @router.get("/{recipe_id}/full")
@@ -60,4 +95,8 @@ def get_full_recipe_route(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return get_full_recipe(db, recipe_id)
+
+    return get_full_recipe(
+        db=db,
+        recipe_id=recipe_id
+    )

@@ -12,7 +12,7 @@ export default function Sidebar({ onOpenModal }) {
 
   useEffect(() => {
     loadGroups();
-  }, []);
+  }, [loadGroups]);
 
   const toggleSection = (sectionName) => {
     setOpenSections((prev) => ({
@@ -127,7 +127,7 @@ export default function Sidebar({ onOpenModal }) {
               Create Recipe
             </button>
 
-            <button onClick={() => onOpenModal("viewRecipes")}>
+            <button onClick={() => onOpenModal("viewRecipe")}>
               View Recipes
             </button>
           </div>

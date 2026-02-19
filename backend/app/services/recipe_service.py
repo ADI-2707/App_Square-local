@@ -1,5 +1,6 @@
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from fastapi import HTTPException
+from sqlalchemy import and_
 from app.models.recipe import (
     RecipeGroup,
     Recipe,
@@ -28,19 +29,21 @@ def create_recipe_group(
         )
 
     existing = db.query(RecipeGroup).filter(
-        RecipeGroup.template_group_id == template_group_id,
-        RecipeGroup.name == name,
-        RecipeGroup.is_deleted == False
+        and_(
+            RecipeGroup.template_group_id == template_group_id,
+            RecipeGroup.name == name,
+            RecipeGroup.is_deleted == False
+        )
     ).first()
 
     if existing:
         raise HTTPException(
             status_code=400,
-            detail="Recipe group already exists"
+            detail="Recipe group already exists for this template"
         )
 
     group = RecipeGroup(
-        name=name,
+        name=name.strip(),
         template_group_id=template_group_id,
         created_by=user_id
     )
@@ -52,16 +55,18 @@ def create_recipe_group(
     return group
 
 
+
 def create_recipe(
     db: Session,
     name: str,
     recipe_group_id: int,
     user_id: int
 ):
-    
     group = db.query(RecipeGroup).filter(
-        RecipeGroup.id == recipe_group_id,
-        RecipeGroup.is_deleted == False
+        and_(
+            RecipeGroup.id == recipe_group_id,
+            RecipeGroup.is_deleted == False
+        )
     ).first()
 
     if not group:
@@ -71,52 +76,68 @@ def create_recipe(
         )
 
     existing = db.query(Recipe).filter(
-        Recipe.recipe_group_id == recipe_group_id,
-        Recipe.name == name,
-        Recipe.is_deleted == False
+        and_(
+            Recipe.recipe_group_id == recipe_group_id,
+            Recipe.name == name,
+            Recipe.is_deleted == False
+        )
     ).first()
 
     if existing:
         raise HTTPException(
             status_code=400,
-            detail="Recipe already exists"
+            detail="Recipe already exists in this group"
         )
 
     recipe = Recipe(
-        name=name,
+        name=name.strip(),
         recipe_group_id=recipe_group_id,
         created_by=user_id
     )
-
     db.add(recipe)
-    db.flush() 
+    db.flush()
 
-    template_devices = db.query(DeviceInstance).filter(
-        DeviceInstance.template_group_id == group.template_group_id
-    ).order_by(DeviceInstance.id).all()
+    template_devices = (
+        db.query(DeviceInstance)
+        .filter(DeviceInstance.template_group_id == group.template_group_id)
+        .order_by(DeviceInstance.id)
+        .all()
+    )
+
+    if not template_devices:
+        db.commit()
+        db.refresh(recipe)
+        return recipe
 
     for device in template_devices:
-
         recipe_device = RecipeDevice(
             recipe_id=recipe.id,
             device_name=device.name
         )
-
         db.add(recipe_device)
         db.flush()
 
-        tags = db.query(Tag).filter(
-            Tag.device_instance_id == device.id
-        ).order_by(Tag.id).all()
+        tags = (
+            db.query(Tag)
+            .filter(Tag.device_instance_id == device.id)
+            .order_by(Tag.id)
+            .all()
+        )
 
-        for tag in tags:
-            tag_value = RecipeTagValue(
+        if not tags:
+            continue
+
+        tag_values = [
+            RecipeTagValue(
                 recipe_device_id=recipe_device.id,
                 tag_name=tag.name,
                 data_type=tag.data_type,
                 value="0"
             )
-            db.add(tag_value)
+            for tag in tags
+        ]
+
+        db.add_all(tag_values)
 
     db.commit()
     db.refresh(recipe)
@@ -124,36 +145,69 @@ def create_recipe(
     return recipe
 
 
+
 def get_recipe_groups_by_template(
     db: Session,
-    template_group_id: int
+    template_group_id: int,
+    search: str | None = None
 ):
-    return db.query(RecipeGroup).filter(
-        RecipeGroup.template_group_id == template_group_id,
-        RecipeGroup.is_deleted == False
-    ).order_by(RecipeGroup.created_at.desc()).all()
+    query = db.query(RecipeGroup).filter(
+        and_(
+            RecipeGroup.template_group_id == template_group_id,
+            RecipeGroup.is_deleted == False
+        )
+    )
+
+    if search:
+        query = query.filter(RecipeGroup.name.ilike(f"%{search}%"))
+
+    return query.order_by(RecipeGroup.created_at.desc()).all()
 
 
-def get_recipes_by_group(
+
+def get_recipes_by_group_paginated(
     db: Session,
-    recipe_group_id: int
+    recipe_group_id: int,
+    page: int = 1,
+    limit: int = 10
 ):
-    return db.query(Recipe).filter(
-        Recipe.recipe_group_id == recipe_group_id,
-        Recipe.is_deleted == False
-    ).order_by(Recipe.created_at.desc()).all()
+    offset = (page - 1) * limit
+
+    recipes = (
+        db.query(Recipe)
+        .filter(
+            and_(
+                Recipe.recipe_group_id == recipe_group_id,
+                Recipe.is_deleted == False
+            )
+        )
+        .order_by(Recipe.created_at.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+
+    return recipes
+
 
 
 def get_full_recipe(
     db: Session,
     recipe_id: int
 ):
-    recipe = db.query(Recipe).options(
-        joinedload(Recipe.devices).joinedload(RecipeDevice.tag_values)
-    ).filter(
-        Recipe.id == recipe_id,
-        Recipe.is_deleted == False
-    ).first()
+    recipe = (
+        db.query(Recipe)
+        .options(
+            selectinload(Recipe.devices).selectinload(RecipeDevice.tag_values)
+        )
+        .filter(
+            and_(
+                Recipe.id == recipe_id,
+                Recipe.is_deleted == False
+            )
+        )
+        .first()
+    )
 
     if not recipe:
         raise HTTPException(
