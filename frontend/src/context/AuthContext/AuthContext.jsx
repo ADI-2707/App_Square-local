@@ -28,22 +28,23 @@ export const AuthProvider = ({ children }) => {
 
   const [loading, setLoading] = useState(true);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setAuthState({
-      token: null,
-      username: null,
-      role: null,
-      isAuthenticated: false,
-    });
-  };
-
   const setAxiosAuthHeader = (token) => {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   };
 
   const clearAxiosAuthHeader = () => {
     delete api.defaults.headers.common["Authorization"];
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    clearAxiosAuthHeader();
+    setAuthState({
+      token: null,
+      username: null,
+      role: null,
+      isAuthenticated: false,
+    });
   };
 
   const login = async (jwtToken) => {
@@ -54,10 +55,10 @@ export const AuthProvider = ({ children }) => {
       return false;
     }
 
-    localStorage.setItem("token", jwtToken);
-    setAxiosAuthHeader(jwtToken);
-
     try {
+      localStorage.setItem("token", jwtToken);
+      setAxiosAuthHeader(jwtToken);
+
       const response = await api.get("/auth/profile");
 
       setAuthState({
@@ -69,6 +70,7 @@ export const AuthProvider = ({ children }) => {
 
       return true;
     } catch (error) {
+      console.error("Login profile fetch failed:", error);
       logout();
       return false;
     }
@@ -103,11 +105,11 @@ export const AuthProvider = ({ children }) => {
           isAuthenticated: true,
         });
       } catch (error) {
+        console.error("Session restore failed:", error);
         logout();
-        clearAxiosAuthHeader();
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     initializeAuth();

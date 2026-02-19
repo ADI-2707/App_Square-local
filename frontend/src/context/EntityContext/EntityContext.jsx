@@ -4,7 +4,6 @@ import api from "../../Utility/api";
 const EntityContext = createContext();
 
 export function EntityProvider({ children }) {
-
   const [groups, setGroups] = useState({
     byId: {},
     allIds: [],
@@ -21,12 +20,14 @@ export function EntityProvider({ children }) {
   });
 
   const loadGroups = async () => {
+    if (groups.allIds.length > 0) return;
+
     const res = await api.get("/templates/groups");
 
     const byId = {};
     const allIds = [];
 
-    res.data.forEach(group => {
+    res.data.forEach((group) => {
       byId[group.id] = group;
       allIds.push(group.id);
     });
@@ -35,7 +36,6 @@ export function EntityProvider({ children }) {
   };
 
   const loadDevices = async (groupId) => {
-
     if (devices.byGroupId[groupId]) return;
 
     const res = await api.get(`/templates/groups/${groupId}/devices`);
@@ -45,7 +45,7 @@ export function EntityProvider({ children }) {
 
     newByGroupId[groupId] = [];
 
-    res.data.forEach(device => {
+    res.data.forEach((device) => {
       newById[device.id] = device;
       newByGroupId[groupId].push(device.id);
     });
@@ -57,7 +57,6 @@ export function EntityProvider({ children }) {
   };
 
   const loadTags = async (deviceId) => {
-
     if (tags.byDeviceId[deviceId]) return;
 
     const res = await api.get(`/templates/devices/${deviceId}/tags`);
@@ -67,7 +66,7 @@ export function EntityProvider({ children }) {
 
     newByDeviceId[deviceId] = [];
 
-    res.data.forEach(tag => {
+    res.data.forEach((tag) => {
       newById[tag.id] = tag;
       newByDeviceId[deviceId].push(tag.id);
     });
@@ -81,48 +80,46 @@ export function EntityProvider({ children }) {
   const addFullTemplateGroup = (groupData) => {
     const { id: groupId, name, devices: deviceList = [] } = groupData;
 
-    setGroups(prev => ({
+    setGroups((prev) => ({
       byId: {
         ...prev.byId,
-        [groupId]: { id: groupId, name }
+        [groupId]: { id: groupId, name },
       },
-      allIds: [...prev.allIds, groupId]
+      allIds: [...prev.allIds, groupId],
     }));
 
-    deviceList.forEach(device => {
-
+    deviceList.forEach((device) => {
       const deviceId = device.id;
 
-      setDevices(prev => ({
+      setDevices((prev) => ({
         byId: {
           ...prev.byId,
-          [deviceId]: device
+          [deviceId]: device,
         },
         byGroupId: {
           ...prev.byGroupId,
           [groupId]: [
             ...(prev.byGroupId[groupId] || []),
-            deviceId
-          ]
-        }
+            deviceId,
+          ],
+        },
       }));
 
-      device.tags?.forEach(tag => {
-
+      device.tags?.forEach((tag) => {
         const tagId = tag.id;
 
-        setTags(prev => ({
+        setTags((prev) => ({
           byId: {
             ...prev.byId,
-            [tagId]: tag
+            [tagId]: tag,
           },
           byDeviceId: {
             ...prev.byDeviceId,
             [deviceId]: [
               ...(prev.byDeviceId[deviceId] || []),
-              tagId
-            ]
-          }
+              tagId,
+            ],
+          },
         }));
       });
     });
@@ -137,7 +134,7 @@ export function EntityProvider({ children }) {
         loadGroups,
         loadDevices,
         loadTags,
-        addFullTemplateGroup
+        addFullTemplateGroup,
       }}
     >
       {children}
