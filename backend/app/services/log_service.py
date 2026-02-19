@@ -16,19 +16,23 @@ def add_log(
     error_type: str = None,
     error_message: str = None
 ):
-    log = Log(
-        actor=actor,
-        action=action,
-        status=status,
-        endpoint=endpoint,
-        method=method,
-        error_type=error_type,
-        error_message=error_message,
-        timestamp=datetime.utcnow()
-    )
+    try:
+        log = Log(
+            actor=actor,
+            action=action,
+            status=status,
+            endpoint=endpoint,
+            method=method,
+            error_type=error_type,
+            error_message=error_message,
+            timestamp=datetime.utcnow()
+        )
 
-    db.add(log)
-    db.commit()
+        db.add(log)
+        db.commit()
+
+    except Exception:
+        db.rollback()
 
 
 def cleanup_old_logs(db: Session):
