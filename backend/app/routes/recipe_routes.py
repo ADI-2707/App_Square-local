@@ -9,7 +9,9 @@ from app.schemas.recipe_schema import (
 )
 from app.services.recipe_service import (
     create_recipe_group,
-    create_recipe
+    create_recipe,
+    get_recipe_groups_by_template,
+    get_recipes_by_group
 )
 
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
@@ -29,6 +31,15 @@ def create_group(
     )
 
 
+@router.get("/groups/{template_group_id}", response_model=list[RecipeGroupResponse])
+def list_recipe_groups(
+    template_group_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return get_recipe_groups_by_template(db, template_group_id)
+
+
 @router.post("", response_model=RecipeResponse)
 def create_recipe_route(
     data: RecipeCreate,
@@ -41,3 +52,12 @@ def create_recipe_route(
         data.recipe_group_id,
         current_user.id
     )
+
+
+@router.get("/group/{recipe_group_id}", response_model=list[RecipeResponse])
+def list_recipes(
+    recipe_group_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return get_recipes_by_group(db, recipe_group_id)
