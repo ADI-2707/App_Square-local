@@ -15,24 +15,33 @@ export default function RecipeModal({ isOpen, onClose }) {
   const [createdGroupId, setCreatedGroupId] = useState(null);
 
   const handleCreateRecipeGroup = async () => {
-    if (!selectedTemplate || !recipeGroupName) {
-      alert("Select template and enter recipe group name");
-      return;
-    }
+  if (!selectedTemplate || !recipeGroupName) {
+    alert("Select template and enter recipe group name");
+    return;
+  }
 
-    try {
-      const res = await api.post("/recipes/groups", {
-        name: recipeGroupName,
-        template_group_id: parseInt(selectedTemplate),
-      });
-
-      setCreatedGroupId(res.data.id);
-      addRecipeGroupLocal(selectedTemplate, res.data);
-    } catch (err) {
-      console.error(err);
-      alert("Failed to create recipe group");
-    }
+  const payload = {
+    name: recipeGroupName,
+    template_group_id: parseInt(selectedTemplate),
   };
+
+  // 🔥 DEBUG 3: Recipe Group payload
+  console.log("📦 Creating Recipe Group Payload:", payload);
+
+  try {
+    const res = await api.post("/recipes/groups", payload);
+
+    // 🔥 DEBUG 4: Recipe Group created
+    console.log("🧩 Recipe Group Created:", res.data);
+
+    setCreatedGroupId(res.data.id);
+    addRecipeGroupLocal(selectedTemplate, res.data);
+  } catch (err) {
+    console.error("❌ Recipe Group Error:", err);
+    alert("Failed to create recipe group");
+  }
+};
+
 
   const handleCreateRecipe = async () => {
     if (!createdGroupId || !recipeName) {

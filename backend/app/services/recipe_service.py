@@ -58,6 +58,12 @@ def create_recipe(
     recipe_group_id: int,
     user_id: int
 ):
+
+    print("\n========== RECIPE CREATION START ==========")
+    print("Recipe Name:", name)
+    print("Recipe Group ID:", recipe_group_id)
+    print("User ID:", user_id)
+    
     group = db.query(RecipeGroup).filter(
         RecipeGroup.id == recipe_group_id,
         RecipeGroup.is_deleted == False
