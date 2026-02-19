@@ -123,13 +123,13 @@ export default function Sidebar({ onOpenModal }) {
 
         {openSections.recipes && (
           <div className="sidebar-submenu">
-
             <button onClick={() => onOpenModal("createRecipe")}>
               Create Recipe
             </button>
 
-            <button>View Recipes</button>
-
+            <button onClick={() => onOpenModal("viewRecipes")}>
+              View Recipes
+            </button>
           </div>
         )}
       </div>
