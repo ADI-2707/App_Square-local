@@ -3,6 +3,7 @@ import BaseModal from "../BaseModal/BaseModal";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import api from "../../../Utility/api";
+import "./recipeModal.css";
 
 export default function RecipeModal({ isOpen, onClose }) {
 

@@ -1,0 +1,143 @@
+.view-recipe-container {
+  display: flex;
+  gap: var(--space-lg);
+  min-height: 420px;
+}
+
+.view-recipe-selector {
+  width: 40%;
+  border-right: 1px solid var(--color-border);
+  padding-right: var(--space-md);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.modal-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.modal-input,
+.modal-select {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: #fff;
+}
+
+.modal-input:focus,
+.modal-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.section-title {
+  margin: var(--space-md) 0 var(--space-sm) 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.list-item {
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  color: var(--color-text-primary);
+}
+
+.list-item:hover {
+  background: #f1f3ff;
+}
+
+.list-item.active {
+  background: #e3e7ff;
+  font-weight: 500;
+}
+
+.list-item.nested {
+  margin-left: 12px;
+}
+
+.empty-text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 6px 4px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+.pagination-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #f5f6ff;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-indicator {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.view-recipe-tree {
+  width: 60%;
+  padding-left: var(--space-md);
+}
+
+.tree-container {
+  margin-top: var(--space-md);
+  background: #fafbff;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: var(--space-md);
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.tree-device {
+  margin-bottom: var(--space-md);
+}
+
+.tree-item.device {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  margin-bottom: 4px;
+}
+
+.tree-tags {
+  margin-left: 16px;
+  border-left: 2px dashed var(--color-border);
+  padding-left: 10px;
+}
+
+.tree-item.tag {
+  font-size: 13px;
+  margin: 2px 0;
+  color: var(--color-text-primary);
+}
+
+.tag-value {
+  color: var(--color-primary);
+  font-weight: 500;
+}
