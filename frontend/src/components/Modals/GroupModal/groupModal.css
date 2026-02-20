@@ -35,30 +35,30 @@
   min-height: 0
 }
 
-.device-header {
+.group-device-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 42px;
+  height: 40px;
   padding: 0 12px;
-  background: #e6e9f2;
+  background: #dfe4ff;
   border-radius: 6px;
   box-sizing: border-box;
 }
 
-.device-header h4 {
+.group-device-header h4 {
   margin: 0;
   font-size: 15px;
   font-weight: 600;
   line-height: 1;
   display: flex;
-  align-items: center
+  align-items: center;
 }
 
-.device-header button {
+.group-device-header button {
   height: 30px;
-  padding: 0 14px;
-  display: flex;
+  padding: 0 16px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   background: #2e7d32;

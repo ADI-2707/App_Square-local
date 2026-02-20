@@ -72,7 +72,7 @@ export default function GroupModal({ isOpen, onClose }) {
           </div>
 
           <div className="device-section">
-            <div className="device-header">
+            <div className="group-device-header">
               <h4>Devices</h4>
               <button onClick={() => setIsDeviceModalOpen(true)}>
                 + Add Device
