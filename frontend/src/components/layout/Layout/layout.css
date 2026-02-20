@@ -25,13 +25,16 @@
   box-shadow: var(--shadow-soft);
   overflow: auto;
   border: 1px solid var(--color-border);
+  overflow-x: auto;
+  overflow-y: auto;
+  max-width: 100%;
 }
 
 .recipe-matrix-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 800px;
-  table-layout: auto;
+  min-width: max-content;
+  table-layout: fixed;
 }
 
 .device-header {
@@ -86,6 +89,16 @@
   vertical-align: middle;
   display: table-cell;
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2
+}
+
+.recipe-matrix-table th,
+.recipe-matrix-table td {
+  width: 130px;
+  min-width: 130px;
+  max-width: 130px;
 }
 
 .tag-cell {
@@ -111,4 +124,13 @@
 
 .recipe-matrix-table thead tr:first-child th:last-child {
   border-right: none;
+}
+
+.recipe-matrix-container::-webkit-scrollbar {
+  height: 10px;
+}
+
+.recipe-matrix-container::-webkit-scrollbar-thumb {
+  background: #9aa3c7;
+  border-radius: 5px;
 }
