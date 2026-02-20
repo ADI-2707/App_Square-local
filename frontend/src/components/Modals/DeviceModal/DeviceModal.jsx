@@ -10,7 +10,7 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
   const addTag = () => {
     if (!tagName.trim()) return;
 
-    setTags([...tags, { name: tagName }]);
+    setTags((prev) => [...prev, { name: tagName }]);
     setTagName("");
   };
 
@@ -23,6 +23,7 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
     onSave(payload);
     setDeviceName("");
     setTags([]);
+    setTagName("");
     onClose();
   };
 
@@ -33,27 +34,32 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
       title="Create Device"
     >
       <div className="device-form">
-        <label>Device Name</label>
-        <input
-          type="text"
-          value={deviceName}
-          onChange={(e) => setDeviceName(e.target.value)}
-        />
+        <div className="form-field">
+          <label>Device Name</label>
+          <input
+            type="text"
+            value={deviceName}
+            onChange={(e) => setDeviceName(e.target.value)}
+          />
+        </div>
 
         <div className="tag-section">
-          <h4>Tags</h4>
+          <div className="tag-panel-header">
+            <h4>Tags</h4>
+          </div>
 
-          <div className="tag-input">
+          <div className="tag-input-row">
             <input
               type="text"
               placeholder="Tag Name"
               value={tagName}
               onChange={(e) => setTagName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addTag()}
             />
             <button onClick={addTag}>Add</button>
           </div>
 
-          <ul>
+          <ul className="tag-list">
             {tags.map((tag, index) => (
               <li key={index}>{tag.name}</li>
             ))}
