@@ -6,7 +6,6 @@ import api from "../../../Utility/api";
 import "./groupModal.css";
 
 export default function GroupModal({ isOpen, onClose }) {
-
   const { addFullTemplateGroup } = useEntities();
 
   const [groupName, setGroupName] = useState("");
@@ -15,17 +14,16 @@ export default function GroupModal({ isOpen, onClose }) {
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
 
   const addDevice = (deviceData) => {
-    setDevices(prev => [...prev, deviceData]);
+    setDevices((prev) => [...prev, deviceData]);
   };
 
   const handleSave = async () => {
-
     const payload = {
       name: groupName,
-      devices: devices.map(device => ({
+      devices: devices.map((device) => ({
         name: device.device_name,
         type: "generic",
-        tags: device.tags.map(tag => ({
+        tags: device.tags.map((tag) => ({
           name: tag.name,
         })),
       })),
@@ -33,7 +31,7 @@ export default function GroupModal({ isOpen, onClose }) {
 
     try {
       const response = await api.post("/templates/full", payload);
-      
+
       addFullTemplateGroup(response.data);
 
       setGroupName("");
@@ -55,19 +53,23 @@ export default function GroupModal({ isOpen, onClose }) {
         title="Create Template Group"
       >
         <div className="group-form">
-          <label>Group Name</label>
-          <input
-            type="text"
-            value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
-          />
+          <div className="form-field">
+            <label>Group Name</label>
+            <input
+              type="text"
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+            />
+          </div>
 
-          <label>Description</label>
-          <input
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+          <div className="form-field">
+            <label>Description</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
 
           <div className="device-section">
             <div className="device-header">

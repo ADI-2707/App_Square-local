@@ -1,45 +1,113 @@
 .group-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: 16px;
+  height: 100%;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.group-form label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--color-text, #2c2c2c);
 }
 
 .group-form input {
-  padding: 8px;
+  width: 100%;
+  padding: 10px 12px;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: #fff;
 }
 
 .device-section {
-  margin-top: var(--space-md);
   border-top: 1px solid var(--color-border);
-  padding-top: var(--space-md);
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0
 }
 
 .device-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 42px;
+  padding: 0 12px;
+  background: #e6e9f2;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.device-header h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  display: flex;
+  align-items: center
 }
 
 .device-header button {
-  padding: 6px 12px;
-  background: var(--color-primary);
+  height: 30px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2e7d32;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.device-section ul {
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: #fafbff;
+}
+
+.device-section li {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 14px;
+}
+
+.device-section li:last-child {
+  border-bottom: none;
 }
 
 .modal-actions {
-  margin-top: var(--space-lg);
-  text-align: right;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .modal-actions button {
-  padding: 8px 16px;
-  background: var(--color-primary);
+  min-width: 160px;
+  height: 40px;
+  background: #2e7d32;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 15px;
 }

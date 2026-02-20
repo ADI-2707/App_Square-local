@@ -9,13 +9,14 @@
 }
 
 .modal-container {
-  width: 600px;
-  max-height: 80vh;
+  width: 620px;
+  height: 520px;
   background: var(--color-surface);
-  border-radius: 8px;
+  border-radius: 10px;
   box-shadow: var(--shadow-medium);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .modal-header {
@@ -24,6 +25,7 @@
   align-items: center;
   padding: var(--space-md);
   border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 .modal-header h3 {
@@ -39,5 +41,8 @@
 
 .modal-body {
   padding: var(--space-lg);
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
 }
