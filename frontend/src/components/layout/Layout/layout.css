@@ -58,6 +58,19 @@
   color: var(--color-text-secondary);
 }
 
+.workspace-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-text-secondary);
+}
+
+.workspace-title {
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
 .recipe-matrix-table td {
   padding: 8px 10px;
   border-bottom: 1px solid var(--color-border);

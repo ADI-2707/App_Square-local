@@ -4,7 +4,6 @@ import Sidebar from "../Sidebar/Sidebar";
 
 import GroupModal from "../../Modals/GroupModal/GroupModal";
 import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
-import ViewRecipeModal from "../../Modals/ViewRecipeModal/ViewRecipeModal";
 
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import "./layout.css";
@@ -50,10 +49,15 @@ export default function Layout() {
 
       <div className="layout-content">
         {!activeRecipe ? (
-          <h2>Welcome to APP SQUARE</h2>
+          <div className="workspace-placeholder">
+            <h2>Welcome to APP SQUARE</h2>
+            <p>Select a recipe from the sidebar to open in workspace.</p>
+          </div>
         ) : (
           <div className="recipe-workspace">
-            <h2>Active Recipe: {activeRecipe.name}</h2>
+            <h2 className="workspace-title">
+              Active Recipe: {activeRecipe.name}
+            </h2>
 
             <div className="recipe-matrix-container">
               <table className="recipe-matrix-table">
@@ -85,12 +89,8 @@ export default function Layout() {
                     <tr key={`row-${rowIndex}`}>
                       {row.map((cell, colIndex) => (
                         <Fragment key={`cell-${rowIndex}-${colIndex}`}>
-                          <td className="tag-cell">
-                            {cell.tagName}
-                          </td>
-                          <td className="value-cell">
-                            {cell.value}
-                          </td>
+                          <td className="tag-cell">{cell.tagName}</td>
+                          <td className="value-cell">{cell.value}</td>
                         </Fragment>
                       ))}
                     </tr>
@@ -109,11 +109,6 @@ export default function Layout() {
 
       <RecipeModal
         isOpen={activeModal === "createRecipe"}
-        onClose={closeModal}
-      />
-
-      <ViewRecipeModal
-        isOpen={activeModal === "viewRecipe"}
         onClose={closeModal}
       />
     </div>

@@ -1,14 +1,26 @@
 import { useState, useEffect } from "react";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
+import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal }) {
   const { groups, devices, tags, loadGroups, loadDevices, loadTags } =
     useEntities();
 
+  const {
+    recipeGroups,
+    recipes,
+    loadRecipeGroups,
+    loadRecipesPaginated,
+    getFullRecipe,
+    openRecipeInWorkspace,
+  } = useRecipes();
+
   const [openSections, setOpenSections] = useState({});
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedDevices, setExpandedDevices] = useState({});
+  const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
+  const [loadedRecipeTemplates, setLoadedRecipeTemplates] = useState({});
 
   useEffect(() => {
     loadGroups();
@@ -41,6 +53,37 @@ export default function Sidebar({ onOpenModal }) {
       ...prev,
       [deviceId]: !prev[deviceId],
     }));
+  };
+
+  const handleTemplateClickForRecipes = async (templateId) => {
+    if (!loadedRecipeTemplates[templateId]) {
+      await loadRecipeGroups(templateId);
+      setLoadedRecipeTemplates((prev) => ({
+        ...prev,
+        [templateId]: true,
+      }));
+    }
+  };
+
+  const toggleRecipeGroup = async (group) => {
+    if (!expandedRecipeGroups[group.id]) {
+      await loadRecipesPaginated(group.id, 1);
+    }
+
+    setExpandedRecipeGroups((prev) => ({
+      ...prev,
+      [group.id]: !prev[group.id],
+    }));
+  };
+
+  const handleOpenRecipe = async (recipe) => {
+    try {
+      const fullRecipe = await getFullRecipe(recipe.id);
+      openRecipeInWorkspace(fullRecipe);
+    } catch (err) {
+      console.error("Failed to open recipe:", err);
+      alert("Failed to load recipe");
+    }
   };
 
   return (
@@ -127,9 +170,52 @@ export default function Sidebar({ onOpenModal }) {
               Create Recipe
             </button>
 
-            <button onClick={() => onOpenModal("viewRecipe")}>
-              View Recipes
-            </button>
+            {groups.allIds.length === 0 && (
+              <div className="tree-empty">No Templates Available</div>
+            )}
+
+            {groups.allIds.map((templateId) => {
+              const template = groups.byId[templateId];
+              const rGroups = recipeGroups[templateId] || [];
+
+              return (
+                <div key={`template-recipes-${templateId}`}>
+                  <div
+                    className="tree-item group-item"
+                    onClick={() => handleTemplateClickForRecipes(templateId)}
+                  >
+                    ▸ {template.name}
+                  </div>
+
+                  {rGroups.map((rGroup) => {
+                    const recipeList = recipes[rGroup.id]?.[1] || [];
+
+                    return (
+                      <div key={`rgroup-${rGroup.id}`} className="tree-device">
+                        <div
+                          className="tree-item device-item"
+                          onClick={() => toggleRecipeGroup(rGroup)}
+                        >
+                          {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}{" "}
+                          {rGroup.name}
+                        </div>
+
+                        {expandedRecipeGroups[rGroup.id] &&
+                          recipeList.map((recipe) => (
+                            <div
+                              key={recipe.id}
+                              className="tree-item tag-item recipe-item"
+                              onClick={() => handleOpenRecipe(recipe)}
+                            >
+                              • {recipe.name}
+                            </div>
+                          ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
