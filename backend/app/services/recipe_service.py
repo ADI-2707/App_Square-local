@@ -16,6 +16,7 @@ from app.models.user import User
 from app.services.log_service import add_log
 
 
+
 def create_recipe_group(
     db: Session,
     name: str,
@@ -26,21 +27,17 @@ def create_recipe_group(
     method = "POST"
 
     try:
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Admin access required")
+
         template_group = db.query(TemplateGroup).filter(
-            TemplateGroup.id == template_group_id
+            and_(
+                TemplateGroup.id == template_group_id,
+                TemplateGroup.is_deleted == False
+            )
         ).first()
 
         if not template_group:
-            add_log(
-                db=db,
-                user=current_user,
-                action="RECIPE_GROUP_CREATE",
-                status="FAILURE",
-                endpoint=endpoint,
-                method=method,
-                error_type="TEMPLATE_NOT_FOUND",
-                error_message="Template group not found"
-            )
             raise HTTPException(status_code=404, detail="Template group not found")
 
         existing = db.query(RecipeGroup).filter(
@@ -52,16 +49,6 @@ def create_recipe_group(
         ).first()
 
         if existing:
-            add_log(
-                db=db,
-                user=current_user,
-                action=f"RECIPE_GROUP_CREATE_{name.replace(' ','')}",
-                status="FAILURE",
-                endpoint=endpoint,
-                method=method,
-                error_type="DUPLICATE",
-                error_message="Recipe group already exists"
-            )
             raise HTTPException(status_code=400, detail="Recipe group already exists")
 
         group = RecipeGroup(
@@ -85,7 +72,17 @@ def create_recipe_group(
 
         return group
 
-    except HTTPException:
+    except HTTPException as e:
+        add_log(
+            db=db,
+            user=current_user,
+            action="RECIPE_GROUP_CREATE",
+            status="FAILURE",
+            endpoint=endpoint,
+            method=method,
+            error_type=str(e.status_code),
+            error_message=e.detail
+        )
         raise
 
     except Exception as e:
@@ -101,7 +98,8 @@ def create_recipe_group(
             error_message=str(e)
         )
         raise HTTPException(status_code=500, detail="Internal error")
-    
+
+
 
 def create_recipe(
     db: Session,
@@ -113,6 +111,9 @@ def create_recipe(
     method = "POST"
 
     try:
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Admin access required")
+
         group = db.query(RecipeGroup).filter(
             and_(
                 RecipeGroup.id == recipe_group_id,
@@ -121,16 +122,6 @@ def create_recipe(
         ).first()
 
         if not group:
-            add_log(
-                db=db,
-                user=current_user,
-                action="RECIPE_CREATE",
-                status="FAILURE",
-                endpoint=endpoint,
-                method=method,
-                error_type="GROUP_NOT_FOUND",
-                error_message="Recipe group not found"
-            )
             raise HTTPException(status_code=404, detail="Recipe group not found")
 
         existing = db.query(Recipe).filter(
@@ -142,16 +133,6 @@ def create_recipe(
         ).first()
 
         if existing:
-            add_log(
-                db=db,
-                user=current_user,
-                action=f"RECIPE_CREATE_{name.replace(' ','')}",
-                status="FAILURE",
-                endpoint=endpoint,
-                method=method,
-                error_type="DUPLICATE",
-                error_message="Recipe already exists"
-            )
             raise HTTPException(status_code=400, detail="Recipe already exists")
 
         recipe = Recipe(
@@ -163,12 +144,12 @@ def create_recipe(
         db.add(recipe)
         db.flush()
 
-        template_devices = (
-            db.query(DeviceInstance)
-            .filter(DeviceInstance.template_group_id == group.template_group_id)
-            .order_by(DeviceInstance.id)
-            .all()
-        )
+        template_devices = db.query(DeviceInstance).filter(
+            and_(
+                DeviceInstance.template_group_id == group.template_group_id,
+                DeviceInstance.is_deleted == False
+            )
+        ).order_by(DeviceInstance.id).all()
 
         for device in template_devices:
             recipe_device = RecipeDevice(
@@ -178,12 +159,9 @@ def create_recipe(
             db.add(recipe_device)
             db.flush()
 
-            tags = (
-                db.query(Tag)
-                .filter(Tag.device_instance_id == device.id)
-                .order_by(Tag.id)
-                .all()
-            )
+            tags = db.query(Tag).filter(
+                Tag.device_instance_id == device.id
+            ).order_by(Tag.id).all()
 
             tag_values = [
                 RecipeTagValue(
@@ -211,7 +189,17 @@ def create_recipe(
 
         return recipe
 
-    except HTTPException:
+    except HTTPException as e:
+        add_log(
+            db=db,
+            user=current_user,
+            action="RECIPE_CREATE",
+            status="FAILURE",
+            endpoint=endpoint,
+            method=method,
+            error_type=str(e.status_code),
+            error_message=e.detail
+        )
         raise
 
     except Exception as e:
@@ -230,11 +218,8 @@ def create_recipe(
 
 
 
-def get_recipe_groups_by_template(
-    db: Session,
-    template_group_id: int,
-    search: str | None = None
-):
+def get_recipe_groups_by_template(db: Session, template_group_id: int, search: str | None = None):
+
     query = db.query(RecipeGroup).filter(
         and_(
             RecipeGroup.template_group_id == template_group_id,
@@ -248,80 +233,44 @@ def get_recipe_groups_by_template(
     return query.order_by(RecipeGroup.created_at.desc()).all()
 
 
-def get_recipes_by_group_paginated(
-    db: Session,
-    recipe_group_id: int,
-    page: int = 1,
-    limit: int = 10
-):
+def get_recipes_by_group_paginated(db: Session, recipe_group_id: int, page: int = 1, limit: int = 10):
+
     offset = (page - 1) * limit
 
-    return (
-        db.query(Recipe)
-        .filter(
-            and_(
-                Recipe.recipe_group_id == recipe_group_id,
-                Recipe.is_deleted == False
-            )
+    return db.query(Recipe).filter(
+        and_(
+            Recipe.recipe_group_id == recipe_group_id,
+            Recipe.is_deleted == False
         )
-        .order_by(Recipe.created_at.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
+    ).order_by(Recipe.created_at.desc()).offset(offset).limit(limit).all()
 
 
-def get_full_recipe(
-    db: Session,
-    recipe_id: int
-):
-    recipe = (
-        db.query(Recipe)
-        .options(
-            selectinload(Recipe.devices).selectinload(RecipeDevice.tag_values)
+def get_full_recipe(db: Session, recipe_id: int):
+
+    recipe = db.query(Recipe).options(
+        selectinload(Recipe.devices).selectinload(RecipeDevice.tag_values)
+    ).filter(
+        and_(
+            Recipe.id == recipe_id,
+            Recipe.is_deleted == False
         )
-        .filter(
-            and_(
-                Recipe.id == recipe_id,
-                Recipe.is_deleted == False
-            )
-        )
-        .first()
-    )
+    ).first()
 
     if not recipe:
-        raise HTTPException(
-            status_code=404,
-            detail="Recipe not found"
-        )
+        raise HTTPException(status_code=404, detail="Recipe not found")
 
     return recipe
 
 
-def soft_delete_recipe(
-    db: Session,
-    recipe_id: int,
-    current_user: User
-):
+
+def soft_delete_recipe(db: Session, recipe_id: int, current_user: User):
+
     endpoint = f"/recipes/{recipe_id}"
     method = "DELETE"
 
     try:
         if current_user.role != "admin":
-            add_log(
-                db=db,
-                user=current_user,
-                action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
-                status="FAILURE",
-                endpoint=endpoint,
-                method=method,
-                error_type="AUTHORIZATION_ERROR",
-                error_message="Only admin can delete recipes"
-            )
-            raise HTTPException(
-                status_code=403,
-                detail="Only admin can delete recipes"
-            )
+            raise HTTPException(status_code=403, detail="Admin access required")
 
         recipe = db.query(Recipe).filter(
             and_(
@@ -331,29 +280,15 @@ def soft_delete_recipe(
         ).first()
 
         if not recipe:
-            add_log(
-                db=db,
-                user=current_user,
-                action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
-                status="FAILURE",
-                endpoint=endpoint,
-                method=method,
-                error_type="NOT_FOUND",
-                error_message="Recipe not found"
-            )
-            raise HTTPException(
-                status_code=404,
-                detail="Recipe not found"
-            )
+            raise HTTPException(status_code=404, detail="Recipe not found")
 
-        recipe_name_clean = recipe.name.replace(" ", "")
         recipe.is_deleted = True
         db.commit()
 
         add_log(
             db=db,
             user=current_user,
-            action=f"RECIPE_DELETE_{recipe_name_clean}",
+            action=f"RECIPE_DELETE_{recipe.name.replace(' ','')}",
             status="SUCCESS",
             endpoint=endpoint,
             method=method
@@ -361,24 +296,29 @@ def soft_delete_recipe(
 
         return {"message": "Recipe deleted successfully"}
 
-    except HTTPException:
+    except HTTPException as e:
+        add_log(
+            db=db,
+            user=current_user,
+            action="RECIPE_DELETE",
+            status="FAILURE",
+            endpoint=endpoint,
+            method=method,
+            error_type=str(e.status_code),
+            error_message=e.detail
+        )
         raise
 
     except Exception as e:
         db.rollback()
-
         add_log(
             db=db,
             user=current_user,
-            action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
+            action="RECIPE_DELETE",
             status="FAILURE",
             endpoint=endpoint,
             method=method,
             error_type="INTERNAL_ERROR",
             error_message=str(e)
         )
-
-        raise HTTPException(
-            status_code=500,
-            detail="Internal server error during recipe deletion"
-        )
+        raise HTTPException(status_code=500, detail="Internal error")
