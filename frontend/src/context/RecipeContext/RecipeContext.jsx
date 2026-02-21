@@ -4,33 +4,32 @@ import api from "../../Utility/api";
 const RecipeContext = createContext();
 
 export function RecipeProvider({ children }) {
-
   const [recipeGroups, setRecipeGroups] = useState({});
   const [recipes, setRecipes] = useState({});
   const [activeRecipe, setActiveRecipe] = useState(null);
 
   const loadRecipeGroups = async (templateGroupId, search = "") => {
     const res = await api.get(`/recipes/groups/${templateGroupId}`, {
-      params: { search }
+      params: { search },
     });
 
-    setRecipeGroups(prev => ({
+    setRecipeGroups((prev) => ({
       ...prev,
-      [templateGroupId]: res.data
+      [templateGroupId]: res.data,
     }));
   };
 
   const loadRecipesPaginated = async (recipeGroupId, page = 1) => {
     const res = await api.get(`/recipes/group/${recipeGroupId}`, {
-      params: { page, limit: 10 }
+      params: { page, limit: 10 },
     });
 
-    setRecipes(prev => ({
+    setRecipes((prev) => ({
       ...prev,
       [recipeGroupId]: {
         ...(prev[recipeGroupId] || {}),
-        [page]: res.data
-      }
+        [page]: res.data,
+      },
     }));
   };
 
@@ -48,26 +47,44 @@ export function RecipeProvider({ children }) {
   };
 
   const addRecipeGroupLocal = (templateGroupId, group) => {
-    setRecipeGroups(prev => ({
+    setRecipeGroups((prev) => ({
       ...prev,
-      [templateGroupId]: [
-        ...(prev[templateGroupId] || []),
-        group
-      ]
+      [templateGroupId]: [...(prev[templateGroupId] || []), group],
     }));
   };
 
   const addRecipeLocal = (recipeGroupId, recipe) => {
-    setRecipes(prev => ({
+    setRecipes((prev) => ({
       ...prev,
       [recipeGroupId]: {
         ...(prev[recipeGroupId] || {}),
-        1: [
-          recipe,
-          ...((prev[recipeGroupId]?.[1]) || [])
-        ]
-      }
+        1: [recipe, ...(prev[recipeGroupId]?.[1] || [])],
+      },
     }));
+  };
+
+  const deleteRecipe = async (recipeId, recipeGroupId) => {
+    await api.delete(`/recipes/${recipeId}`);
+
+    setRecipes((prev) => {
+      const groupData = prev[recipeGroupId] || {};
+      const updatedPages = {};
+
+      Object.keys(groupData).forEach((page) => {
+        updatedPages[page] = groupData[page].filter(
+          (recipe) => recipe.id !== recipeId,
+        );
+      });
+
+      return {
+        ...prev,
+        [recipeGroupId]: updatedPages,
+      };
+    });
+
+    if (activeRecipe?.id === recipeId) {
+      setActiveRecipe(null);
+    }
   };
 
   return (
@@ -82,7 +99,8 @@ export function RecipeProvider({ children }) {
         openRecipeInWorkspace,
         clearActiveRecipe,
         addRecipeGroupLocal,
-        addRecipeLocal
+        addRecipeLocal,
+        deleteRecipe,
       }}
     >
       {children}
