@@ -12,8 +12,9 @@ from app.schemas.recipe_schema import (
 
 from app.commands.recipe_commands import create_recipe
 
-from app.services.recipe_service import (
+from app.commands.recipe_commands import (
     create_recipe_group,
+    create_recipe,
     soft_delete_recipe
 )
 
