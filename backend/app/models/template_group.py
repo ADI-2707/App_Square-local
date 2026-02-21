@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -15,4 +15,14 @@ class TemplateGroup(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    devices = relationship("DeviceInstance", back_populates="group", cascade="all, delete")
+    is_deleted = Column(
+        Boolean,
+        default=False,
+        nullable=False,
+        index=True
+    )
+
+    devices = relationship(
+        "DeviceInstance",
+        back_populates="group"
+    )
