@@ -219,17 +219,11 @@ def soft_delete_recipe(
     endpoint = f"/recipes/{recipe_id}"
     method = "DELETE"
 
-    actor = None
-    if current_user.username == "admin":
-        actor = "A"
-    elif current_user.username == "guest":
-        actor = "G"
-
     try:
         if current_user.role != "admin":
             add_log(
                 db=db,
-                actor=actor,
+                user=current_user,
                 action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
                 status="FAILURE",
                 endpoint=endpoint,
@@ -252,7 +246,7 @@ def soft_delete_recipe(
         if not recipe:
             add_log(
                 db=db,
-                actor=actor,
+                user=current_user,
                 action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
                 status="FAILURE",
                 endpoint=endpoint,
@@ -271,13 +265,11 @@ def soft_delete_recipe(
 
         add_log(
             db=db,
-            actor=actor,
+            user=current_user,
             action=f"RECIPE_DELETE_{recipe_name_clean}",
             status="SUCCESS",
             endpoint=endpoint,
-            method=method,
-            error_type=None,
-            error_message=None
+            method=method
         )
 
         return {"message": "Recipe deleted successfully"}
@@ -290,7 +282,7 @@ def soft_delete_recipe(
 
         add_log(
             db=db,
-            actor=actor,
+            user=current_user,
             action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
             status="FAILURE",
             endpoint=endpoint,
