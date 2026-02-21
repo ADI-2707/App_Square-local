@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from typing import List
 
+from app.services.recipe_service import soft_delete_recipe
 from app.utils.dependencies import get_db, get_current_user
 from app.schemas.recipe_schema import (
     RecipeGroupCreate,
@@ -99,4 +100,18 @@ def get_full_recipe_route(
     return get_full_recipe(
         db=db,
         recipe_id=recipe_id
+    )
+
+
+
+@router.delete("/{recipe_id}")
+def delete_recipe_route(
+    recipe_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return soft_delete_recipe(
+        db=db,
+        recipe_id=recipe_id,
+        current_user=current_user
     )
