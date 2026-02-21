@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session, joinedload, selectinload
+from datetime import datetime
 from fastapi import HTTPException
 from sqlalchemy import and_
 from app.models.recipe import (
@@ -10,7 +11,9 @@ from app.models.recipe import (
 from app.models.template_group import TemplateGroup
 from app.models.device import DeviceInstance
 from app.models.tag import Tag
+from app.models.user import User
 
+from app.services.log_service import add_log
 
 def create_recipe_group(
     db: Session,
@@ -216,3 +219,43 @@ def get_full_recipe(
         )
 
     return recipe
+
+
+def soft_delete_recipe(
+    db: Session,
+    recipe_id: int,
+    current_user: User
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Only admin can delete recipes"
+        )
+
+    recipe = db.query(Recipe).filter(
+        and_(
+            Recipe.id == recipe_id,
+            Recipe.is_deleted == False
+        )
+    ).first()
+
+    if not recipe:
+        raise HTTPException(
+            status_code=404,
+            detail="Recipe not found"
+        )
+
+    recipe.is_deleted = True
+
+    db.commit()
+
+    add_log(
+        db=db,
+        actor=current_user.username,
+        action=f"Soft deleted recipe: {recipe.name}",
+        status="SUCCESS",
+        endpoint=f"/recipes/{recipe_id}",
+        method="DELETE"
+    )
+
+    return {"message": "Recipe deleted successfully"}
