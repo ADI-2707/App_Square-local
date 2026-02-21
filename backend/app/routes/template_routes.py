@@ -7,12 +7,15 @@ from app.schemas.template_schema import (
     DeviceResponse,
     TagResponse
 )
-from app.services.template_service import (
+from app.commands.template_commands import (
     create_full_template_group,
+    soft_delete_template_group
+)
+
+from app.services.template_service import (
     get_all_groups,
     get_devices_by_group,
-    get_tags_by_device,
-    soft_delete_template_group
+    get_tags_by_device
 )
 
 router = APIRouter(prefix="/templates", tags=["Templates"])
@@ -23,13 +26,11 @@ def create_full_group(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin access required"
-        )
-
-    return create_full_template_group(db, data, current_user.id)
+    return create_full_template_group(
+        db=db,
+        data=data,
+        current_user=current_user
+    )
 
 
 @router.get("/groups", response_model=list[TemplateGroupResponse])

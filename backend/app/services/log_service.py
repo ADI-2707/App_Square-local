@@ -47,7 +47,6 @@ def add_log(
         )
 
         db.add(log)
-        db.commit()
 
     except Exception:
         db.rollback()
