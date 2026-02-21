@@ -144,3 +144,23 @@
   font-size: 12px;
   opacity: 0.7;
 }
+
+.context-menu {
+  position: absolute;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 4px;
+  padding: 5px 0;
+  z-index: 9999;
+  min-width: 120px;
+}
+
+.context-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.context-item:hover {
+  background-color: #374151;
+}

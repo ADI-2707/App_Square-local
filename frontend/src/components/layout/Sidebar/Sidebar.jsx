@@ -7,6 +7,8 @@ export default function Sidebar({ onOpenModal }) {
   const { groups, devices, tags, loadGroups, loadDevices, loadTags } =
     useEntities();
 
+  const { user } = useAuth();
+
   const {
     recipeGroups,
     recipes,
@@ -14,6 +16,7 @@ export default function Sidebar({ onOpenModal }) {
     loadRecipesPaginated,
     getFullRecipe,
     openRecipeInWorkspace,
+    deleteRecipe,
   } = useRecipes();
 
   const [openSections, setOpenSections] = useState({});
@@ -84,6 +87,40 @@ export default function Sidebar({ onOpenModal }) {
       console.error("Failed to open recipe:", err);
       alert("Failed to load recipe");
     }
+  };
+
+  const handleRightClick = (e, recipe, recipeGroupId) => {
+    e.preventDefault();
+
+    if (user?.role !== "admin") return;
+
+    setContextMenu({
+      x: e.pageX,
+      y: e.pageY,
+      recipe,
+      recipeGroupId,
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!contextMenu) return;
+
+    const confirmed = window.confirm(
+      `Delete recipe "${contextMenu.recipe.name}"?`,
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteRecipe(
+        contextMenu.recipe.id,
+        contextMenu.recipe.recipe_group_id,
+      );
+    } catch (err) {
+      alert("Delete failed");
+    }
+
+    setContextMenu(null);
   };
 
   return (
@@ -206,6 +243,9 @@ export default function Sidebar({ onOpenModal }) {
                               key={recipe.id}
                               className="tree-item tag-item recipe-item"
                               onClick={() => handleOpenRecipe(recipe)}
+                              onContextMenu={(e) =>
+                                handleRightClick(e, recipe, rGroup.id)
+                              }
                             >
                               • {recipe.name}
                             </div>
@@ -219,6 +259,20 @@ export default function Sidebar({ onOpenModal }) {
           </div>
         )}
       </div>
+      {contextMenu && (
+        <div
+          className="context-menu"
+          style={{
+            top: contextMenu.y,
+            left: contextMenu.x,
+          }}
+          onMouseLeave={() => setContextMenu(null)}
+        >
+          <div className="context-item" onClick={handleDelete}>
+            Delete
+          </div>
+        </div>
+      )}
     </div>
   );
 }
