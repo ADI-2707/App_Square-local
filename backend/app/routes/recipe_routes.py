@@ -12,10 +12,12 @@ from app.schemas.recipe_schema import (
 from app.services.recipe_service import (
     create_recipe_group,
     create_recipe,
+    soft_delete_recipe
+)
+from app.queries.recipe_queries import (
     get_recipe_groups_by_template,
     get_recipes_by_group_paginated,
-    get_full_recipe,
-    soft_delete_recipe
+    get_full_recipe
 )
 
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
