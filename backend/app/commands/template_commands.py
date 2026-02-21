@@ -104,6 +104,6 @@ def soft_delete_template_group(
         rg.is_deleted = True
         db.query(Recipe).filter(
             Recipe.recipe_group_id == rg.id
-        ).update({"is_deleted": True})
+        ).update({"is_deleted": True}, synchronize_session=False)
 
     return {"message": "Template group deleted successfully"}

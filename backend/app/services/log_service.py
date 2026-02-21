@@ -7,9 +7,6 @@ RETENTION_DAYS = 90
 
 
 def _resolve_actor(user: User | None) -> str:
-    """
-    Centralized actor mapping logic.
-    """
     if not user:
         return "SYS"
 
