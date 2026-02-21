@@ -3,23 +3,38 @@ from fastapi import HTTPException, status
 from app.models.template_group import TemplateGroup
 from app.models.device import DeviceInstance
 from app.models.tag import Tag
+from app.models.user import User
+from app.services.log_service import add_log
 
-def create_full_template_group(db: Session, data, user_id: int):
+def create_full_template_group(db: Session, data, current_user: User):
 
-    existing = db.query(TemplateGroup).filter(
-        TemplateGroup.name == data.name
-    ).first()
-
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Template group already exists"
-        )
+    endpoint = "/templates/full"
+    method = "POST"
 
     try:
+        existing = db.query(TemplateGroup).filter(
+            TemplateGroup.name == data.name
+        ).first()
+
+        if existing:
+            add_log(
+                db=db,
+                user=current_user,
+                action=f"TEMPLATE_CREATE_{data.name.replace(' ','')}",
+                status="FAILURE",
+                endpoint=endpoint,
+                method=method,
+                error_type="DUPLICATE",
+                error_message="Template group already exists"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Template group already exists"
+            )
+
         group = TemplateGroup(
             name=data.name,
-            created_by=user_id
+            created_by=current_user.id
         )
 
         db.add(group)
@@ -45,11 +60,33 @@ def create_full_template_group(db: Session, data, user_id: int):
         db.commit()
         db.refresh(group)
 
+        add_log(
+            db=db,
+            user=current_user,
+            action=f"TEMPLATE_CREATE_{group.name.replace(' ','')}",
+            status="SUCCESS",
+            endpoint=endpoint,
+            method=method
+        )
+
         return group
 
-    except Exception:
-        db.rollback()
+    except HTTPException:
         raise
+
+    except Exception as e:
+        db.rollback()
+        add_log(
+            db=db,
+            user=current_user,
+            action="TEMPLATE_CREATE",
+            status="FAILURE",
+            endpoint=endpoint,
+            method=method,
+            error_type="INTERNAL_ERROR",
+            error_message=str(e)
+        )
+        raise HTTPException(status_code=500, detail="Internal error")
 
 
 def get_all_groups(db: Session):
