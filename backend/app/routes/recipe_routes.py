@@ -15,7 +15,8 @@ from app.services.recipe_service import (
     create_recipe,
     get_recipe_groups_by_template,
     get_recipes_by_group_paginated,
-    get_full_recipe
+    get_full_recipe,
+    soft_delete_recipe
 )
 
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
