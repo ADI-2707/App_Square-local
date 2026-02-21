@@ -11,7 +11,8 @@ from app.services.template_service import (
     create_full_template_group,
     get_all_groups,
     get_devices_by_group,
-    get_tags_by_device
+    get_tags_by_device,
+    soft_delete_template_group
 )
 
 router = APIRouter(prefix="/templates", tags=["Templates"])
@@ -55,3 +56,12 @@ def list_tags(
     current_user = Depends(get_current_user)
 ):
     return get_tags_by_device(db, device_id)
+
+
+@router.delete("/{group_id}")
+def delete_template_group(
+    group_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return soft_delete_template_group(db, group_id, current_user)
