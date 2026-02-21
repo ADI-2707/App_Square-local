@@ -226,36 +226,91 @@ def soft_delete_recipe(
     recipe_id: int,
     current_user: User
 ):
-    if current_user.role != "admin":
+    endpoint = f"/recipes/{recipe_id}"
+    method = "DELETE"
+
+    # Actor mapping (match login logs exactly)
+    actor = None
+    if current_user.username == "admin":
+        actor = "A"
+    elif current_user.username == "guest":
+        actor = "G"
+
+    try:
+        if current_user.role != "admin":
+            add_log(
+                db=db,
+                actor=actor,
+                action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
+                status="FAILURE",
+                endpoint=endpoint,
+                method=method,
+                error_type="AUTHORIZATION_ERROR",
+                error_message="Only admin can delete recipes"
+            )
+            raise HTTPException(
+                status_code=403,
+                detail="Only admin can delete recipes"
+            )
+
+        recipe = db.query(Recipe).filter(
+            and_(
+                Recipe.id == recipe_id,
+                Recipe.is_deleted == False
+            )
+        ).first()
+
+        if not recipe:
+            add_log(
+                db=db,
+                actor=actor,
+                action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
+                status="FAILURE",
+                endpoint=endpoint,
+                method=method,
+                error_type="NOT_FOUND",
+                error_message="Recipe not found"
+            )
+            raise HTTPException(
+                status_code=404,
+                detail="Recipe not found"
+            )
+
+        recipe_name_clean = recipe.name.replace(" ", "")
+        recipe.is_deleted = True
+        db.commit()
+
+        add_log(
+            db=db,
+            actor=actor,
+            action=f"RECIPE_DELETE_{recipe_name_clean}",
+            status="SUCCESS",
+            endpoint=endpoint,
+            method=method,
+            error_type=None,
+            error_message=None
+        )
+
+        return {"message": "Recipe deleted successfully"}
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        db.rollback()
+
+        add_log(
+            db=db,
+            actor=actor,
+            action=f"RECIPE_DELETE_ATTEMPT_{recipe_id}",
+            status="FAILURE",
+            endpoint=endpoint,
+            method=method,
+            error_type="INTERNAL_ERROR",
+            error_message=str(e)
+        )
+
         raise HTTPException(
-            status_code=403,
-            detail="Only admin can delete recipes"
+            status_code=500,
+            detail="Internal server error during recipe deletion"
         )
-
-    recipe = db.query(Recipe).filter(
-        and_(
-            Recipe.id == recipe_id,
-            Recipe.is_deleted == False
-        )
-    ).first()
-
-    if not recipe:
-        raise HTTPException(
-            status_code=404,
-            detail="Recipe not found"
-        )
-
-    recipe.is_deleted = True
-
-    db.commit()
-
-    add_log(
-        db=db,
-        actor=current_user.username,
-        action=f"Soft deleted recipe: {recipe.name}",
-        status="SUCCESS",
-        endpoint=f"/recipes/{recipe_id}",
-        method="DELETE"
-    )
-
-    return {"message": "Recipe deleted successfully"}
