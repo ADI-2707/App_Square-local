@@ -43,10 +43,11 @@ def change_password(
 
     add_log(
         db=db,
-        actor="A",
+        user=current_user,
         action="PASSWORD_CHANGE",
         status="SUCCESS"
     )
+    db.commit()
 
     return {"message": f"{request.target_user} password updated successfully"}
 
