@@ -1,7 +1,8 @@
-from sqlalchemy.orm import Session, joinedload, selectinload
+from sqlalchemy.orm import Session, selectinload
 from datetime import datetime
 from fastapi import HTTPException
 from sqlalchemy import and_
+
 from app.models.recipe import (
     RecipeGroup,
     Recipe,
@@ -14,6 +15,7 @@ from app.models.tag import Tag
 from app.models.user import User
 
 from app.services.log_service import add_log
+
 
 def create_recipe_group(
     db: Session,
@@ -58,7 +60,6 @@ def create_recipe_group(
     return group
 
 
-
 def create_recipe(
     db: Session,
     name: str,
@@ -97,6 +98,7 @@ def create_recipe(
         recipe_group_id=recipe_group_id,
         created_by=user_id
     )
+
     db.add(recipe)
     db.flush()
 
@@ -106,11 +108,6 @@ def create_recipe(
         .order_by(DeviceInstance.id)
         .all()
     )
-
-    if not template_devices:
-        db.commit()
-        db.refresh(recipe)
-        return recipe
 
     for device in template_devices:
         recipe_device = RecipeDevice(
@@ -126,9 +123,6 @@ def create_recipe(
             .order_by(Tag.id)
             .all()
         )
-
-        if not tags:
-            continue
 
         tag_values = [
             RecipeTagValue(
@@ -167,7 +161,6 @@ def get_recipe_groups_by_template(
     return query.order_by(RecipeGroup.created_at.desc()).all()
 
 
-
 def get_recipes_by_group_paginated(
     db: Session,
     recipe_group_id: int,
@@ -176,7 +169,7 @@ def get_recipes_by_group_paginated(
 ):
     offset = (page - 1) * limit
 
-    recipes = (
+    return (
         db.query(Recipe)
         .filter(
             and_(
@@ -189,9 +182,6 @@ def get_recipes_by_group_paginated(
         .limit(limit)
         .all()
     )
-
-    return recipes
-
 
 
 def get_full_recipe(
@@ -229,7 +219,6 @@ def soft_delete_recipe(
     endpoint = f"/recipes/{recipe_id}"
     method = "DELETE"
 
-    # Actor mapping (match login logs exactly)
     actor = None
     if current_user.username == "admin":
         actor = "A"
