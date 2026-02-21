@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session, selectinload
-from datetime import datetime
 from fastapi import HTTPException
 from sqlalchemy import and_
 
@@ -9,11 +8,11 @@ from app.models.recipe import (
     RecipeDevice,
     RecipeTagValue
 )
+
 from app.models.template_group import TemplateGroup
 from app.models.device import DeviceInstance
 from app.models.tag import Tag
 from app.models.user import User
-
 from app.services.log_service import add_log
 
 
@@ -21,125 +20,213 @@ def create_recipe_group(
     db: Session,
     name: str,
     template_group_id: int,
-    user_id: int
+    current_user: User
 ):
-    template_group = db.query(TemplateGroup).filter(
-        TemplateGroup.id == template_group_id
-    ).first()
+    endpoint = "/recipes/groups"
+    method = "POST"
 
-    if not template_group:
-        raise HTTPException(
-            status_code=404,
-            detail="Template group not found"
+    try:
+        template_group = db.query(TemplateGroup).filter(
+            TemplateGroup.id == template_group_id
+        ).first()
+
+        if not template_group:
+            add_log(
+                db=db,
+                user=current_user,
+                action="RECIPE_GROUP_CREATE",
+                status="FAILURE",
+                endpoint=endpoint,
+                method=method,
+                error_type="TEMPLATE_NOT_FOUND",
+                error_message="Template group not found"
+            )
+            raise HTTPException(status_code=404, detail="Template group not found")
+
+        existing = db.query(RecipeGroup).filter(
+            and_(
+                RecipeGroup.template_group_id == template_group_id,
+                RecipeGroup.name == name,
+                RecipeGroup.is_deleted == False
+            )
+        ).first()
+
+        if existing:
+            add_log(
+                db=db,
+                user=current_user,
+                action=f"RECIPE_GROUP_CREATE_{name.replace(' ','')}",
+                status="FAILURE",
+                endpoint=endpoint,
+                method=method,
+                error_type="DUPLICATE",
+                error_message="Recipe group already exists"
+            )
+            raise HTTPException(status_code=400, detail="Recipe group already exists")
+
+        group = RecipeGroup(
+            name=name.strip(),
+            template_group_id=template_group_id,
+            created_by=current_user.id
         )
 
-    existing = db.query(RecipeGroup).filter(
-        and_(
-            RecipeGroup.template_group_id == template_group_id,
-            RecipeGroup.name == name,
-            RecipeGroup.is_deleted == False
+        db.add(group)
+        db.commit()
+        db.refresh(group)
+
+        add_log(
+            db=db,
+            user=current_user,
+            action=f"RECIPE_GROUP_CREATE_{group.name.replace(' ','')}",
+            status="SUCCESS",
+            endpoint=endpoint,
+            method=method
         )
-    ).first()
 
-    if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="Recipe group already exists for this template"
+        return group
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        db.rollback()
+        add_log(
+            db=db,
+            user=current_user,
+            action="RECIPE_GROUP_CREATE",
+            status="FAILURE",
+            endpoint=endpoint,
+            method=method,
+            error_type="INTERNAL_ERROR",
+            error_message=str(e)
         )
-
-    group = RecipeGroup(
-        name=name.strip(),
-        template_group_id=template_group_id,
-        created_by=user_id
-    )
-
-    db.add(group)
-    db.commit()
-    db.refresh(group)
-
-    return group
-
+        raise HTTPException(status_code=500, detail="Internal error")
+    
 
 def create_recipe(
     db: Session,
     name: str,
     recipe_group_id: int,
-    user_id: int
+    current_user: User
 ):
-    group = db.query(RecipeGroup).filter(
-        and_(
-            RecipeGroup.id == recipe_group_id,
-            RecipeGroup.is_deleted == False
+    endpoint = "/recipes"
+    method = "POST"
+
+    try:
+        group = db.query(RecipeGroup).filter(
+            and_(
+                RecipeGroup.id == recipe_group_id,
+                RecipeGroup.is_deleted == False
+            )
+        ).first()
+
+        if not group:
+            add_log(
+                db=db,
+                user=current_user,
+                action="RECIPE_CREATE",
+                status="FAILURE",
+                endpoint=endpoint,
+                method=method,
+                error_type="GROUP_NOT_FOUND",
+                error_message="Recipe group not found"
+            )
+            raise HTTPException(status_code=404, detail="Recipe group not found")
+
+        existing = db.query(Recipe).filter(
+            and_(
+                Recipe.recipe_group_id == recipe_group_id,
+                Recipe.name == name,
+                Recipe.is_deleted == False
+            )
+        ).first()
+
+        if existing:
+            add_log(
+                db=db,
+                user=current_user,
+                action=f"RECIPE_CREATE_{name.replace(' ','')}",
+                status="FAILURE",
+                endpoint=endpoint,
+                method=method,
+                error_type="DUPLICATE",
+                error_message="Recipe already exists"
+            )
+            raise HTTPException(status_code=400, detail="Recipe already exists")
+
+        recipe = Recipe(
+            name=name.strip(),
+            recipe_group_id=recipe_group_id,
+            created_by=current_user.id
         )
-    ).first()
 
-    if not group:
-        raise HTTPException(
-            status_code=404,
-            detail="Recipe group not found"
-        )
-
-    existing = db.query(Recipe).filter(
-        and_(
-            Recipe.recipe_group_id == recipe_group_id,
-            Recipe.name == name,
-            Recipe.is_deleted == False
-        )
-    ).first()
-
-    if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="Recipe already exists in this group"
-        )
-
-    recipe = Recipe(
-        name=name.strip(),
-        recipe_group_id=recipe_group_id,
-        created_by=user_id
-    )
-
-    db.add(recipe)
-    db.flush()
-
-    template_devices = (
-        db.query(DeviceInstance)
-        .filter(DeviceInstance.template_group_id == group.template_group_id)
-        .order_by(DeviceInstance.id)
-        .all()
-    )
-
-    for device in template_devices:
-        recipe_device = RecipeDevice(
-            recipe_id=recipe.id,
-            device_name=device.name
-        )
-        db.add(recipe_device)
+        db.add(recipe)
         db.flush()
 
-        tags = (
-            db.query(Tag)
-            .filter(Tag.device_instance_id == device.id)
-            .order_by(Tag.id)
+        template_devices = (
+            db.query(DeviceInstance)
+            .filter(DeviceInstance.template_group_id == group.template_group_id)
+            .order_by(DeviceInstance.id)
             .all()
         )
 
-        tag_values = [
-            RecipeTagValue(
-                recipe_device_id=recipe_device.id,
-                tag_name=tag.name,
-                data_type=tag.data_type,
-                value="0"
+        for device in template_devices:
+            recipe_device = RecipeDevice(
+                recipe_id=recipe.id,
+                device_name=device.name
             )
-            for tag in tags
-        ]
+            db.add(recipe_device)
+            db.flush()
 
-        db.add_all(tag_values)
+            tags = (
+                db.query(Tag)
+                .filter(Tag.device_instance_id == device.id)
+                .order_by(Tag.id)
+                .all()
+            )
 
-    db.commit()
-    db.refresh(recipe)
+            tag_values = [
+                RecipeTagValue(
+                    recipe_device_id=recipe_device.id,
+                    tag_name=tag.name,
+                    data_type=tag.data_type,
+                    value="0"
+                )
+                for tag in tags
+            ]
 
-    return recipe
+            db.add_all(tag_values)
+
+        db.commit()
+        db.refresh(recipe)
+
+        add_log(
+            db=db,
+            user=current_user,
+            action=f"RECIPE_CREATE_{recipe.name.replace(' ','')}",
+            status="SUCCESS",
+            endpoint=endpoint,
+            method=method
+        )
+
+        return recipe
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        db.rollback()
+        add_log(
+            db=db,
+            user=current_user,
+            action="RECIPE_CREATE",
+            status="FAILURE",
+            endpoint=endpoint,
+            method=method,
+            error_type="INTERNAL_ERROR",
+            error_message=str(e)
+        )
+        raise HTTPException(status_code=500, detail="Internal error")
 
 
 
