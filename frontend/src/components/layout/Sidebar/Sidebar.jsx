@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
+import { useAuth } from "../../../context/AuthContext/AuthContext";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal }) {
   const { groups, devices, tags, loadGroups, loadDevices, loadTags } =
     useEntities();
 
-  const { user } = useAuth();
+  const { role } = useAuth();
 
   const {
     recipeGroups,
@@ -19,6 +20,7 @@ export default function Sidebar({ onOpenModal }) {
     deleteRecipe,
   } = useRecipes();
 
+  const [contextMenu, setContextMenu] = useState(null);
   const [openSections, setOpenSections] = useState({});
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedDevices, setExpandedDevices] = useState({});
@@ -92,7 +94,7 @@ export default function Sidebar({ onOpenModal }) {
   const handleRightClick = (e, recipe, recipeGroupId) => {
     e.preventDefault();
 
-    if (user?.role !== "admin") return;
+    if (role !== "admin") return;
 
     setContextMenu({
       x: e.pageX,
@@ -114,7 +116,7 @@ export default function Sidebar({ onOpenModal }) {
     try {
       await deleteRecipe(
         contextMenu.recipe.id,
-        contextMenu.recipe.recipe_group_id,
+        contextMenu.recipeGroupId,
       );
     } catch (err) {
       alert("Delete failed");
