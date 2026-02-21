@@ -25,5 +25,8 @@ def get_devices_by_group(db: Session, group_id: int):
 
 def get_tags_by_device(db: Session, device_id: int):
     return db.query(Tag).filter(
-        Tag.device_instance_id == device_id
+        and_(
+            Tag.device_instance_id == device_id,
+            Tag.is_deleted == False
+        )
     ).all()

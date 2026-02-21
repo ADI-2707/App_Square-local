@@ -87,7 +87,14 @@ def soft_delete_template_group(
 
     db.query(DeviceInstance).filter(
         DeviceInstance.template_group_id == group_id
-    ).update({"is_deleted": True})
+    ).update({"is_deleted": True}, synchronize_session=False)
+
+    db.query(Tag).filter(
+        Tag.device_instance_id.in_(
+            db.query(DeviceInstance.id)
+            .filter(DeviceInstance.template_group_id == group_id)
+        )
+    ).update({"is_deleted": True}, synchronize_session=False)
 
     recipe_groups = db.query(RecipeGroup).filter(
         RecipeGroup.template_group_id == group_id

@@ -49,7 +49,7 @@ def add_log(
         db.add(log)
 
     except Exception:
-        db.rollback()
+        pass
 
 
 def cleanup_old_logs(db: Session):

@@ -50,6 +50,7 @@ class RecipeGroup(Base):
         UniqueConstraint(
             "template_group_id",
             "name",
+            "is_deleted",
             name="uq_recipe_group_template_name"
         ),
     )
@@ -98,6 +99,7 @@ class Recipe(Base):
         UniqueConstraint(
             "recipe_group_id",
             "name",
+            "is_deleted",
             name="uq_recipe_name_per_group"
         ),
     )

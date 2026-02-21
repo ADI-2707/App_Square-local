@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -29,6 +29,13 @@ class Tag(Base):
         DateTime,
         default=datetime.utcnow,
         nullable=False
+    )
+
+    is_deleted = Column(
+        Boolean,
+        default=False,
+        nullable=False,
+        index=True
     )
 
     device = relationship("DeviceInstance", back_populates="tags")
