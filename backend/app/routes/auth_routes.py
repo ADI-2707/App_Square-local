@@ -34,6 +34,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
                 error_type="INVALID_USERNAME",
                 error_message="Invalid credentials"
             )
+            db.commit()
 
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -51,6 +52,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
                 error_type="ACCOUNT_BLOCKED",
                 error_message="Account temporarily locked"
             )
+            db.commit()
 
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -79,6 +81,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
                 error_type="INVALID_PASSWORD",
                 error_message="Invalid credentials"
             )
+            db.commit()
 
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -97,6 +100,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             endpoint=endpoint,
             method=method
         )
+        db.commit()
 
         token = create_access_token({
             "sub": user.username,
@@ -124,6 +128,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             error_type="INTERNAL_ERROR",
             error_message=str(e)
         )
+        db.commit()
 
         raise HTTPException(
             status_code=500,
