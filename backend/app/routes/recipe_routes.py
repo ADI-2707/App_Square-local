@@ -32,7 +32,7 @@ def create_group(
         db=db,
         name=data.name,
         template_group_id=data.template_group_id,
-        user_id=current_user.id
+        current_user=current_user
     )
 
 
@@ -65,7 +65,7 @@ def create_recipe_route(
         db=db,
         name=data.name,
         recipe_group_id=data.recipe_group_id,
-        user_id=current_user.id
+        current_user=current_user
     )
 
 
