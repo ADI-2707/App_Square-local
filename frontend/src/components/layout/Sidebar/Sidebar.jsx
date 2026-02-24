@@ -5,9 +5,7 @@ import { useAuth } from "../../../context/AuthContext/AuthContext";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal }) {
-  const { groups, devices, tags, loadGroups, loadDevices, loadTags } =
-    useEntities();
-
+  const { groups, devices, loadGroups, loadDevices } = useEntities();
   const { role } = useAuth();
 
   const {
@@ -28,9 +26,9 @@ export default function Sidebar({ onOpenModal }) {
   });
 
   const [expandedGroups, setExpandedGroups] = useState({});
-  const [expandedDevices, setExpandedDevices] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
-  const [loadedRecipeTemplates, setLoadedRecipeTemplates] = useState({});
+  const [expandedTemplatesForRecipes, setExpandedTemplatesForRecipes] =
+    useState({});
 
   useEffect(() => {
     loadGroups();
@@ -38,12 +36,12 @@ export default function Sidebar({ onOpenModal }) {
 
   const hasTemplates = groups.allIds.length > 0;
 
-  const toggleSection = (sectionName) => {
-    if (sectionName === "recipes" && !hasTemplates) return;
+  const toggleSection = (section) => {
+    if (section === "recipes" && !hasTemplates) return;
 
     setOpenSections((prev) => ({
       ...prev,
-      [sectionName]: !prev[sectionName],
+      [section]: !prev[section],
     }));
   };
 
@@ -58,25 +56,15 @@ export default function Sidebar({ onOpenModal }) {
     }));
   };
 
-  const toggleDevice = async (deviceId) => {
-    if (!expandedDevices[deviceId]) {
-      await loadTags(deviceId);
-    }
-
-    setExpandedDevices((prev) => ({
-      ...prev,
-      [deviceId]: !prev[deviceId],
-    }));
-  };
-
-  const handleTemplateClickForRecipes = async (templateId) => {
-    if (!loadedRecipeTemplates[templateId]) {
+  const toggleTemplateForRecipes = async (templateId) => {
+    if (!expandedTemplatesForRecipes[templateId]) {
       await loadRecipeGroups(templateId);
-      setLoadedRecipeTemplates((prev) => ({
-        ...prev,
-        [templateId]: true,
-      }));
     }
+
+    setExpandedTemplatesForRecipes((prev) => ({
+      ...prev,
+      [templateId]: !prev[templateId],
+    }));
   };
 
   const toggleRecipeGroup = async (group) => {
@@ -94,7 +82,7 @@ export default function Sidebar({ onOpenModal }) {
     try {
       const fullRecipe = await getFullRecipe(recipe.id);
       openRecipeInWorkspace(fullRecipe);
-    } catch (err) {
+    } catch {
       alert("Failed to load recipe");
     }
   };
@@ -152,56 +140,34 @@ export default function Sidebar({ onOpenModal }) {
               Create Template
             </button>
 
-            {!hasTemplates && (
-              <div className="tree-empty-centered">
-                NO TEMPLATES
-              </div>
-            )}
-
             {groups.allIds.map((groupId) => {
               const group = groups.byId[groupId];
               const deviceIds = devices.byGroupId[groupId] || [];
 
               return (
-                <div key={groupId}>
+                <div key={groupId} className="tree-node">
                   <div
-                    className="tree-item group-item"
+                    className="tree-item expandable"
                     onClick={() => toggleGroup(groupId)}
                   >
                     {expandedGroups[groupId] ? "▾" : "▸"} {group.name}
                   </div>
 
-                  {expandedGroups[groupId] &&
-                    deviceIds.map((deviceId) => {
-                      const device = devices.byId[deviceId];
-                      const tagIds = tags.byDeviceId[deviceId] || [];
+                  {expandedGroups[groupId] && (
+                    <div className="tree-children">
+                      {deviceIds.map((deviceId) => {
+                        const device = devices.byId[deviceId];
 
-                      return (
-                        <div key={deviceId} className="tree-device">
-                          <div
-                            className="tree-item device-item"
-                            onClick={() => toggleDevice(deviceId)}
-                          >
-                            {expandedDevices[deviceId] ? "▾" : "▸"}{" "}
-                            {device.name}
+                        return (
+                          <div key={deviceId} className="tree-node">
+                            <div className="tree-item leaf">
+                              {device.name}
+                            </div>
                           </div>
-
-                          {expandedDevices[deviceId] &&
-                            tagIds.map((tagId) => {
-                              const tag = tags.byId[tagId];
-
-                              return (
-                                <div
-                                  key={tagId}
-                                  className="tree-item tag-item"
-                                >
-                                  {tag.name}
-                                </div>
-                              );
-                            })}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
@@ -230,59 +196,70 @@ export default function Sidebar({ onOpenModal }) {
               const rGroups = recipeGroups[templateId] || [];
 
               return (
-                <div key={`template-recipes-${templateId}`}>
+                <div key={templateId} className="tree-node">
                   <div
-                    className="tree-item group-item"
+                    className="tree-item expandable"
                     onClick={() =>
-                      handleTemplateClickForRecipes(templateId)
+                      toggleTemplateForRecipes(templateId)
                     }
                   >
-                    ▸ {template.name}
+                    {expandedTemplatesForRecipes[templateId]
+                      ? "▾"
+                      : "▸"}{" "}
+                    {template.name}
                   </div>
 
-                  {rGroups.map((rGroup) => {
-                    const recipeList =
-                      recipes[rGroup.id]?.[1] || [];
+                  {expandedTemplatesForRecipes[templateId] && (
+                    <div className="tree-children">
+                      {rGroups.map((rGroup) => {
+                        const recipeList =
+                          recipes[rGroup.id]?.[1] || [];
 
-                    return (
-                      <div
-                        key={`rgroup-${rGroup.id}`}
-                        className="tree-device"
-                      >
-                        <div
-                          className="tree-item device-item"
-                          onClick={() =>
-                            toggleRecipeGroup(rGroup)
-                          }
-                        >
-                          {expandedRecipeGroups[rGroup.id]
-                            ? "▾"
-                            : "▸"}{" "}
-                          {rGroup.name}
-                        </div>
-
-                        {expandedRecipeGroups[rGroup.id] &&
-                          recipeList.map((recipe) => (
+                        return (
+                          <div key={rGroup.id} className="tree-node">
                             <div
-                              key={recipe.id}
-                              className="tree-item tag-item recipe-item"
+                              className="tree-item expandable"
                               onClick={() =>
-                                handleOpenRecipe(recipe)
-                              }
-                              onContextMenu={(e) =>
-                                handleRightClick(
-                                  e,
-                                  recipe,
-                                  rGroup.id
-                                )
+                                toggleRecipeGroup(rGroup)
                               }
                             >
-                              • {recipe.name}
+                              {expandedRecipeGroups[rGroup.id]
+                                ? "▾"
+                                : "▸"}{" "}
+                              {rGroup.name}
                             </div>
-                          ))}
-                      </div>
-                    );
-                  })}
+
+                            {expandedRecipeGroups[rGroup.id] && (
+                              <div className="tree-children">
+                                {recipeList.map((recipe) => (
+                                  <div
+                                    key={recipe.id}
+                                    className="tree-node"
+                                  >
+                                    <div
+                                      className="tree-item leaf"
+                                      onClick={() =>
+                                        handleOpenRecipe(recipe)
+                                      }
+                                      onContextMenu={(e) =>
+                                        handleRightClick(
+                                          e,
+                                          recipe,
+                                          rGroup.id
+                                        )
+                                      }
+                                    >
+                                      {recipe.name}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}
