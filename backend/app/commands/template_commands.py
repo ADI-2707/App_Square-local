@@ -1,15 +1,10 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
 from fastapi import HTTPException
 
-from app.models.template_group import TemplateGroup
-from app.models.device import DeviceInstance
-from app.models.tag import Tag
-from app.models.recipe import RecipeGroup, Recipe
 from app.models.user import User
-
 from app.core.transaction import transactional
 from app.core.command_logger import command_logger
+from app.queries import template_queries
 
 
 @transactional
@@ -24,39 +19,31 @@ def create_full_template_group(
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin required")
 
-    existing = db.query(TemplateGroup).filter(
-        and_(
-            TemplateGroup.name == data.name,
-            TemplateGroup.is_deleted == False
-        )
-    ).first()
+    existing = template_queries.get_template_group_by_name(db, data.name)
 
     if existing:
         raise HTTPException(status_code=400, detail="Template group already exists")
 
-    group = TemplateGroup(
-        name=data.name.strip(),
-        created_by=current_user.id
+    group = template_queries.create_template_group(
+        db,
+        data.name,
+        current_user.id
     )
 
-    db.add(group)
-    db.flush()
-
     for device_data in data.devices:
-        device = DeviceInstance(
-            name=device_data.name.strip(),
-            type=device_data.type,
-            template_group_id=group.id
+        device = template_queries.create_device_instance(
+            db,
+            device_data.name,
+            device_data.type,
+            group.id
         )
-        db.add(device)
-        db.flush()
 
         for tag_data in device_data.tags:
-            tag = Tag(
-                name=tag_data.name.strip(),
-                device_instance_id=device.id
+            template_queries.create_tag(
+                db,
+                tag_data.name,
+                device.id
             )
-            db.add(tag)
 
     return group
 
@@ -73,37 +60,11 @@ def soft_delete_template_group(
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin required")
 
-    group = db.query(TemplateGroup).filter(
-        and_(
-            TemplateGroup.id == group_id,
-            TemplateGroup.is_deleted == False
-        )
-    ).first()
+    group = template_queries.get_template_group_by_id(db, group_id)
 
     if not group:
         raise HTTPException(status_code=404, detail="Template group not found")
 
-    group.is_deleted = True
-
-    db.query(DeviceInstance).filter(
-        DeviceInstance.template_group_id == group_id
-    ).update({"is_deleted": True}, synchronize_session=False)
-
-    db.query(Tag).filter(
-        Tag.device_instance_id.in_(
-            db.query(DeviceInstance.id)
-            .filter(DeviceInstance.template_group_id == group_id)
-        )
-    ).update({"is_deleted": True}, synchronize_session=False)
-
-    recipe_groups = db.query(RecipeGroup).filter(
-        RecipeGroup.template_group_id == group_id
-    ).all()
-
-    for rg in recipe_groups:
-        rg.is_deleted = True
-        db.query(Recipe).filter(
-            Recipe.recipe_group_id == rg.id
-        ).update({"is_deleted": True}, synchronize_session=False)
+    template_queries.soft_delete_template_group_cascade(db, group)
 
     return {"message": "Template group deleted successfully"}
