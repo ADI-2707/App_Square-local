@@ -7,8 +7,8 @@ from app.core.command_logger import command_logger
 from app.queries import template_queries
 
 
-@transactional
 @command_logger(action="TEMPLATE_CREATE")
+@transactional
 def create_full_template_group(
     db: Session,
     data,
@@ -47,8 +47,8 @@ def create_full_template_group(
     return group
 
 
-@transactional
 @command_logger(action="TEMPLATE_DELETE")
+@transactional
 def soft_delete_template_group(
     db: Session,
     group_id: int,
