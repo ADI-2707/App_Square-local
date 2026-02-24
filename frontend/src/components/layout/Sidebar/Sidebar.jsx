@@ -210,6 +210,7 @@ export default function Sidebar({ onOpenModal }) {
         )}
       </div>
 
+
       <div className="sidebar-section">
         <div
           className={`sidebar-title ${
@@ -229,6 +230,8 @@ export default function Sidebar({ onOpenModal }) {
             {groups.allIds.map((templateId) => {
               const template = groups.byId[templateId];
               const rGroups = recipeGroups[templateId] || [];
+
+              if (!rGroups.length) return null;
 
               return (
                 <div key={`template-recipes-${templateId}`}>
