@@ -1,21 +1,10 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, Request
-from sqlalchemy import and_
 
-from app.models.recipe import (
-    RecipeGroup,
-    Recipe,
-    RecipeDevice,
-    RecipeTagValue
-)
-from app.models.template_group import TemplateGroup
-from app.models.device import DeviceInstance
-from app.models.tag import Tag
 from app.models.user import User
-
 from app.core.transaction import transactional
 from app.core.command_logger import command_logger
-
+from app.queries import recipe_queries
 
 
 @transactional
@@ -31,26 +20,23 @@ def create_recipe_group(
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin required")
 
-    existing = db.query(RecipeGroup).filter(
-        and_(
-            RecipeGroup.template_group_id == template_group_id,
-            RecipeGroup.name == name,
-            RecipeGroup.is_deleted == False
-        )
-    ).first()
+    existing = recipe_queries.get_recipe_group_by_name(
+        db,
+        template_group_id,
+        name
+    )
 
     if existing:
         raise HTTPException(status_code=400, detail="Recipe group already exists")
 
-    group = RecipeGroup(
-        name=name.strip(),
-        template_group_id=template_group_id,
-        created_by=current_user.id
+    group = recipe_queries.create_recipe_group(
+        db,
+        name,
+        template_group_id,
+        current_user.id
     )
 
-    db.add(group)
     return group
-
 
 
 @transactional
@@ -66,75 +52,57 @@ def create_recipe(
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin required")
 
-    group = db.query(RecipeGroup).filter(
-        and_(
-            RecipeGroup.id == recipe_group_id,
-            RecipeGroup.is_deleted == False
-        )
-    ).first()
+    group = recipe_queries.get_recipe_group_by_id(db, recipe_group_id)
 
     if not group:
         raise HTTPException(status_code=404, detail="Recipe group not found")
 
-    existing = db.query(Recipe).filter(
-        and_(
-            Recipe.recipe_group_id == recipe_group_id,
-            Recipe.name == name,
-            Recipe.is_deleted == False
-        )
-    ).first()
+    existing = recipe_queries.get_recipe_by_name(
+        db,
+        recipe_group_id,
+        name
+    )
 
     if existing:
         raise HTTPException(status_code=400, detail="Recipe already exists")
 
-    recipe = Recipe(
-        name=name.strip(),
-        recipe_group_id=recipe_group_id,
-        created_by=current_user.id
+    recipe = recipe_queries.create_recipe(
+        db,
+        name,
+        recipe_group_id,
+        current_user.id
     )
 
-    db.add(recipe)
-    db.flush()
-
-    template_group = db.query(TemplateGroup).filter(
-        and_(
-            TemplateGroup.id == group.template_group_id,
-            TemplateGroup.is_deleted == False
-        )
-    ).first()
+    template_group = recipe_queries.get_template_group_for_recipe(
+        db,
+        group
+    )
 
     if not template_group:
         raise HTTPException(status_code=404, detail="Template group not found")
 
     for device in template_group.devices:
-
         if device.is_deleted:
             continue
 
-        recipe_device = RecipeDevice(
-            recipe_id=recipe.id,
-            device_name=device.name
+        recipe_device = recipe_queries.create_recipe_device(
+            db,
+            recipe.id,
+            device.name
         )
 
-        db.add(recipe_device)
-        db.flush()
-
         for tag in device.tags:
-
             if tag.is_deleted:
                 continue
 
-            recipe_tag_value = RecipeTagValue(
-                recipe_device_id=recipe_device.id,
-                tag_name=tag.name,
-                data_type=tag.data_type,
-                value="0"
+            recipe_queries.create_recipe_tag_value(
+                db,
+                recipe_device.id,
+                tag.name,
+                tag.data_type
             )
 
-            db.add(recipe_tag_value)
-
     return recipe
-
 
 
 @transactional
@@ -149,15 +117,11 @@ def soft_delete_recipe(
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin required")
 
-    recipe = db.query(Recipe).filter(
-        and_(
-            Recipe.id == recipe_id,
-            Recipe.is_deleted == False
-        )
-    ).first()
+    recipe = recipe_queries.get_recipe_by_id(db, recipe_id)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    recipe.is_deleted = True
+    recipe_queries.soft_delete_recipe(db, recipe)
+
     return {"message": "Recipe deleted successfully"}
