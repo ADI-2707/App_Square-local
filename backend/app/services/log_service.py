@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-from app.models.log import Log
 from app.models.user import User
-from app.database import SessionLocal
+from app.queries import log_queries
 
 RETENTION_DAYS = 90
 
@@ -35,31 +33,20 @@ def add_log(
     if actor is None:
         return
 
-    log_db = SessionLocal()
-
     try:
-        log = Log(
+        log_queries.create_log(
+            db=db,
             actor=actor,
             action=action,
             status=status,
             endpoint=endpoint,
             method=method,
             error_type=error_type,
-            error_message=error_message,
-            timestamp=datetime.utcnow()
+            error_message=error_message
         )
-
-        log_db.add(log)
-        log_db.commit()
-
     except Exception:
-        log_db.rollback()
-
-    finally:
-        log_db.close()
+        pass
 
 
 def cleanup_old_logs(db: Session):
-    cutoff_date = datetime.utcnow() - timedelta(days=RETENTION_DAYS)
-    db.query(Log).filter(Log.timestamp < cutoff_date).delete()
-    db.commit()
+    log_queries.delete_older_than(db, RETENTION_DAYS)
