@@ -12,6 +12,8 @@ export default function Layout() {
   const [activeModal, setActiveModal] = useState(null);
   const { activeRecipe } = useRecipes();
 
+  console.log("ACTIVE RECIPE:", activeRecipe);
+
   const closeModal = () => {
     setActiveModal(null);
   };

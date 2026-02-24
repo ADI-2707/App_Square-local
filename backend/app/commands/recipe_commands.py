@@ -2,8 +2,17 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from sqlalchemy import and_
 
-from app.models.recipe import RecipeGroup, Recipe
+from app.models.recipe import (
+    RecipeGroup,
+    Recipe,
+    RecipeDevice,
+    RecipeTagValue
+)
+from app.models.template_group import TemplateGroup
+from app.models.device import DeviceInstance
+from app.models.tag import Tag
 from app.models.user import User
+
 from app.core.transaction import transactional
 from app.core.command_logger import command_logger
 
@@ -80,6 +89,7 @@ def create_recipe(
     if existing:
         raise HTTPException(status_code=400, detail="Recipe already exists")
 
+    # 3️⃣ Create recipe
     recipe = Recipe(
         name=name.strip(),
         recipe_group_id=recipe_group_id,
@@ -87,6 +97,45 @@ def create_recipe(
     )
 
     db.add(recipe)
+    db.flush()
+
+    template_group = db.query(TemplateGroup).filter(
+        and_(
+            TemplateGroup.id == group.template_group_id,
+            TemplateGroup.is_deleted == False
+        )
+    ).first()
+
+    if not template_group:
+        raise HTTPException(status_code=404, detail="Template group not found")
+
+    for device in template_group.devices:
+
+        if device.is_deleted:
+            continue
+
+        recipe_device = RecipeDevice(
+            recipe_id=recipe.id,
+            device_name=device.name
+        )
+
+        db.add(recipe_device)
+        db.flush()
+
+        for tag in device.tags:
+
+            if tag.is_deleted:
+                continue
+
+            recipe_tag_value = RecipeTagValue(
+                recipe_device_id=recipe_device.id,
+                tag_name=tag.name,
+                data_type=tag.data_type,
+                value="0"
+            )
+
+            db.add(recipe_tag_value)
+
     return recipe
 
 

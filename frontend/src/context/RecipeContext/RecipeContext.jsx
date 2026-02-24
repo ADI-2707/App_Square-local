@@ -38,8 +38,13 @@ export function RecipeProvider({ children }) {
     return res.data;
   };
 
-  const openRecipeInWorkspace = (fullRecipe) => {
-    setActiveRecipe(fullRecipe);
+  const openRecipeInWorkspace = async (recipe) => {
+    try {
+      const fullRecipe = await getFullRecipe(recipe.id);
+      setActiveRecipe(fullRecipe);
+    } catch (error) {
+      console.error("Failed to load full recipe:", error);
+    }
   };
 
   const clearActiveRecipe = () => {

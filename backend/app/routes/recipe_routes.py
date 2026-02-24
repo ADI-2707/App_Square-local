@@ -7,7 +7,8 @@ from app.schemas.recipe_schema import (
     RecipeGroupCreate,
     RecipeGroupResponse,
     RecipeCreate,
-    RecipeResponse
+    RecipeResponse,
+    FullRecipeResponse
 )
 
 from app.commands.recipe_commands import (
@@ -94,7 +95,7 @@ def list_recipes(
 
 
 
-@router.get("/{recipe_id}/full")
+@router.get("/{recipe_id}/full", response_model=FullRecipeResponse)
 def get_full_recipe_route(
     recipe_id: int,
     db: Session = Depends(get_db),
