@@ -44,3 +44,13 @@ def create_user(db: Session, username: str, hashed_password: str, role: str):
     )
     db.add(user)
     return user
+
+
+def update_password_and_increment_token(
+    db: Session,
+    user: User,
+    hashed_password: str
+):
+    user.hashed_password = hashed_password
+    user.token_version += 1
+    db.add(user)
