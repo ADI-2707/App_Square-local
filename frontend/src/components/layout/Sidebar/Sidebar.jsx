@@ -21,7 +21,12 @@ export default function Sidebar({ onOpenModal }) {
   } = useRecipes();
 
   const [contextMenu, setContextMenu] = useState(null);
-  const [openSections, setOpenSections] = useState({});
+
+  const [openSections, setOpenSections] = useState({
+    templates: false,
+    recipes: false,
+  });
+
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedDevices, setExpandedDevices] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
@@ -31,7 +36,11 @@ export default function Sidebar({ onOpenModal }) {
     loadGroups();
   }, []);
 
+  const hasTemplates = groups.allIds.length > 0;
+
   const toggleSection = (sectionName) => {
+    if (sectionName === "recipes" && !hasTemplates) return;
+
     setOpenSections((prev) => ({
       ...prev,
       [sectionName]: !prev[sectionName],
@@ -93,7 +102,6 @@ export default function Sidebar({ onOpenModal }) {
 
   const handleRightClick = (e, recipe, recipeGroupId) => {
     e.preventDefault();
-
     if (role !== "admin") return;
 
     setContextMenu({
@@ -108,15 +116,14 @@ export default function Sidebar({ onOpenModal }) {
     if (!contextMenu) return;
 
     const confirmed = window.confirm(
-      `Delete recipe "${contextMenu.recipe.name}"?`,
+      `Delete recipe "${contextMenu.recipe.name}"?`
     );
-
     if (!confirmed) return;
 
     try {
       await deleteRecipe(
         contextMenu.recipe.id,
-        contextMenu.recipeGroupId,
+        contextMenu.recipeGroupId
       );
     } catch (err) {
       alert("Delete failed");
@@ -146,8 +153,10 @@ export default function Sidebar({ onOpenModal }) {
               Create Template
             </button>
 
-            {groups.allIds.length === 0 && (
-              <div className="tree-empty">No Templates Yet</div>
+            {!hasTemplates && (
+              <div className="tree-empty-centered">
+                NO TEMPLATES
+              </div>
             )}
 
             {groups.allIds.map((groupId) => {
@@ -183,7 +192,10 @@ export default function Sidebar({ onOpenModal }) {
                               const tag = tags.byId[tagId];
 
                               return (
-                                <div key={tagId} className="tree-item tag-item">
+                                <div
+                                  key={tagId}
+                                  className="tree-item tag-item"
+                                >
                                   {tag.name}
                                 </div>
                               );
@@ -199,19 +211,20 @@ export default function Sidebar({ onOpenModal }) {
       </div>
 
       <div className="sidebar-section">
-        <div className="sidebar-title" onClick={() => toggleSection("recipes")}>
+        <div
+          className={`sidebar-title ${
+            !hasTemplates ? "disabled-section" : ""
+          }`}
+          onClick={() => hasTemplates && toggleSection("recipes")}
+        >
           {openSections.recipes ? "▾" : "▸"} Recipes
         </div>
 
-        {openSections.recipes && (
+        {openSections.recipes && hasTemplates && (
           <div className="sidebar-submenu">
             <button onClick={() => onOpenModal("createRecipe")}>
               Create Recipe
             </button>
-
-            {groups.allIds.length === 0 && (
-              <div className="tree-empty">No Templates Available</div>
-            )}
 
             {groups.allIds.map((templateId) => {
               const template = groups.byId[templateId];
@@ -221,21 +234,31 @@ export default function Sidebar({ onOpenModal }) {
                 <div key={`template-recipes-${templateId}`}>
                   <div
                     className="tree-item group-item"
-                    onClick={() => handleTemplateClickForRecipes(templateId)}
+                    onClick={() =>
+                      handleTemplateClickForRecipes(templateId)
+                    }
                   >
                     ▸ {template.name}
                   </div>
 
                   {rGroups.map((rGroup) => {
-                    const recipeList = recipes[rGroup.id]?.[1] || [];
+                    const recipeList =
+                      recipes[rGroup.id]?.[1] || [];
 
                     return (
-                      <div key={`rgroup-${rGroup.id}`} className="tree-device">
+                      <div
+                        key={`rgroup-${rGroup.id}`}
+                        className="tree-device"
+                      >
                         <div
                           className="tree-item device-item"
-                          onClick={() => toggleRecipeGroup(rGroup)}
+                          onClick={() =>
+                            toggleRecipeGroup(rGroup)
+                          }
                         >
-                          {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}{" "}
+                          {expandedRecipeGroups[rGroup.id]
+                            ? "▾"
+                            : "▸"}{" "}
                           {rGroup.name}
                         </div>
 
@@ -244,9 +267,15 @@ export default function Sidebar({ onOpenModal }) {
                             <div
                               key={recipe.id}
                               className="tree-item tag-item recipe-item"
-                              onClick={() => handleOpenRecipe(recipe)}
+                              onClick={() =>
+                                handleOpenRecipe(recipe)
+                              }
                               onContextMenu={(e) =>
-                                handleRightClick(e, recipe, rGroup.id)
+                                handleRightClick(
+                                  e,
+                                  recipe,
+                                  rGroup.id
+                                )
                               }
                             >
                               • {recipe.name}
@@ -261,6 +290,7 @@ export default function Sidebar({ onOpenModal }) {
           </div>
         )}
       </div>
+
       {contextMenu && (
         <div
           className="context-menu"
