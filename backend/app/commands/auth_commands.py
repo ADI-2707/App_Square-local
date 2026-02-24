@@ -3,7 +3,6 @@ from datetime import datetime
 from fastapi import HTTPException, Request
 
 from app.schemas.user_schema import LoginRequest
-from app.models.user import User
 from app.utils.security import verify_password
 from app.utils.jwt_handler import create_access_token
 from app.core.transaction import transactional
@@ -27,7 +26,10 @@ def login_command(
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     if user.blocked_until and datetime.utcnow() < user.blocked_until:
-        raise HTTPException(status_code=429, detail="Account temporarily locked")
+        raise HTTPException(
+            status_code=429,
+            detail="Account temporarily locked due to multiple failed login attempts"
+        )
 
     if not verify_password(request_data.password, user.hashed_password):
 
