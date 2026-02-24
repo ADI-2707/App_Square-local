@@ -8,7 +8,6 @@ from app.services.log_service import cleanup_old_logs
 from app.utils.error_middleware import ExceptionLoggingMiddleware
 from contextlib import asynccontextmanager
 from app.config import ALLOWED_ORIGINS
-from app.utils.logging_middleware import LoggingMiddleware
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,7 +36,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(LoggingMiddleware)
 app.add_middleware(ExceptionLoggingMiddleware)
 
 app.include_router(auth_routes.router)

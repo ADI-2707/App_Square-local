@@ -6,9 +6,9 @@ from app.models.user import User
 RETENTION_DAYS = 90
 
 
-def _resolve_actor(user: User | None) -> str:
+def _resolve_actor(user: User | None) -> str | None:
     if not user:
-        return "SYS"
+        return None
 
     if user.username == "admin":
         return "A"
@@ -16,7 +16,7 @@ def _resolve_actor(user: User | None) -> str:
     if user.username == "guest":
         return "G"
 
-    return user.username[:5].upper()
+    return None
 
 
 def add_log(
@@ -29,24 +29,23 @@ def add_log(
     error_type: str = None,
     error_message: str = None
 ):
-    try:
-        actor = _resolve_actor(user)
+    actor = _resolve_actor(user)
 
-        log = Log(
-            actor=actor,
-            action=action,
-            status=status,
-            endpoint=endpoint,
-            method=method,
-            error_type=error_type,
-            error_message=error_message,
-            timestamp=datetime.utcnow()
-        )
+    if actor is None:
+        return
 
-        db.add(log)
+    log = Log(
+        actor=actor,
+        action=action,
+        status=status,
+        endpoint=endpoint,
+        method=method,
+        error_type=error_type,
+        error_message=error_message,
+        timestamp=datetime.utcnow()
+    )
 
-    except Exception:
-        pass
+    db.add(log)
 
 
 def cleanup_old_logs(db: Session):
