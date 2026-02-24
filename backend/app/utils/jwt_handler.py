@@ -1,8 +1,10 @@
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from fastapi import HTTPException, status
+
 from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
-from app.models.user import User
+from app.queries import user_queries
+
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -24,7 +26,7 @@ def decode_access_token(token: str, db, return_payload: bool = False):
                 detail="Invalid token payload"
             )
 
-        user = db.query(User).filter(User.username == username).first()
+        user = user_queries.get_by_username(db, username)
 
         if not user:
             raise HTTPException(
