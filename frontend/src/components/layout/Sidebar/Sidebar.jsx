@@ -95,7 +95,6 @@ export default function Sidebar({ onOpenModal }) {
       const fullRecipe = await getFullRecipe(recipe.id);
       openRecipeInWorkspace(fullRecipe);
     } catch (err) {
-      console.error("Failed to open recipe:", err);
       alert("Failed to load recipe");
     }
   };
@@ -125,7 +124,7 @@ export default function Sidebar({ onOpenModal }) {
         contextMenu.recipe.id,
         contextMenu.recipeGroupId
       );
-    } catch (err) {
+    } catch {
       alert("Delete failed");
     }
 
@@ -210,7 +209,6 @@ export default function Sidebar({ onOpenModal }) {
         )}
       </div>
 
-
       <div className="sidebar-section">
         <div
           className={`sidebar-title ${
@@ -230,8 +228,6 @@ export default function Sidebar({ onOpenModal }) {
             {groups.allIds.map((templateId) => {
               const template = groups.byId[templateId];
               const rGroups = recipeGroups[templateId] || [];
-
-              if (!rGroups.length) return null;
 
               return (
                 <div key={`template-recipes-${templateId}`}>
