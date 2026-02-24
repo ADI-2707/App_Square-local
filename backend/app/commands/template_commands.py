@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 
 from app.models.user import User
 from app.core.transaction import transactional
@@ -13,8 +13,7 @@ def create_full_template_group(
     db: Session,
     data,
     current_user: User,
-    endpoint: str = "/templates/full",
-    method: str = "POST"
+    request: Request = None
 ):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin required")
@@ -25,24 +24,24 @@ def create_full_template_group(
         raise HTTPException(status_code=400, detail="Template group already exists")
 
     group = template_queries.create_template_group(
-        db,
-        data.name,
-        current_user.id
+        db=db,
+        name=data.name,
+        created_by=current_user.id
     )
 
     for device_data in data.devices:
         device = template_queries.create_device_instance(
-            db,
-            device_data.name,
-            device_data.type,
-            group.id
+            db=db,
+            name=device_data.name,
+            type=device_data.type,
+            group_id=group.id
         )
 
         for tag_data in device_data.tags:
             template_queries.create_tag(
-                db,
-                tag_data.name,
-                device.id
+                db=db,
+                name=tag_data.name,
+                device_id=device.id
             )
 
     return group
@@ -54,8 +53,7 @@ def soft_delete_template_group(
     db: Session,
     group_id: int,
     current_user: User,
-    endpoint: str = None,
-    method: str = "DELETE"
+    request: Request = None
 ):
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin required")

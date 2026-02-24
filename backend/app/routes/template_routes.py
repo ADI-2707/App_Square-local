@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from app.utils.dependencies import get_db, get_current_user
 from app.schemas.template_schema import (
@@ -22,6 +22,7 @@ router = APIRouter(prefix="/templates", tags=["Templates"])
 
 @router.post("/full", response_model=TemplateGroupResponse)
 def create_full_group(
+    request: Request,
     data: TemplateGroupFullCreate,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
@@ -29,7 +30,8 @@ def create_full_group(
     return create_full_template_group(
         db=db,
         data=data,
-        current_user=current_user
+        current_user=current_user,
+        request=request
     )
 
 
@@ -62,7 +64,13 @@ def list_tags(
 @router.delete("/{group_id}")
 def delete_template_group(
     group_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return soft_delete_template_group(db, group_id, current_user)
+    return soft_delete_template_group(
+        db=db,
+        group_id=group_id,
+        current_user=current_user,
+        request=request
+    )
