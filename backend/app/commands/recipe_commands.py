@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from sqlalchemy import and_
 
 from app.models.recipe import (
@@ -25,8 +25,7 @@ def create_recipe_group(
     name: str,
     template_group_id: int,
     current_user: User,
-    endpoint: str = "/recipes/groups",
-    method: str = "POST"
+    request: Request = None
 ):
 
     if current_user.role != "admin":
@@ -61,8 +60,7 @@ def create_recipe(
     name: str,
     recipe_group_id: int,
     current_user: User,
-    endpoint: str = "/recipes",
-    method: str = "POST"
+    request: Request = None
 ):
 
     if current_user.role != "admin":
@@ -89,7 +87,6 @@ def create_recipe(
     if existing:
         raise HTTPException(status_code=400, detail="Recipe already exists")
 
-    # 3️⃣ Create recipe
     recipe = Recipe(
         name=name.strip(),
         recipe_group_id=recipe_group_id,
@@ -146,8 +143,7 @@ def soft_delete_recipe(
     db: Session,
     recipe_id: int,
     current_user: User,
-    endpoint: str = None,
-    method: str = "DELETE"
+    request: Request = None
 ):
 
     if current_user.role != "admin":

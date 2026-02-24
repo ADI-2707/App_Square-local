@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 from typing import List
 
@@ -29,6 +29,7 @@ router = APIRouter(prefix="/recipes", tags=["Recipes"])
 
 @router.post("/groups", response_model=RecipeGroupResponse)
 def create_group(
+    request: Request,
     data: RecipeGroupCreate,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
@@ -37,7 +38,8 @@ def create_group(
         db=db,
         name=data.name,
         template_group_id=data.template_group_id,
-        current_user=current_user
+        current_user=current_user,
+        request=request
     )
 
 
@@ -59,9 +61,9 @@ def list_recipe_groups(
     )
 
 
-
 @router.post("", response_model=RecipeResponse)
 def create_recipe_route(
+    request: Request,
     data: RecipeCreate,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
@@ -70,9 +72,9 @@ def create_recipe_route(
         db=db,
         name=data.name,
         recipe_group_id=data.recipe_group_id,
-        current_user=current_user
+        current_user=current_user,
+        request=request
     )
-
 
 
 @router.get(
@@ -110,6 +112,7 @@ def get_full_recipe_route(
 
 @router.delete("/{recipe_id}")
 def delete_recipe_route(
+    request: Request,
     recipe_id: int,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
@@ -117,5 +120,6 @@ def delete_recipe_route(
     return soft_delete_recipe(
         db=db,
         recipe_id=recipe_id,
-        current_user=current_user
+        current_user=current_user,
+        request=request
     )

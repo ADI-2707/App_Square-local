@@ -1,5 +1,5 @@
 from functools import wraps
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from app.services.log_service import add_log
 
 
@@ -12,9 +12,13 @@ def command_logger(action: str):
 
             db = kwargs.get("db")
             current_user = kwargs.get("current_user")
+            request: Request = kwargs.get("request")
+            endpoint = None
+            method = None
 
-            endpoint = kwargs.get("endpoint", None)
-            method = kwargs.get("method", None)
+            if request:
+                endpoint = request.url.path
+                method = request.method
 
             try:
                 result = func(*args, **kwargs)
