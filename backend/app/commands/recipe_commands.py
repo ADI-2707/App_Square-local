@@ -7,8 +7,8 @@ from app.core.command_logger import command_logger
 from app.queries import recipe_queries
 
 
-@command_logger(action="RECIPE_GROUP_CREATE")
 @transactional
+@command_logger(action="RECIPE_GROUP_CREATE")
 def create_recipe_group(
     db: Session,
     name: str,
@@ -39,8 +39,8 @@ def create_recipe_group(
     return group
 
 
-@command_logger(action="RECIPE_CREATE")
 @transactional
+@command_logger(action="RECIPE_CREATE")
 def create_recipe(
     db: Session,
     name: str,
@@ -105,8 +105,8 @@ def create_recipe(
     return recipe
 
 
-@command_logger(action="RECIPE_DELETE")
 @transactional
+@command_logger(action="RECIPE_DELETE")
 def soft_delete_recipe(
     db: Session,
     recipe_id: int,

@@ -5,17 +5,20 @@ from app.queries import log_queries
 RETENTION_DAYS = 90
 
 
-def _resolve_actor(user: User | None) -> str | None:
-    if not user:
-        return None
+def _resolve_actor(user: User | None) -> str:
 
-    if user.username == "admin":
+    if not user:
+        return "SYS"
+
+    username = getattr(user, "username", None)
+
+    if username == "admin":
         return "A"
 
-    if user.username == "guest":
+    if username == "guest":
         return "G"
 
-    return None
+    return "USER"
 
 
 def add_log(
@@ -29,9 +32,6 @@ def add_log(
     error_message: str = None
 ):
     actor = _resolve_actor(user)
-
-    if actor is None:
-        return
 
     try:
         log_queries.create_log(
