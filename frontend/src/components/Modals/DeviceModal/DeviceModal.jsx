@@ -1,9 +1,9 @@
 import { useState } from "react";
 import BaseModal from "../BaseModal/BaseModal.jsx";
-import editIcon from "../../../assets/icons/edit.svg";
-import deleteIcon from "../../../assets/icons/delete.svg";
-import checkIcon from "../../../assets/icons/check.svg";
-import closeIcon from "../../../assets/icons/close.svg";
+import EditIcon from "../../../assets/icons/EditIcon";
+import DeleteIcon from "../../../assets/icons/DeleteIcon";
+import CheckIcon from "../../../assets/icons/CheckIcon";
+import CloseIcon from "../../../assets/icons/CloseIcon";
 import "./deviceModal.css";
 
 export default function DeviceModal({ isOpen, onClose, onSave }) {
@@ -123,14 +123,14 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
                         className="icon-btn confirm"
                         onClick={() => confirmEdit(index)}
                       >
-                        <img src={checkIcon} alt="Confirm" />
+                        <CheckIcon />
                       </button>
 
                       <button
                         className="icon-btn cancel"
                         onClick={cancelEdit}
                       >
-                        <img src={closeIcon} alt="Cancel" />
+                        <CloseIcon />
                       </button>
                     </div>
                   </>
@@ -143,14 +143,14 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
                         className="icon-btn edit"
                         onClick={() => startEdit(index)}
                       >
-                        <img src={editIcon} alt="Edit" />
+                        <EditIcon />
                       </button>
 
                       <button
                         className="icon-btn delete"
                         onClick={() => deleteTag(index)}
                       >
-                        <img src={deleteIcon} alt="Delete" />
+                        <DeleteIcon />
                       </button>
                     </div>
                   </>

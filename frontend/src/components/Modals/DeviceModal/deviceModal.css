@@ -115,7 +115,7 @@
   transition: background 0.15s ease, transform 0.1s ease;
 }
 
-.icon-btn img {
+.icon-btn svg {
   width: 18px;
   height: 18px;
 }
