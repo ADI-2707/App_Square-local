@@ -121,24 +121,25 @@
 }
 
 .icon-btn.edit {
-  color: #f4b400;
+  color: #c79408;
 }
 
 .icon-btn.delete {
-  color: #d32f2f;
+  color: #dd0e0e;
 }
 
 .icon-btn.confirm {
-  color: #2e7d32;
+  color: #22b329;
 }
 
 .icon-btn.cancel {
-  color: #c62828;
+  color: #da1111;
 }
 
 .icon-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.1);
   transform: scale(1.05);
+  border-radius: 50%;
 }
 
 .modal-actions {
