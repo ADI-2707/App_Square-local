@@ -20,6 +20,7 @@ export default function Sidebar({ onOpenModal }) {
   } = useRecipes();
 
   const [contextMenu, setContextMenu] = useState(null);
+  const [addRecipeModal, setAddRecipeModal] = useState(null);
 
   const [openSections, setOpenSections] = useState({
     templates: false,
@@ -279,6 +280,20 @@ export default function Sidebar({ onOpenModal }) {
           }}
           onMouseLeave={() => setContextMenu(null)}
         >
+          {contextMenu.type === "recipeGroup" && (
+            <div
+              className="context-item"
+              onClick={() => {
+                setAddRecipeModal({
+                  recipeGroupId: contextMenu.recipeGroup.id,
+                  templateGroupId: contextMenu.templateId,
+                });
+                setContextMenu(null);
+              }}
+            >
+              Add Recipe
+            </div>
+          )}
           <div className="context-item" onClick={handleDelete}>
             Delete
           </div>
