@@ -4,12 +4,17 @@ import { useNavigate } from "react-router-dom";
 import "./navbar.css";
 
 export default function Navbar() {
-  const { logout, username, role } = useContext(AuthContext);
+  const { logout, username } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      navigate("/");
+    }
   };
 
   return (
@@ -20,7 +25,7 @@ export default function Navbar() {
 
       <div className="navbar-right">
         <span className="user-info">
-          {username.toUpperCase()}
+          {username?.toUpperCase()}
         </span>
 
         <button className="logout-btn" onClick={handleLogout}>
