@@ -96,7 +96,6 @@ def list_recipes(
     )
 
 
-
 @router.get("/{recipe_id}/full", response_model=FullRecipeResponse)
 def get_full_recipe_route(
     recipe_id: int,
@@ -107,7 +106,6 @@ def get_full_recipe_route(
         db=db,
         recipe_id=recipe_id
     )
-
 
 
 @router.delete("/{recipe_id}")

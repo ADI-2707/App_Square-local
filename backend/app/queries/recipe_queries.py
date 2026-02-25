@@ -178,3 +178,15 @@ def create_recipe_tag_value(
 
 def soft_delete_recipe(db: Session, recipe: Recipe):
     recipe.is_deleted = True
+    
+def count_active_recipes_by_group(db: Session, recipe_group_id: int):
+    return db.query(Recipe).filter(
+        and_(
+            Recipe.recipe_group_id == recipe_group_id,
+            Recipe.is_deleted == False
+        )
+    ).count()
+
+
+def soft_delete_recipe_group(db: Session, group: RecipeGroup):
+    group.is_deleted = True

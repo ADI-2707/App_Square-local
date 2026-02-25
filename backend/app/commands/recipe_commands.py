@@ -125,3 +125,36 @@ def soft_delete_recipe(
     recipe_queries.soft_delete_recipe(db, recipe)
 
     return {"message": "Recipe deleted successfully"}
+
+
+@transactional
+@command_logger(action="RECIPE_GROUP_DELETE")
+def soft_delete_recipe_group_command(
+    db: Session,
+    recipe_group_id: int,
+    current_user: User,
+    request: Request = None
+):
+
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin required")
+
+    group = recipe_queries.get_recipe_group_by_id(db, recipe_group_id)
+
+    if not group:
+        raise HTTPException(status_code=404, detail="Recipe group not found")
+
+    active_count = recipe_queries.count_active_recipes_by_group(
+        db,
+        recipe_group_id
+    )
+
+    if active_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot delete recipe group with existing recipes"
+        )
+
+    recipe_queries.soft_delete_recipe_group(db, group)
+
+    return {"message": "Recipe group deleted successfully"}
