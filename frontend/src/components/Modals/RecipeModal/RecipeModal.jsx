@@ -39,9 +39,7 @@ export default function RecipeModal({ isOpen, onClose }) {
 
     const fetchDevices = async () => {
       try {
-        const res = await api.get(
-          `/templates/${selectedTemplate}/devices`
-        );
+        const res = await api.get(`/templates/${selectedTemplate}/devices`);
         setTemplateDevices(res.data);
         setSelectedDevices([]);
       } catch (err) {
@@ -120,8 +118,6 @@ export default function RecipeModal({ isOpen, onClose }) {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Create Recipe">
       <div className="group-form">
-
-        {/* TEMPLATE SELECT */}
         <label>Select Template Group</label>
         <select
           value={selectedTemplate}
@@ -153,14 +149,16 @@ export default function RecipeModal({ isOpen, onClose }) {
               </div>
 
               {templateDevices.map((device) => (
-                <label key={device.id} className="device-item">
+                <div key={device.id} className="device-row">
+                  <span className="device-name">{device.name}</span>
+
                   <input
                     type="checkbox"
                     checked={selectedDevices.includes(device.id)}
                     onChange={() => toggleDevice(device.id)}
+                    className="device-checkbox"
                   />
-                  {device.name}
-                </label>
+                </div>
               ))}
             </div>
           </>
@@ -173,9 +171,7 @@ export default function RecipeModal({ isOpen, onClose }) {
           onChange={(e) => setRecipeGroupName(e.target.value)}
         />
 
-        <button onClick={handleCreateRecipeGroup}>
-          Create Recipe Group
-        </button>
+        <button onClick={handleCreateRecipeGroup}>Create Recipe Group</button>
 
         {createdGroupId && (
           <>
@@ -186,12 +182,9 @@ export default function RecipeModal({ isOpen, onClose }) {
               onChange={(e) => setRecipeName(e.target.value)}
             />
 
-            <button onClick={handleCreateRecipe}>
-              Save Recipe
-            </button>
+            <button onClick={handleCreateRecipe}>Save Recipe</button>
           </>
         )}
-
       </div>
     </BaseModal>
   );

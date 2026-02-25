@@ -113,16 +113,28 @@
   background: #fafafa;
 }
 
-.device-item {
+.device-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  padding: 6px 8px;
   font-size: 13px;
-  padding: 4px 0;
-  color: var(--color-text-primary);
+  border-radius: 4px;
+  transition: background 0.15s ease-in-out;
 }
 
-.device-item input {
+.device-row:hover {
+  background: #f3f4f6;
+}
+
+.device-name {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.device-checkbox {
+  width: 16px;
+  height: 16px;
   cursor: pointer;
 }
 
