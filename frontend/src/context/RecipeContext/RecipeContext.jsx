@@ -92,6 +92,23 @@ export function RecipeProvider({ children }) {
     }
   };
 
+  const deleteRecipeGroup = async (recipeGroupId, templateGroupId) => {
+    await api.delete(`/recipes/groups/${recipeGroupId}`);
+
+    setRecipeGroups((prev) => ({
+      ...prev,
+      [templateGroupId]: (prev[templateGroupId] || []).filter(
+        (group) => group.id !== recipeGroupId,
+      ),
+    }));
+
+    setRecipes((prev) => {
+      const updated = { ...prev };
+      delete updated[recipeGroupId];
+      return updated;
+    });
+  };
+
   return (
     <RecipeContext.Provider
       value={{
@@ -106,6 +123,7 @@ export function RecipeProvider({ children }) {
         addRecipeGroupLocal,
         addRecipeLocal,
         deleteRecipe,
+        deleteRecipeGroup,
       }}
     >
       {children}
