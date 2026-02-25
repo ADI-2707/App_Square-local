@@ -94,6 +94,7 @@ export default function Sidebar({ onOpenModal }) {
     setContextMenu({
       x: e.pageX,
       y: e.pageY,
+      type: "recipe",
       recipe,
       recipeGroupId,
     });
@@ -102,18 +103,29 @@ export default function Sidebar({ onOpenModal }) {
   const handleDelete = async () => {
     if (!contextMenu) return;
 
-    const confirmed = window.confirm(
-      `Delete recipe "${contextMenu.recipe.name}"?`
-    );
-    if (!confirmed) return;
-
     try {
-      await deleteRecipe(
-        contextMenu.recipe.id,
-        contextMenu.recipeGroupId
-      );
-    } catch {
-      alert("Delete failed");
+      if (contextMenu.type === "recipe") {
+        const confirmed = window.confirm(
+          `Delete recipe "${contextMenu.recipe.name}"?`,
+        );
+        if (!confirmed) return;
+
+        await deleteRecipe(contextMenu.recipe.id, contextMenu.recipeGroupId);
+      }
+
+      if (contextMenu.type === "recipeGroup") {
+        const confirmed = window.confirm(
+          `Delete recipe group "${contextMenu.recipeGroup.name}"?`,
+        );
+        if (!confirmed) return;
+
+        await deleteRecipeGroup(
+          contextMenu.recipeGroup.id,
+          contextMenu.templateId,
+        );
+      }
+    } catch (error) {
+      alert(error.response?.data?.detail || "Delete failed");
     }
 
     setContextMenu(null);
@@ -160,9 +172,7 @@ export default function Sidebar({ onOpenModal }) {
 
                         return (
                           <div key={deviceId} className="tree-node">
-                            <div className="tree-item leaf">
-                              {device.name}
-                            </div>
+                            <div className="tree-item leaf">{device.name}</div>
                           </div>
                         );
                       })}
@@ -177,9 +187,7 @@ export default function Sidebar({ onOpenModal }) {
 
       <div className="sidebar-section">
         <div
-          className={`sidebar-title ${
-            !hasTemplates ? "disabled-section" : ""
-          }`}
+          className={`sidebar-title ${!hasTemplates ? "disabled-section" : ""}`}
           onClick={() => hasTemplates && toggleSection("recipes")}
         >
           {openSections.recipes ? "▾" : "▸"} Recipes
@@ -199,54 +207,48 @@ export default function Sidebar({ onOpenModal }) {
                 <div key={templateId} className="tree-node">
                   <div
                     className="tree-item expandable"
-                    onClick={() =>
-                      toggleTemplateForRecipes(templateId)
-                    }
+                    onClick={() => toggleTemplateForRecipes(templateId)}
                   >
-                    {expandedTemplatesForRecipes[templateId]
-                      ? "▾"
-                      : "▸"}{" "}
+                    {expandedTemplatesForRecipes[templateId] ? "▾" : "▸"}{" "}
                     {template.name}
                   </div>
 
                   {expandedTemplatesForRecipes[templateId] && (
                     <div className="tree-children">
                       {rGroups.map((rGroup) => {
-                        const recipeList =
-                          recipes[rGroup.id]?.[1] || [];
+                        const recipeList = recipes[rGroup.id]?.[1] || [];
 
                         return (
                           <div key={rGroup.id} className="tree-node">
                             <div
                               className="tree-item expandable"
-                              onClick={() =>
-                                toggleRecipeGroup(rGroup)
-                              }
+                              onClick={() => toggleRecipeGroup(rGroup)}
+                              onContextMenu={(e) => {
+                                e.preventDefault();
+                                if (role !== "admin") return;
+
+                                setContextMenu({
+                                  x: e.pageX,
+                                  y: e.pageY,
+                                  type: "recipeGroup",
+                                  recipeGroup: rGroup,
+                                  templateId: templateId,
+                                });
+                              }}
                             >
-                              {expandedRecipeGroups[rGroup.id]
-                                ? "▾"
-                                : "▸"}{" "}
+                              {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}{" "}
                               {rGroup.name}
                             </div>
 
                             {expandedRecipeGroups[rGroup.id] && (
                               <div className="tree-children">
                                 {recipeList.map((recipe) => (
-                                  <div
-                                    key={recipe.id}
-                                    className="tree-node"
-                                  >
+                                  <div key={recipe.id} className="tree-node">
                                     <div
                                       className="tree-item leaf"
-                                      onClick={() =>
-                                        handleOpenRecipe(recipe)
-                                      }
+                                      onClick={() => handleOpenRecipe(recipe)}
                                       onContextMenu={(e) =>
-                                        handleRightClick(
-                                          e,
-                                          recipe,
-                                          rGroup.id
-                                        )
+                                        handleRightClick(e, recipe, rGroup.id)
                                       }
                                     >
                                       {recipe.name}
