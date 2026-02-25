@@ -38,11 +38,14 @@ def create_full_template_group(
         )
 
         for tag_data in device_data.tags:
-            template_queries.create_tag(
-                db=db,
-                name=tag_data.name,
-                device_id=device.id
-            )
+            try:
+                template_queries.create_tag(
+                    db=db,
+                    name=tag_data.name,
+                    device_id=device.id
+                )
+            except ValueError as e:
+                raise HTTPException(status_code=400, detail=str(e))
 
     return group
 
