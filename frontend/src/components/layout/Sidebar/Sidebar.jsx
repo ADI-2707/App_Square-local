@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import { useAuth } from "../../../context/AuthContext/AuthContext";
@@ -37,7 +38,7 @@ export default function Sidebar({ onOpenModal }) {
     loadGroups();
   }, []);
 
-  /* ✅ ENTERPRISE CONTEXT MENU HANDLING */
+  // Close context menu on outside click
   useEffect(() => {
     const handleGlobalClick = (e) => {
       if (!e.target.closest(".context-menu")) {
@@ -46,7 +47,6 @@ export default function Sidebar({ onOpenModal }) {
     };
 
     window.addEventListener("click", handleGlobalClick);
-
     return () => {
       window.removeEventListener("click", handleGlobalClick);
     };
@@ -150,182 +150,200 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-header">
-        <img src="/app.svg" alt="App Logo" className="sidebar-logo" />
-        <div className="sidebar-appname">APP SQUARE</div>
-      </div>
-
-      <div className="sidebar-section">
-        <div
-          className="sidebar-title"
-          onClick={() => toggleSection("templates")}
-        >
-          {openSections.templates ? "▾" : "▸"} Templates
+    <>
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <img src="/app.svg" alt="App Logo" className="sidebar-logo" />
+          <div className="sidebar-appname">APP SQUARE</div>
         </div>
 
-        {openSections.templates && (
-          <div className="sidebar-submenu">
-            <button onClick={() => onOpenModal("createGroup")}>
-              Create Template
-            </button>
-
-            {groups.allIds.map((groupId) => {
-              const group = groups.byId[groupId];
-              const deviceIds = devices.byGroupId[groupId] || [];
-
-              return (
-                <div key={groupId} className="tree-node">
-                  <div
-                    className="tree-item expandable"
-                    onClick={() => toggleGroup(groupId)}
-                  >
-                    {expandedGroups[groupId] ? "▾" : "▸"} {group.name}
-                  </div>
-
-                  {expandedGroups[groupId] && (
-                    <div className="tree-children">
-                      {deviceIds.map((deviceId) => {
-                        const device = devices.byId[deviceId];
-                        return (
-                          <div key={deviceId} className="tree-node">
-                            <div className="tree-item leaf">
-                              {device.name}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+        {/* TEMPLATES SECTION */}
+        <div className="sidebar-section">
+          <div
+            className="sidebar-title"
+            onClick={() => toggleSection("templates")}
+          >
+            {openSections.templates ? "▾" : "▸"} Templates
           </div>
-        )}
-      </div>
 
-      <div className="sidebar-section">
-        <div
-          className={`sidebar-title ${
-            !hasTemplates ? "disabled-section" : ""
-          }`}
-          onClick={() => hasTemplates && toggleSection("recipes")}
-        >
-          {openSections.recipes ? "▾" : "▸"} Recipes
-        </div>
+          {openSections.templates && (
+            <div className="sidebar-submenu">
+              <button onClick={() => onOpenModal("createGroup")}>
+                Create Template
+              </button>
 
-        {openSections.recipes && hasTemplates && (
-          <div className="sidebar-submenu">
-            <button onClick={() => onOpenModal("createRecipe")}>
-              Create Recipe
-            </button>
+              {groups.allIds.map((groupId) => {
+                const group = groups.byId[groupId];
+                const deviceIds = devices.byGroupId[groupId] || [];
 
-            {groups.allIds.map((templateId) => {
-              const template = groups.byId[templateId];
-              const rGroups = recipeGroups[templateId] || [];
+                return (
+                  <div key={groupId} className="tree-node">
+                    <div
+                      className="tree-item expandable"
+                      onClick={() => toggleGroup(groupId)}
+                    >
+                      {expandedGroups[groupId] ? "▾" : "▸"} {group.name}
+                    </div>
 
-              return (
-                <div key={templateId} className="tree-node">
-                  <div
-                    className="tree-item expandable"
-                    onClick={() => toggleTemplateForRecipes(templateId)}
-                  >
-                    {expandedTemplatesForRecipes[templateId] ? "▾" : "▸"}{" "}
-                    {template.name}
-                  </div>
-
-                  {expandedTemplatesForRecipes[templateId] && (
-                    <div className="tree-children">
-                      {rGroups.map((rGroup) => {
-                        const recipeList = recipes[rGroup.id]?.[1] || [];
-
-                        return (
-                          <div key={rGroup.id} className="tree-node">
-                            <div
-                              className="tree-item expandable"
-                              onClick={() => toggleRecipeGroup(rGroup)}
-                              onContextMenu={(e) => {
-                                e.preventDefault();
-                                if (role !== "admin") return;
-
-                                setContextMenu({
-                                  x: e.pageX,
-                                  y: e.pageY,
-                                  type: "recipeGroup",
-                                  recipeGroup: rGroup,
-                                  templateId: templateId,
-                                });
-                              }}
-                            >
-                              {expandedRecipeGroups[rGroup.id]
-                                ? "▾"
-                                : "▸"}{" "}
-                              {rGroup.name}
-                            </div>
-
-                            {expandedRecipeGroups[rGroup.id] && (
-                              <div className="tree-children">
-                                {recipeList.map((recipe) => (
-                                  <div key={recipe.id} className="tree-node">
-                                    <div
-                                      className="tree-item leaf"
-                                      onClick={() =>
-                                        handleOpenRecipe(recipe)
-                                      }
-                                      onContextMenu={(e) =>
-                                        handleRightClick(
-                                          e,
-                                          recipe,
-                                          rGroup.id
-                                        )
-                                      }
-                                    >
-                                      {recipe.name}
-                                    </div>
-                                  </div>
-                                ))}
+                    {expandedGroups[groupId] && (
+                      <div className="tree-children">
+                        {deviceIds.map((deviceId) => {
+                          const device = devices.byId[deviceId];
+                          return (
+                            <div key={deviceId} className="tree-node">
+                              <div className="tree-item leaf">
+                                {device.name}
                               </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      {contextMenu && (
-        <div
-          className="context-menu"
-          style={{
-            top: contextMenu.y,
-            left: contextMenu.x,
-          }}
-        >
-          {contextMenu.type === "recipeGroup" && (
-            <div
-              className="context-item"
-              onClick={() => {
-                setAddRecipeModal({
-                  recipeGroupId: contextMenu.recipeGroup.id,
-                  templateGroupId: contextMenu.templateId,
-                });
-                setContextMenu(null);
-              }}
-            >
-              Add Recipe
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
-
-          <div className="context-item" onClick={handleDelete}>
-            Delete
-          </div>
         </div>
-      )}
+
+        {/* RECIPES SECTION */}
+        <div className="sidebar-section">
+          <div
+            className={`sidebar-title ${
+              !hasTemplates ? "disabled-section" : ""
+            }`}
+            onClick={() => hasTemplates && toggleSection("recipes")}
+          >
+            {openSections.recipes ? "▾" : "▸"} Recipes
+          </div>
+
+          {openSections.recipes && hasTemplates && (
+            <div className="sidebar-submenu">
+              <button onClick={() => onOpenModal("createRecipe")}>
+                Create Recipe
+              </button>
+
+              {groups.allIds.map((templateId) => {
+                const template = groups.byId[templateId];
+                const rGroups = recipeGroups[templateId] || [];
+
+                return (
+                  <div key={templateId} className="tree-node">
+                    <div
+                      className="tree-item expandable"
+                      onClick={() => toggleTemplateForRecipes(templateId)}
+                    >
+                      {expandedTemplatesForRecipes[templateId]
+                        ? "▾"
+                        : "▸"}{" "}
+                      {template.name}
+                    </div>
+
+                    {expandedTemplatesForRecipes[templateId] && (
+                      <div className="tree-children">
+                        {rGroups.map((rGroup) => {
+                          const recipeList =
+                            recipes[rGroup.id]?.[1] || [];
+
+                          return (
+                            <div key={rGroup.id} className="tree-node">
+                              <div
+                                className="tree-item expandable"
+                                onClick={() => toggleRecipeGroup(rGroup)}
+                                onContextMenu={(e) => {
+                                  e.preventDefault();
+                                  if (role !== "admin") return;
+
+                                  setContextMenu({
+                                    x: e.pageX,
+                                    y: e.pageY,
+                                    type: "recipeGroup",
+                                    recipeGroup: rGroup,
+                                    templateId: templateId,
+                                  });
+                                }}
+                              >
+                                {expandedRecipeGroups[rGroup.id]
+                                  ? "▾"
+                                  : "▸"}{" "}
+                                {rGroup.name}
+                              </div>
+
+                              {expandedRecipeGroups[rGroup.id] && (
+                                <div className="tree-children">
+                                  {recipeList.map((recipe) => (
+                                    <div
+                                      key={recipe.id}
+                                      className="tree-node"
+                                    >
+                                      <div
+                                        className="tree-item leaf"
+                                        onClick={() =>
+                                          handleOpenRecipe(recipe)
+                                        }
+                                        onContextMenu={(e) =>
+                                          handleRightClick(
+                                            e,
+                                            recipe,
+                                            rGroup.id
+                                          )
+                                        }
+                                      >
+                                        {recipe.name}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ✅ CONTEXT MENU RENDERED VIA PORTAL */}
+      {contextMenu &&
+        createPortal(
+          <div
+            className="context-menu"
+            style={{
+              top: contextMenu.y,
+              left: contextMenu.x,
+            }}
+          >
+            {contextMenu.type === "recipeGroup" && (
+              <div
+                className="context-item"
+                onClick={() => {
+                  setAddRecipeModal({
+                    recipeGroupId:
+                      contextMenu.recipeGroup.id,
+                    templateGroupId:
+                      contextMenu.templateId,
+                  });
+                  setContextMenu(null);
+                }}
+              >
+                Add Recipe
+              </div>
+            )}
+
+            <div
+              className="context-item"
+              onClick={handleDelete}
+            >
+              Delete
+            </div>
+          </div>,
+          document.body
+        )}
 
       {addRecipeModal && (
         <AddRecipeModal
@@ -335,6 +353,6 @@ export default function Sidebar({ onOpenModal }) {
           onClose={() => setAddRecipeModal(null)}
         />
       )}
-    </div>
+    </>
   );
 }
