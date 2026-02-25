@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import BaseModal from "../BaseModal/BaseModal";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import api from "../../../Utility/api";
-import "./addRecipeModal.css";
+import "../RecipeModal/recipeModal.css";
 
 export default function AddRecipeModal({
   isOpen,
@@ -79,7 +79,7 @@ export default function AddRecipeModal({
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Add Recipe">
-      <div className="add-recipe-form">
+      <div className="group-form">
 
         <label>Recipe Name</label>
         <input
@@ -91,9 +91,14 @@ export default function AddRecipeModal({
         <label>Select Devices</label>
 
         <div className="device-selection">
+
           <div className="device-actions">
-            <button type="button" onClick={selectAll}>Select All</button>
-            <button type="button" onClick={clearAll}>Clear</button>
+            <button type="button" onClick={selectAll}>
+              Select All
+            </button>
+            <button type="button" onClick={clearAll}>
+              Clear
+            </button>
             <span>
               Selected: {selectedDevices.length} / {templateDevices.length}
             </span>
@@ -101,14 +106,19 @@ export default function AddRecipeModal({
 
           {templateDevices.map((device) => (
             <div key={device.id} className="device-row">
-              <span>{device.name}</span>
+              <span className="device-name">
+                {device.name}
+              </span>
+
               <input
                 type="checkbox"
                 checked={selectedDevices.includes(device.id)}
                 onChange={() => toggleDevice(device.id)}
+                className="device-checkbox"
               />
             </div>
           ))}
+
         </div>
 
         <button onClick={handleCreate}>
