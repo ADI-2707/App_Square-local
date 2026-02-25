@@ -42,14 +42,6 @@
   padding: 6px 12px;
   background: #dfe4ff;
   border-radius: 6px;
-  box-sizing: border-box;
-}
-
-.tag-panel-header h4 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.2;
 }
 
 .tag-input-row {
@@ -65,34 +57,12 @@
 .tag-input-row button {
   padding: 6px 16px;
   height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   background: var(--color-primary);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  line-height: 1;
-}
-
-.tag-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.tag-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.tag-actions button {
-  padding: 4px 8px;
-  font-size: 12px;
-  border-radius: 4px;
-  cursor: pointer;
 }
 
 .tag-list {
@@ -107,14 +77,68 @@
   background: #fafbff;
 }
 
-.tag-list li {
+.tag-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 10px 12px;
   border-bottom: 1px solid var(--color-border);
+}
+
+.tag-row:last-child {
+  border-bottom: none;
+}
+
+.tag-name {
   font-size: 14px;
 }
 
-.tag-list li:last-child {
-  border-bottom: none;
+.edit-input {
+  flex: 1;
+  margin-right: 8px;
+}
+
+.tag-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.icon-btn img {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-btn.edit {
+  color: #f4b400;
+}
+
+.icon-btn.delete {
+  color: #d32f2f;
+}
+
+.icon-btn.confirm {
+  color: #2e7d32;
+}
+
+.icon-btn.cancel {
+  color: #c62828;
+}
+
+.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
 }
 
 .modal-actions {
@@ -123,7 +147,6 @@
   border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .modal-actions button {

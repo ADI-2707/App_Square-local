@@ -1,5 +1,9 @@
 import { useState } from "react";
 import BaseModal from "../BaseModal/BaseModal.jsx";
+import editIcon from "../../../assets/icons/edit.svg";
+import deleteIcon from "../../../assets/icons/delete.svg";
+import checkIcon from "../../../assets/icons/check.svg";
+import closeIcon from "../../../assets/icons/close.svg";
 import "./deviceModal.css";
 
 export default function DeviceModal({ isOpen, onClose, onSave }) {
@@ -109,20 +113,45 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
                 {editingIndex === index ? (
                   <>
                     <input
+                      className="edit-input"
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
                     />
+
                     <div className="tag-actions">
-                      <button onClick={() => confirmEdit(index)}>✓</button>
-                      <button onClick={cancelEdit}>✕</button>
+                      <button
+                        className="icon-btn confirm"
+                        onClick={() => confirmEdit(index)}
+                      >
+                        <img src={checkIcon} alt="Confirm" />
+                      </button>
+
+                      <button
+                        className="icon-btn cancel"
+                        onClick={cancelEdit}
+                      >
+                        <img src={closeIcon} alt="Cancel" />
+                      </button>
                     </div>
                   </>
                 ) : (
                   <>
-                    <span>{tag.name}</span>
+                    <span className="tag-name">{tag.name}</span>
+
                     <div className="tag-actions">
-                      <button onClick={() => startEdit(index)}>Edit</button>
-                      <button onClick={() => deleteTag(index)}>Delete</button>
+                      <button
+                        className="icon-btn edit"
+                        onClick={() => startEdit(index)}
+                      >
+                        <img src={editIcon} alt="Edit" />
+                      </button>
+
+                      <button
+                        className="icon-btn delete"
+                        onClick={() => deleteTag(index)}
+                      >
+                        <img src={deleteIcon} alt="Delete" />
+                      </button>
                     </div>
                   </>
                 )}
