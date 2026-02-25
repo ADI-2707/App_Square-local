@@ -45,6 +45,7 @@ def create_recipe(
     db: Session,
     name: str,
     recipe_group_id: int,
+    selected_device_ids: list[int],
     current_user: User,
     request: Request = None
 ):
@@ -66,12 +67,11 @@ def create_recipe(
     if existing:
         raise HTTPException(status_code=400, detail="Recipe already exists")
 
-    recipe = recipe_queries.create_recipe(
-        db,
-        name,
-        recipe_group_id,
-        current_user.id
-    )
+    if not selected_device_ids:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one device must be selected"
+        )
 
     template_group = recipe_queries.get_template_group_for_recipe(
         db,
@@ -81,9 +81,26 @@ def create_recipe(
     if not template_group:
         raise HTTPException(status_code=404, detail="Template group not found")
 
-    for device in template_group.devices:
-        if device.is_deleted:
-            continue
+    valid_devices = recipe_queries.get_devices_by_ids_for_template(
+        db=db,
+        template_group_id=template_group.id,
+        device_ids=selected_device_ids
+    )
+
+    if len(valid_devices) != len(selected_device_ids):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid device selection"
+        )
+
+    recipe = recipe_queries.create_recipe(
+        db,
+        name,
+        recipe_group_id,
+        current_user.id
+    )
+
+    for device in valid_devices:
 
         recipe_device = recipe_queries.create_recipe_device(
             db,

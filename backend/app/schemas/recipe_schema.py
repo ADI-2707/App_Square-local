@@ -17,6 +17,7 @@ class RecipeGroupResponse(BaseModel):
 class RecipeCreate(BaseModel):
     name: str
     recipe_group_id: int
+    selected_device_ids: List[int]
 
 
 class RecipeResponse(BaseModel):

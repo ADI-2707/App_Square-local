@@ -73,6 +73,7 @@ def create_recipe_route(
         db=db,
         name=data.name,
         recipe_group_id=data.recipe_group_id,
+        selected_device_ids=data.selected_device_ids,
         current_user=current_user,
         request=request
     )

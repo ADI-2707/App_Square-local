@@ -8,7 +8,7 @@ from app.models.recipe import (
     RecipeTagValue
 )
 from app.models.template_group import TemplateGroup
-
+from app.models.device import DeviceInstance
 
 def get_recipe_groups_by_template(
     db: Session,
@@ -190,3 +190,20 @@ def count_active_recipes_by_group(db: Session, recipe_group_id: int):
 
 def soft_delete_recipe_group(db: Session, group: RecipeGroup):
     group.is_deleted = True
+
+
+def get_devices_by_ids_for_template(
+    db: Session,
+    template_group_id: int,
+    device_ids: list[int]
+):
+    if not device_ids:
+        return []
+
+    return db.query(DeviceInstance).filter(
+        and_(
+            DeviceInstance.id.in_(device_ids),
+            DeviceInstance.template_group_id == template_group_id,
+            DeviceInstance.is_deleted == False
+        )
+    ).all()

@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
+
 from app.utils.dependencies import get_db, get_current_user
+from app.models.device import DeviceInstance
+
 from app.schemas.template_schema import (
     TemplateGroupFullCreate,
     TemplateGroupResponse,
@@ -74,3 +77,15 @@ def delete_template_group(
         current_user=current_user,
         request=request
     )
+
+
+@router.get("/{template_group_id}/devices")
+def get_template_devices(
+    template_group_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return db.query(DeviceInstance).filter(
+        DeviceInstance.template_group_id == template_group_id,
+        DeviceInstance.is_deleted == False
+    ).all()
