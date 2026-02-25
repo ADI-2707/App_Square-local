@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import { useAuth } from "../../../context/AuthContext/AuthContext";
+import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal }) {
@@ -34,6 +35,21 @@ export default function Sidebar({ onOpenModal }) {
 
   useEffect(() => {
     loadGroups();
+  }, []);
+
+  /* ✅ ENTERPRISE CONTEXT MENU HANDLING */
+  useEffect(() => {
+    const handleGlobalClick = (e) => {
+      if (!e.target.closest(".context-menu")) {
+        setContextMenu(null);
+      }
+    };
+
+    window.addEventListener("click", handleGlobalClick);
+
+    return () => {
+      window.removeEventListener("click", handleGlobalClick);
+    };
   }, []);
 
   const hasTemplates = groups.allIds.length > 0;
@@ -108,7 +124,7 @@ export default function Sidebar({ onOpenModal }) {
     try {
       if (contextMenu.type === "recipe") {
         const confirmed = window.confirm(
-          `Delete recipe "${contextMenu.recipe.name}"?`,
+          `Delete recipe "${contextMenu.recipe.name}"?`
         );
         if (!confirmed) return;
 
@@ -117,13 +133,13 @@ export default function Sidebar({ onOpenModal }) {
 
       if (contextMenu.type === "recipeGroup") {
         const confirmed = window.confirm(
-          `Delete recipe group "${contextMenu.recipeGroup.name}"?`,
+          `Delete recipe group "${contextMenu.recipeGroup.name}"?`
         );
         if (!confirmed) return;
 
         await deleteRecipeGroup(
           contextMenu.recipeGroup.id,
-          contextMenu.templateId,
+          contextMenu.templateId
         );
       }
     } catch (error) {
@@ -171,10 +187,11 @@ export default function Sidebar({ onOpenModal }) {
                     <div className="tree-children">
                       {deviceIds.map((deviceId) => {
                         const device = devices.byId[deviceId];
-
                         return (
                           <div key={deviceId} className="tree-node">
-                            <div className="tree-item leaf">{device.name}</div>
+                            <div className="tree-item leaf">
+                              {device.name}
+                            </div>
                           </div>
                         );
                       })}
@@ -189,7 +206,9 @@ export default function Sidebar({ onOpenModal }) {
 
       <div className="sidebar-section">
         <div
-          className={`sidebar-title ${!hasTemplates ? "disabled-section" : ""}`}
+          className={`sidebar-title ${
+            !hasTemplates ? "disabled-section" : ""
+          }`}
           onClick={() => hasTemplates && toggleSection("recipes")}
         >
           {openSections.recipes ? "▾" : "▸"} Recipes
@@ -238,7 +257,9 @@ export default function Sidebar({ onOpenModal }) {
                                 });
                               }}
                             >
-                              {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}{" "}
+                              {expandedRecipeGroups[rGroup.id]
+                                ? "▾"
+                                : "▸"}{" "}
                               {rGroup.name}
                             </div>
 
@@ -248,9 +269,15 @@ export default function Sidebar({ onOpenModal }) {
                                   <div key={recipe.id} className="tree-node">
                                     <div
                                       className="tree-item leaf"
-                                      onClick={() => handleOpenRecipe(recipe)}
+                                      onClick={() =>
+                                        handleOpenRecipe(recipe)
+                                      }
                                       onContextMenu={(e) =>
-                                        handleRightClick(e, recipe, rGroup.id)
+                                        handleRightClick(
+                                          e,
+                                          recipe,
+                                          rGroup.id
+                                        )
                                       }
                                     >
                                       {recipe.name}
@@ -278,7 +305,6 @@ export default function Sidebar({ onOpenModal }) {
             top: contextMenu.y,
             left: contextMenu.x,
           }}
-          onMouseLeave={() => setContextMenu(null)}
         >
           {contextMenu.type === "recipeGroup" && (
             <div
@@ -294,10 +320,20 @@ export default function Sidebar({ onOpenModal }) {
               Add Recipe
             </div>
           )}
+
           <div className="context-item" onClick={handleDelete}>
             Delete
           </div>
         </div>
+      )}
+
+      {addRecipeModal && (
+        <AddRecipeModal
+          isOpen={true}
+          recipeGroupId={addRecipeModal.recipeGroupId}
+          templateGroupId={addRecipeModal.templateGroupId}
+          onClose={() => setAddRecipeModal(null)}
+        />
       )}
     </div>
   );
