@@ -8,6 +8,7 @@ from app.utils.jwt_handler import create_access_token
 from app.core.transaction import transactional
 from app.core.command_logger import command_logger
 from app.queries import user_queries
+from app.models.user import User
 
 MAX_ATTEMPTS = 5
 BLOCK_DURATION_MINUTES = 5
@@ -53,3 +54,14 @@ def login_command(
         "access_token": token,
         "token_type": "bearer"
     }
+
+
+@transactional
+@command_logger(action="LOGOUT")
+def logout_command(
+    db: Session,
+    current_user: User,
+    request: Request = None
+):
+    current_user.token_version += 1
+    return {"message": "Logged out successfully"}

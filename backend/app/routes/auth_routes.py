@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.schemas.user_schema import LoginRequest, TokenResponse
 from app.utils.dependencies import get_current_user, get_db
-from app.commands.auth_commands import login_command
+from app.commands.auth_commands import login_command, logout_command
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -27,3 +27,15 @@ def get_profile(current_user=Depends(get_current_user)):
         "username": current_user.username,
         "role": current_user.role
     }
+
+@router.post("/logout")
+def logout(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return logout_command(
+        db=db,
+        current_user=current_user,
+        request=request
+    )
