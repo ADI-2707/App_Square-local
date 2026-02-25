@@ -16,6 +16,7 @@ export default function Sidebar({ onOpenModal }) {
     getFullRecipe,
     openRecipeInWorkspace,
     deleteRecipe,
+    deleteRecipeGroup,
   } = useRecipes();
 
   const [contextMenu, setContextMenu] = useState(null);
