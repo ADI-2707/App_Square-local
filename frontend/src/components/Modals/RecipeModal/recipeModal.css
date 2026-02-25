@@ -103,3 +103,48 @@
   background-repeat: no-repeat;
   padding-right: 36px;
 }
+
+.device-selection {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 10px;
+  background: #fafafa;
+}
+
+.device-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 4px 0;
+  color: var(--color-text-primary);
+}
+
+.device-item input {
+  cursor: pointer;
+}
+
+.device-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.device-actions button {
+  padding: 6px 12px;
+  font-size: 12px;
+  background: #546e7a;
+  border-radius: 4px;
+}
+
+.device-actions button:hover {
+  background: #37474f;
+}
+
+.device-count {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}

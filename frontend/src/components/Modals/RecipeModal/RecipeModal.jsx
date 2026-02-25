@@ -14,23 +14,53 @@ export default function RecipeModal({ isOpen, onClose }) {
   const [recipeName, setRecipeName] = useState("");
   const [createdGroupId, setCreatedGroupId] = useState(null);
 
+  const [templateDevices, setTemplateDevices] = useState([]);
+  const [selectedDevices, setSelectedDevices] = useState([]);
+
+  // Reset modal state
   useEffect(() => {
     if (isOpen) {
       setSelectedTemplate("");
       setRecipeGroupName("");
       setRecipeName("");
       setCreatedGroupId(null);
+      setTemplateDevices([]);
+      setSelectedDevices([]);
     }
   }, [isOpen]);
 
+  // Fetch template devices when template changes
+  useEffect(() => {
+    if (!selectedTemplate) {
+      setTemplateDevices([]);
+      setSelectedDevices([]);
+      return;
+    }
+
+    const fetchDevices = async () => {
+      try {
+        const res = await api.get(
+          `/templates/${selectedTemplate}/devices`
+        );
+        setTemplateDevices(res.data);
+        setSelectedDevices([]);
+      } catch (err) {
+        console.error("Failed to fetch template devices:", err);
+        setTemplateDevices([]);
+      }
+    };
+
+    fetchDevices();
+  }, [selectedTemplate]);
+
   const handleCreateRecipeGroup = async () => {
-    if (!selectedTemplate || !recipeGroupName) {
+    if (!selectedTemplate || !recipeGroupName.trim()) {
       alert("Select template and enter recipe group name");
       return;
     }
 
     const payload = {
-      name: recipeGroupName,
+      name: recipeGroupName.trim(),
       template_group_id: parseInt(selectedTemplate),
     };
 
@@ -40,38 +70,58 @@ export default function RecipeModal({ isOpen, onClose }) {
       setCreatedGroupId(res.data.id);
       addRecipeGroupLocal(selectedTemplate, res.data);
     } catch (err) {
-      console.error("❌ Recipe Group Error:", err);
+      console.error("Recipe Group Error:", err);
       alert("Failed to create recipe group");
     }
   };
 
   const handleCreateRecipe = async () => {
-    if (!createdGroupId || !recipeName) {
-      alert("Create recipe group first");
+    if (!createdGroupId || !recipeName.trim()) {
+      alert("Create recipe group and enter recipe name");
+      return;
+    }
+
+    if (selectedDevices.length === 0) {
+      alert("Select at least one device");
       return;
     }
 
     try {
       const res = await api.post("/recipes", {
-        name: recipeName,
+        name: recipeName.trim(),
         recipe_group_id: createdGroupId,
+        selected_device_ids: selectedDevices,
       });
 
       addRecipeLocal(createdGroupId, res.data);
       onClose();
-      setRecipeName("");
-      setRecipeGroupName("");
-      setSelectedTemplate("");
-      setCreatedGroupId(null);
     } catch (err) {
-      console.error(err);
+      console.error("Recipe Creation Error:", err);
       alert("Failed to create recipe");
     }
+  };
+
+  const toggleDevice = (deviceId) => {
+    if (selectedDevices.includes(deviceId)) {
+      setSelectedDevices(selectedDevices.filter((id) => id !== deviceId));
+    } else {
+      setSelectedDevices([...selectedDevices, deviceId]);
+    }
+  };
+
+  const selectAllDevices = () => {
+    setSelectedDevices(templateDevices.map((d) => d.id));
+  };
+
+  const clearDevices = () => {
+    setSelectedDevices([]);
   };
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Create Recipe">
       <div className="group-form">
+
+        {/* TEMPLATE SELECT */}
         <label>Select Template Group</label>
         <select
           value={selectedTemplate}
@@ -85,6 +135,37 @@ export default function RecipeModal({ isOpen, onClose }) {
           ))}
         </select>
 
+        {templateDevices.length > 0 && (
+          <>
+            <label>Select Devices</label>
+
+            <div className="device-selection">
+              <div className="device-actions">
+                <button type="button" onClick={selectAllDevices}>
+                  Select All
+                </button>
+                <button type="button" onClick={clearDevices}>
+                  Clear
+                </button>
+                <span className="device-count">
+                  Selected: {selectedDevices.length} / {templateDevices.length}
+                </span>
+              </div>
+
+              {templateDevices.map((device) => (
+                <label key={device.id} className="device-item">
+                  <input
+                    type="checkbox"
+                    checked={selectedDevices.includes(device.id)}
+                    onChange={() => toggleDevice(device.id)}
+                  />
+                  {device.name}
+                </label>
+              ))}
+            </div>
+          </>
+        )}
+
         <label>Recipe Group Name</label>
         <input
           type="text"
@@ -92,7 +173,9 @@ export default function RecipeModal({ isOpen, onClose }) {
           onChange={(e) => setRecipeGroupName(e.target.value)}
         />
 
-        <button onClick={handleCreateRecipeGroup}>Create Recipe Group</button>
+        <button onClick={handleCreateRecipeGroup}>
+          Create Recipe Group
+        </button>
 
         {createdGroupId && (
           <>
@@ -103,9 +186,12 @@ export default function RecipeModal({ isOpen, onClose }) {
               onChange={(e) => setRecipeName(e.target.value)}
             />
 
-            <button onClick={handleCreateRecipe}>Save Recipe</button>
+            <button onClick={handleCreateRecipe}>
+              Save Recipe
+            </button>
           </>
         )}
+
       </div>
     </BaseModal>
   );
