@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, UniqueConstraint, func
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -9,7 +9,8 @@ class Tag(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    name = Column(String(100), nullable=False, index=True)
+    # Store lowercase only
+    name = Column(String(100), nullable=False)
 
     data_type = Column(
         String(20),
@@ -36,6 +37,14 @@ class Tag(Base):
         default=False,
         nullable=False,
         index=True
+    )
+
+    __table_args__ = (
+        UniqueConstraint(
+            "name",
+            "is_deleted",
+            name="uq_tag_name_global_active"
+        ),
     )
 
     device = relationship("DeviceInstance", back_populates="tags")
