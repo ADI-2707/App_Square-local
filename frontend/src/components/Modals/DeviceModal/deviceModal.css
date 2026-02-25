@@ -77,6 +77,24 @@
   line-height: 1;
 }
 
+.tag-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.tag-actions button {
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
 .tag-list {
   margin-top: 12px;
   padding: 0;
