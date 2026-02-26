@@ -131,7 +131,7 @@ export default function Sidebar({ onOpenModal }) {
     try {
       if (contextMenu.type === "recipe") {
         const confirmed = window.confirm(
-          `Delete recipe "${contextMenu.recipe.name}"?`
+          `Delete recipe "${contextMenu.recipe.name}"?`,
         );
         if (!confirmed) return;
 
@@ -140,13 +140,13 @@ export default function Sidebar({ onOpenModal }) {
 
       if (contextMenu.type === "recipeGroup") {
         const confirmed = window.confirm(
-          `Delete recipe group "${contextMenu.recipeGroup.name}"?`
+          `Delete recipe group "${contextMenu.recipeGroup.name}"?`,
         );
         if (!confirmed) return;
 
         await deleteRecipeGroup(
           contextMenu.recipeGroup.id,
-          contextMenu.templateId
+          contextMenu.templateId,
         );
       }
     } catch (error) {
@@ -158,8 +158,7 @@ export default function Sidebar({ onOpenModal }) {
 
   const templatesWithRecipeGroups = groups.allIds.filter(
     (templateId) =>
-      recipeGroups[templateId] &&
-      recipeGroups[templateId].length > 0
+      recipeGroups[templateId] && recipeGroups[templateId].length > 0,
   );
 
   return (
@@ -244,17 +243,14 @@ export default function Sidebar({ onOpenModal }) {
                       className="tree-item expandable"
                       onClick={() => toggleTemplateForRecipes(templateId)}
                     >
-                      {expandedTemplatesForRecipes[templateId]
-                        ? "▾"
-                        : "▸"}{" "}
+                      {expandedTemplatesForRecipes[templateId] ? "▾" : "▸"}{" "}
                       {template.name}
                     </div>
 
                     {expandedTemplatesForRecipes[templateId] && (
                       <div className="tree-children">
                         {rGroups.map((rGroup) => {
-                          const recipeList =
-                            recipes[rGroup.id]?.[1] || [];
+                          const recipeList = recipes[rGroup.id]?.[1] || [];
 
                           return (
                             <div key={rGroup.id} className="tree-node">
@@ -262,23 +258,19 @@ export default function Sidebar({ onOpenModal }) {
                                 className="tree-item expandable"
                                 onClick={() => toggleRecipeGroup(rGroup)}
                               >
-                                {expandedRecipeGroups[rGroup.id]
-                                  ? "▾"
-                                  : "▸"}{" "}
+                                {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}{" "}
                                 {rGroup.name}
                               </div>
 
                               {expandedRecipeGroups[rGroup.id] && (
                                 <div className="tree-children">
                                   {recipeList.map((recipe) => (
-                                    <div
-                                      key={recipe.id}
-                                      className="tree-node"
-                                    >
+                                    <div key={recipe.id} className="tree-node">
                                       <div
                                         className="tree-item leaf"
-                                        onClick={() =>
-                                          handleOpenRecipe(recipe)
+                                        onClick={() => handleOpenRecipe(recipe)}
+                                        onContextMenu={(e) =>
+                                          handleRightClick(e, recipe, rGroup.id)
                                         }
                                       >
                                         {recipe.name}
