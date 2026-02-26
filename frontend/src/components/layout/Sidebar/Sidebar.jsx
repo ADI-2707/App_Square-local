@@ -24,7 +24,7 @@ export default function Sidebar({ onOpenModal }) {
 
   const [contextMenu, setContextMenu] = useState(null);
   const [addRecipeModal, setAddRecipeModal] = useState(null);
-  const [addAreaModal, setAddAreaModal] = useState(null); // ✅ NEW
+  const [addAreaModal, setAddAreaModal] = useState(null);
 
   const [openSections, setOpenSections] = useState({
     templates: false,
@@ -39,6 +39,16 @@ export default function Sidebar({ onOpenModal }) {
   useEffect(() => {
     loadGroups();
   }, []);
+
+  useEffect(() => {
+    if (openSections.recipes) {
+      groups.allIds.forEach((templateId) => {
+        if (!recipeGroups[templateId]) {
+          loadRecipeGroups(templateId);
+        }
+      });
+    }
+  }, [openSections.recipes, groups.allIds]);
 
   useEffect(() => {
     const handleGlobalClick = (e) => {
@@ -75,11 +85,7 @@ export default function Sidebar({ onOpenModal }) {
     }));
   };
 
-  const toggleTemplateForRecipes = async (templateId) => {
-    if (!expandedTemplatesForRecipes[templateId]) {
-      await loadRecipeGroups(templateId);
-    }
-
+  const toggleTemplateForRecipes = (templateId) => {
     setExpandedTemplatesForRecipes((prev) => ({
       ...prev,
       [templateId]: !prev[templateId],
@@ -149,6 +155,12 @@ export default function Sidebar({ onOpenModal }) {
 
     setContextMenu(null);
   };
+
+  const templatesWithRecipeGroups = groups.allIds.filter(
+    (templateId) =>
+      recipeGroups[templateId] &&
+      recipeGroups[templateId].length > 0
+  );
 
   return (
     <>
@@ -222,7 +234,7 @@ export default function Sidebar({ onOpenModal }) {
                 Create Recipe
               </button>
 
-              {groups.allIds.map((templateId) => {
+              {templatesWithRecipeGroups.map((templateId) => {
                 const template = groups.byId[templateId];
                 const rGroups = recipeGroups[templateId] || [];
 
@@ -231,17 +243,6 @@ export default function Sidebar({ onOpenModal }) {
                     <div
                       className="tree-item expandable"
                       onClick={() => toggleTemplateForRecipes(templateId)}
-                      onContextMenu={(e) => {
-                        e.preventDefault();
-                        if (role !== "admin") return;
-
-                        setContextMenu({
-                          x: e.pageX,
-                          y: e.pageY,
-                          type: "template",
-                          templateId,
-                        });
-                      }}
                     >
                       {expandedTemplatesForRecipes[templateId]
                         ? "▾"
@@ -260,18 +261,6 @@ export default function Sidebar({ onOpenModal }) {
                               <div
                                 className="tree-item expandable"
                                 onClick={() => toggleRecipeGroup(rGroup)}
-                                onContextMenu={(e) => {
-                                  e.preventDefault();
-                                  if (role !== "admin") return;
-
-                                  setContextMenu({
-                                    x: e.pageX,
-                                    y: e.pageY,
-                                    type: "recipeGroup",
-                                    recipeGroup: rGroup,
-                                    templateId: templateId,
-                                  });
-                                }}
                               >
                                 {expandedRecipeGroups[rGroup.id]
                                   ? "▾"
@@ -290,13 +279,6 @@ export default function Sidebar({ onOpenModal }) {
                                         className="tree-item leaf"
                                         onClick={() =>
                                           handleOpenRecipe(recipe)
-                                        }
-                                        onContextMenu={(e) =>
-                                          handleRightClick(
-                                            e,
-                                            recipe,
-                                            rGroup.id
-                                          )
                                         }
                                       >
                                         {recipe.name}
@@ -317,74 +299,6 @@ export default function Sidebar({ onOpenModal }) {
           )}
         </div>
       </div>
-
-      {contextMenu &&
-        createPortal(
-          <div
-            className="context-menu"
-            style={{
-              top: contextMenu.y,
-              left: contextMenu.x,
-            }}
-          >
-            {contextMenu.type === "template" && (
-              <div
-                className="context-item"
-                onClick={() => {
-                  setAddAreaModal(contextMenu.templateId);
-                  setContextMenu(null);
-                }}
-              >
-                Add Area
-              </div>
-            )}
-
-            {contextMenu.type === "recipeGroup" && (
-              <div
-                className="context-item"
-                onClick={() => {
-                  setAddRecipeModal({
-                    recipeGroupId:
-                      contextMenu.recipeGroup.id,
-                    templateGroupId:
-                      contextMenu.templateId,
-                  });
-                  setContextMenu(null);
-                }}
-              >
-                Add Recipe
-              </div>
-            )}
-
-            {(contextMenu.type === "recipe" ||
-              contextMenu.type === "recipeGroup") && (
-              <div
-                className="context-item"
-                onClick={handleDelete}
-              >
-                Delete
-              </div>
-            )}
-          </div>,
-          document.body
-        )}
-
-      {addRecipeModal && (
-        <AddRecipeModal
-          isOpen={true}
-          recipeGroupId={addRecipeModal.recipeGroupId}
-          templateGroupId={addRecipeModal.templateGroupId}
-          onClose={() => setAddRecipeModal(null)}
-        />
-      )}
-
-      {addAreaModal && (
-        <RecipeModal
-          isOpen={true}
-          initialTemplateId={addAreaModal}
-          onClose={() => setAddAreaModal(null)}
-        />
-      )}
     </>
   );
 }
