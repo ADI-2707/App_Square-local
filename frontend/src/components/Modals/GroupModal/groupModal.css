@@ -10,6 +10,11 @@
   flex-direction: column;
 }
 
+.error-field {
+  border: 2px solid #d32f2f !important;
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+}
+
 .group-form label {
   font-size: 14px;
   font-weight: 500;

@@ -12,6 +12,11 @@
   letter-spacing: 0.2px;
 }
 
+.error-field {
+  border: 2px solid #d32f2f !important;
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+}
+
 .group-form input,
 .group-form select {
   padding: 10px 12px;

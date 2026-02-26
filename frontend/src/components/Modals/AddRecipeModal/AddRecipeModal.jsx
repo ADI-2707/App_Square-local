@@ -15,12 +15,14 @@ export default function AddRecipeModal({
   const [recipeName, setRecipeName] = useState("");
   const [templateDevices, setTemplateDevices] = useState([]);
   const [selectedDevices, setSelectedDevices] = useState([]);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (!isOpen) return;
 
     setRecipeName("");
     setSelectedDevices([]);
+    setErrors({});
 
     const fetchDevices = async () => {
       try {
@@ -42,10 +44,17 @@ export default function AddRecipeModal({
     } else {
       setSelectedDevices([...selectedDevices, id]);
     }
+
+    if (errors.devices) {
+      setErrors((prev) => ({ ...prev, devices: false }));
+    }
   };
 
   const selectAll = () => {
     setSelectedDevices(templateDevices.map((d) => d.id));
+    if (errors.devices) {
+      setErrors((prev) => ({ ...prev, devices: false }));
+    }
   };
 
   const clearAll = () => {
@@ -53,13 +62,19 @@ export default function AddRecipeModal({
   };
 
   const handleCreate = async () => {
+    const newErrors = {};
+
     if (!recipeName.trim()) {
-      alert("Enter recipe name");
-      return;
+      newErrors.recipeName = true;
     }
 
     if (selectedDevices.length === 0) {
-      alert("Select at least one device");
+      newErrors.devices = true;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      alert("Please fix highlighted fields before saving.");
       return;
     }
 
@@ -71,6 +86,7 @@ export default function AddRecipeModal({
       });
 
       addRecipeLocal(recipeGroupId, res.data);
+      setErrors({});
       onClose();
     } catch (err) {
       alert(err.response?.data?.detail || "Failed to create recipe");
@@ -80,18 +96,29 @@ export default function AddRecipeModal({
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Add Recipe">
       <div className="group-form">
-
         <label>Recipe Name</label>
         <input
           type="text"
           value={recipeName}
-          onChange={(e) => setRecipeName(e.target.value)}
+          className={errors.recipeName ? "error-field" : ""}
+          onChange={(e) => {
+            setRecipeName(e.target.value);
+            if (errors.recipeName) {
+              setErrors((prev) => ({
+                ...prev,
+                recipeName: false,
+              }));
+            }
+          }}
         />
 
         <label>Select Devices</label>
 
-        <div className="device-selection">
-
+        <div
+          className={`device-selection ${
+            errors.devices ? "error-field" : ""
+          }`}
+        >
           <div className="device-actions">
             <button type="button" onClick={selectAll}>
               Select All
@@ -100,7 +127,8 @@ export default function AddRecipeModal({
               Clear
             </button>
             <span>
-              Selected: {selectedDevices.length} / {templateDevices.length}
+              Selected: {selectedDevices.length} /{" "}
+              {templateDevices.length}
             </span>
           </div>
 
@@ -118,13 +146,11 @@ export default function AddRecipeModal({
               />
             </div>
           ))}
-
         </div>
 
         <button onClick={handleCreate}>
           Save Recipe
         </button>
-
       </div>
     </BaseModal>
   );

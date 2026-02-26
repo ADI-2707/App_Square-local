@@ -142,6 +142,11 @@
   border-radius: 50%;
 }
 
+.error-field {
+  border: 2px solid #d32f2f !important;
+  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+}
+
 .modal-actions {
   margin-top: 12px;
   padding-top: 12px;

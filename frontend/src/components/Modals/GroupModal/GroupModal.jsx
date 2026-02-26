@@ -12,14 +12,31 @@ export default function GroupModal({ isOpen, onClose }) {
   const [description, setDescription] = useState("");
   const [devices, setDevices] = useState([]);
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const addDevice = (deviceData) => {
     setDevices((prev) => [...prev, deviceData]);
   };
 
   const handleSave = async () => {
+    const newErrors = {};
+
+    if (!groupName.trim()) {
+      newErrors.groupName = true;
+    }
+
+    if (devices.length === 0) {
+      newErrors.devices = true;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      alert("Please fix highlighted fields before saving.");
+      return;
+    }
+
     const payload = {
-      name: groupName,
+      name: groupName.trim(),
       devices: devices.map((device) => ({
         name: device.device_name,
         type: "generic",
@@ -37,7 +54,7 @@ export default function GroupModal({ isOpen, onClose }) {
       setGroupName("");
       setDescription("");
       setDevices([]);
-
+      setErrors({});
       onClose();
     } catch (error) {
       console.error(error);
@@ -58,7 +75,13 @@ export default function GroupModal({ isOpen, onClose }) {
             <input
               type="text"
               value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
+              className={errors.groupName ? "error-field" : ""}
+              onChange={(e) => {
+                setGroupName(e.target.value);
+                if (errors.groupName) {
+                  setErrors((prev) => ({ ...prev, groupName: false }));
+                }
+              }}
             />
           </div>
 
@@ -71,7 +94,11 @@ export default function GroupModal({ isOpen, onClose }) {
             />
           </div>
 
-          <div className="device-section">
+          <div
+            className={`device-section ${
+              errors.devices ? "error-field" : ""
+            }`}
+          >
             <div className="group-device-header">
               <h4>Devices</h4>
               <button onClick={() => setIsDeviceModalOpen(true)}>
