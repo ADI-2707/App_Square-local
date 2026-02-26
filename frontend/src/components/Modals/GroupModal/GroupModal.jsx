@@ -54,7 +54,7 @@ export default function GroupModal({ isOpen, onClose }) {
       >
         <div className="group-form">
           <div className="form-field">
-            <label>Group Name</label>
+            <label>Template Name</label>
             <input
               type="text"
               value={groupName}
@@ -89,7 +89,7 @@ export default function GroupModal({ isOpen, onClose }) {
           </div>
 
           <div className="modal-actions">
-            <button onClick={handleSave}>Save Group</button>
+            <button onClick={handleSave}>Save Template</button>
           </div>
         </div>
       </BaseModal>

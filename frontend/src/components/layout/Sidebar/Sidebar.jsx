@@ -4,6 +4,7 @@ import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import { useAuth } from "../../../context/AuthContext/AuthContext";
 import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
+import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal }) {
@@ -23,6 +24,7 @@ export default function Sidebar({ onOpenModal }) {
 
   const [contextMenu, setContextMenu] = useState(null);
   const [addRecipeModal, setAddRecipeModal] = useState(null);
+  const [addAreaModal, setAddAreaModal] = useState(null); // ✅ NEW
 
   const [openSections, setOpenSections] = useState({
     templates: false,
@@ -38,7 +40,6 @@ export default function Sidebar({ onOpenModal }) {
     loadGroups();
   }, []);
 
-  // Close context menu on outside click
   useEffect(() => {
     const handleGlobalClick = (e) => {
       if (!e.target.closest(".context-menu")) {
@@ -157,7 +158,6 @@ export default function Sidebar({ onOpenModal }) {
           <div className="sidebar-appname">APP SQUARE</div>
         </div>
 
-        {/* TEMPLATES SECTION */}
         <div className="sidebar-section">
           <div
             className="sidebar-title"
@@ -206,7 +206,6 @@ export default function Sidebar({ onOpenModal }) {
           )}
         </div>
 
-        {/* RECIPES SECTION */}
         <div className="sidebar-section">
           <div
             className={`sidebar-title ${
@@ -232,6 +231,17 @@ export default function Sidebar({ onOpenModal }) {
                     <div
                       className="tree-item expandable"
                       onClick={() => toggleTemplateForRecipes(templateId)}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        if (role !== "admin") return;
+
+                        setContextMenu({
+                          x: e.pageX,
+                          y: e.pageY,
+                          type: "template",
+                          templateId,
+                        });
+                      }}
                     >
                       {expandedTemplatesForRecipes[templateId]
                         ? "▾"
@@ -308,7 +318,6 @@ export default function Sidebar({ onOpenModal }) {
         </div>
       </div>
 
-      {/* ✅ CONTEXT MENU RENDERED VIA PORTAL */}
       {contextMenu &&
         createPortal(
           <div
@@ -318,6 +327,18 @@ export default function Sidebar({ onOpenModal }) {
               left: contextMenu.x,
             }}
           >
+            {contextMenu.type === "template" && (
+              <div
+                className="context-item"
+                onClick={() => {
+                  setAddAreaModal(contextMenu.templateId);
+                  setContextMenu(null);
+                }}
+              >
+                Add Area
+              </div>
+            )}
+
             {contextMenu.type === "recipeGroup" && (
               <div
                 className="context-item"
@@ -335,12 +356,15 @@ export default function Sidebar({ onOpenModal }) {
               </div>
             )}
 
-            <div
-              className="context-item"
-              onClick={handleDelete}
-            >
-              Delete
-            </div>
+            {(contextMenu.type === "recipe" ||
+              contextMenu.type === "recipeGroup") && (
+              <div
+                className="context-item"
+                onClick={handleDelete}
+              >
+                Delete
+              </div>
+            )}
           </div>,
           document.body
         )}
@@ -351,6 +375,14 @@ export default function Sidebar({ onOpenModal }) {
           recipeGroupId={addRecipeModal.recipeGroupId}
           templateGroupId={addRecipeModal.templateGroupId}
           onClose={() => setAddRecipeModal(null)}
+        />
+      )}
+
+      {addAreaModal && (
+        <RecipeModal
+          isOpen={true}
+          initialTemplateId={addAreaModal}
+          onClose={() => setAddAreaModal(null)}
         />
       )}
     </>

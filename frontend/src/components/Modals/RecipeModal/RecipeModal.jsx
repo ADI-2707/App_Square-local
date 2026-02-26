@@ -5,7 +5,7 @@ import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import api from "../../../Utility/api";
 import "./recipeModal.css";
 
-export default function RecipeModal({ isOpen, onClose }) {
+export default function RecipeModal({ isOpen, onClose, initialTemplateId = null, }) {
   const { groups } = useEntities();
   const { addRecipeGroupLocal, addRecipeLocal } = useRecipes();
 
@@ -17,7 +17,6 @@ export default function RecipeModal({ isOpen, onClose }) {
   const [templateDevices, setTemplateDevices] = useState([]);
   const [selectedDevices, setSelectedDevices] = useState([]);
 
-  // Reset modal state
   useEffect(() => {
     if (isOpen) {
       setSelectedTemplate("");
@@ -27,9 +26,8 @@ export default function RecipeModal({ isOpen, onClose }) {
       setTemplateDevices([]);
       setSelectedDevices([]);
     }
-  }, [isOpen]);
+  }, [isOpen, initialTemplateId]);
 
-  // Fetch template devices when template changes
   useEffect(() => {
     if (!selectedTemplate) {
       setTemplateDevices([]);
@@ -118,7 +116,7 @@ export default function RecipeModal({ isOpen, onClose }) {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Create Recipe">
       <div className="group-form">
-        <label>Select Template Group</label>
+        <label>Select Template</label>
         <select
           value={selectedTemplate}
           onChange={(e) => setSelectedTemplate(e.target.value)}
@@ -164,14 +162,14 @@ export default function RecipeModal({ isOpen, onClose }) {
           </>
         )}
 
-        <label>Recipe Group Name</label>
+        <label>Area Name</label>
         <input
           type="text"
           value={recipeGroupName}
           onChange={(e) => setRecipeGroupName(e.target.value)}
         />
 
-        <button onClick={handleCreateRecipeGroup}>Create Recipe Group</button>
+        <button onClick={handleCreateRecipeGroup}>Create Area</button>
 
         {createdGroupId && (
           <>
