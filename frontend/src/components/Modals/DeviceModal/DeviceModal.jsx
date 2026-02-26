@@ -15,12 +15,13 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
 
+  // Check duplicate tag names (case insensitive)
   const tagExists = (name, excludeIndex = null) => {
     const normalized = name.trim().toLowerCase();
     return tags.some(
       (t, i) =>
         i !== excludeIndex &&
-        t.name.toLowerCase() === normalized
+        t.name.trim().toLowerCase() === normalized
     );
   };
 
@@ -34,9 +35,40 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
 
     setTags((prev) => [...prev, { name: tagName.trim() }]);
     setTagName("");
+
     if (errors.tags) {
       setErrors((prev) => ({ ...prev, tags: false }));
     }
+  };
+
+  const deleteTag = (index) => {
+    setTags((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const startEdit = (index) => {
+    setEditingIndex(index);
+    setEditValue(tags[index].name);
+  };
+
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setEditValue("");
+  };
+
+  const confirmEdit = (index) => {
+    if (!editValue.trim()) return;
+
+    if (tagExists(editValue, index)) {
+      alert("Tag already exists");
+      return;
+    }
+
+    const updated = [...tags];
+    updated[index].name = editValue.trim();
+    setTags(updated);
+
+    setEditingIndex(null);
+    setEditValue("");
   };
 
   const handleSave = () => {
@@ -63,10 +95,14 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
 
     onSave(payload);
 
+    // Reset state
     setDeviceName("");
     setTags([]);
     setTagName("");
+    setEditingIndex(null);
+    setEditValue("");
     setErrors({});
+
     onClose();
   };
 
@@ -82,7 +118,10 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
             onChange={(e) => {
               setDeviceName(e.target.value);
               if (errors.deviceName) {
-                setErrors((prev) => ({ ...prev, deviceName: false }));
+                setErrors((prev) => ({
+                  ...prev,
+                  deviceName: false,
+                }));
               }
             }}
           />
@@ -105,20 +144,78 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
               onChange={(e) => setTagName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && addTag()}
             />
-            <button onClick={addTag}>Add</button>
+            <button type="button" onClick={addTag}>
+              Add
+            </button>
           </div>
 
           <ul className="tag-list">
             {tags.map((tag, index) => (
               <li key={index} className="tag-row">
-                <span className="tag-name">{tag.name}</span>
+                {editingIndex === index ? (
+                  <>
+                    <input
+                      className="edit-input"
+                      value={editValue}
+                      onChange={(e) =>
+                        setEditValue(e.target.value)
+                      }
+                    />
+
+                    <div className="tag-actions">
+                      <button
+                        className="icon-btn confirm"
+                        onClick={() =>
+                          confirmEdit(index)
+                        }
+                      >
+                        <CheckIcon />
+                      </button>
+
+                      <button
+                        className="icon-btn cancel"
+                        onClick={cancelEdit}
+                      >
+                        <CloseIcon />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="tag-name">
+                      {tag.name}
+                    </span>
+
+                    <div className="tag-actions">
+                      <button
+                        className="icon-btn edit"
+                        onClick={() =>
+                          startEdit(index)
+                        }
+                      >
+                        <EditIcon />
+                      </button>
+
+                      <button
+                        className="icon-btn delete"
+                        onClick={() =>
+                          deleteTag(index)
+                        }
+                      >
+                        <DeleteIcon />
+                      </button>
+                    </div>
+                  </>
+                )}
               </li>
             ))}
           </ul>
         </div>
 
         <div className="modal-actions">
-          <button onClick={handleSave}>Save Device</button>
+          <button onClick={handleSave}>
+            Save Device
+          </button>
         </div>
       </div>
     </BaseModal>
