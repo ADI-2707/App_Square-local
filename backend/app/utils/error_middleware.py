@@ -14,7 +14,10 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
         try:
             response = await call_next(request)
 
-            if response.status_code >= 400:
+            if (
+                response.status_code >= 400
+                and not getattr(request.state, "already_logged", False)
+            ):
 
                 log_db: Session = SessionLocal()
 

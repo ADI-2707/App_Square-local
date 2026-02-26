@@ -13,10 +13,8 @@ def command_logger(action: str):
         @wraps(func)
         def wrapper(*args, **kwargs):
 
-            db: Session = kwargs.get("db")
             current_user = kwargs.get("current_user")
             request: Request = kwargs.get("request")
-
             endpoint = None
             method = None
 
@@ -38,6 +36,8 @@ def command_logger(action: str):
                 return result
 
             except HTTPException as e:
+                if request:
+                    request.state.already_logged = True
 
                 _log_independent(
                     user=current_user,
@@ -52,6 +52,9 @@ def command_logger(action: str):
                 raise
 
             except Exception as e:
+
+                if request:
+                    request.state.already_logged = True
 
                 _log_independent(
                     user=current_user,

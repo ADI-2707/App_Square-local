@@ -9,12 +9,15 @@ def transactional(func):
         db: Session = kwargs.get("db")
 
         if not db:
-            raise RuntimeError("Database session not provided to transactional function")
+            raise RuntimeError(
+                "Database session not provided to transactional function"
+            )
 
         try:
             result = func(*args, **kwargs)
             db.commit()
             return result
+        
         except Exception:
             db.rollback()
             raise
