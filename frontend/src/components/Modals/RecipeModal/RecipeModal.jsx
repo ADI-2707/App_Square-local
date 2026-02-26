@@ -120,6 +120,7 @@ export default function RecipeModal({ isOpen, onClose, initialTemplateId = null,
         <select
           value={selectedTemplate}
           onChange={(e) => setSelectedTemplate(e.target.value)}
+          disabled={!!initialTemplateId}
         >
           <option value="">Select Template</option>
           {groups.allIds.map((id) => (
