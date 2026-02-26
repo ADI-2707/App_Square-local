@@ -5,7 +5,11 @@ import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import api from "../../../Utility/api";
 import "./recipeModal.css";
 
-export default function RecipeModal({ isOpen, onClose, initialTemplateId = null, }) {
+export default function RecipeModal({
+  isOpen,
+  onClose,
+  initialTemplateId = null,
+}) {
   const { groups } = useEntities();
   const { addRecipeGroupLocal, addRecipeLocal } = useRecipes();
 
@@ -19,7 +23,12 @@ export default function RecipeModal({ isOpen, onClose, initialTemplateId = null,
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedTemplate("");
+      if (initialTemplateId) {
+        setSelectedTemplate(String(initialTemplateId));
+      } else {
+        setSelectedTemplate("");
+      }
+
       setRecipeGroupName("");
       setRecipeName("");
       setCreatedGroupId(null);
