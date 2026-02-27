@@ -66,6 +66,17 @@ def soft_delete_template_group(
     if not group:
         raise HTTPException(status_code=404, detail="Template group not found")
 
+    active_recipe_count = template_queries.count_active_recipes_by_template(
+        db,
+        group_id
+    )
+
+    if active_recipe_count > 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Some recipe using this template. You can not delete this."
+        )
+
     template_queries.soft_delete_template_group_cascade(db, group)
 
     return {"message": "Template group deleted successfully"}
