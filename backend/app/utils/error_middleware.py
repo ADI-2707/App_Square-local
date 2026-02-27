@@ -42,6 +42,9 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
 
         except Exception as e:
 
+            if getattr(request.state, "already_logged", False):
+                raise
+
             log_db: Session = SessionLocal()
 
             try:
