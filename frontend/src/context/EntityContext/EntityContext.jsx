@@ -98,10 +98,7 @@ export function EntityProvider({ children }) {
         },
         byGroupId: {
           ...prev.byGroupId,
-          [groupId]: [
-            ...(prev.byGroupId[groupId] || []),
-            deviceId,
-          ],
+          [groupId]: [...(prev.byGroupId[groupId] || []), deviceId],
         },
       }));
 
@@ -115,14 +112,22 @@ export function EntityProvider({ children }) {
           },
           byDeviceId: {
             ...prev.byDeviceId,
-            [deviceId]: [
-              ...(prev.byDeviceId[deviceId] || []),
-              tagId,
-            ],
+            [deviceId]: [...(prev.byDeviceId[deviceId] || []), tagId],
           },
         }));
       });
     });
+  };
+
+  const deleteTemplate = async (groupId) => {
+    await api.delete(`/templates/${groupId}`);
+
+    setGroups((prev) => ({
+      byId: Object.fromEntries(
+        Object.entries(prev.byId).filter(([id]) => Number(id) !== groupId),
+      ),
+      allIds: prev.allIds.filter((id) => id !== groupId),
+    }));
   };
 
   return (
@@ -135,6 +140,7 @@ export function EntityProvider({ children }) {
         loadDevices,
         loadTags,
         addFullTemplateGroup,
+        deleteTemplate,
       }}
     >
       {children}
