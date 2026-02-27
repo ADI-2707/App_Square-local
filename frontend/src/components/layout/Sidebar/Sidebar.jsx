@@ -207,6 +207,13 @@ export default function Sidebar({ onOpenModal }) {
                     <div
                       className="tree-item expandable"
                       onClick={() => toggleGroup(groupId)}
+                      onContextMenu={(e) =>
+                        handleRightClick(e, {
+                          type: "template",
+                          templateId: groupId,
+                          templateName: group.name,
+                        })
+                      }
                     >
                       {expandedGroups[groupId] ? "▾" : "▸"} {group.name}
                     </div>
@@ -259,13 +266,6 @@ export default function Sidebar({ onOpenModal }) {
                       onClick={() =>
                         toggleTemplateForRecipes(templateId)
                       }
-                      onContextMenu={(e) =>
-                        handleRightClick(e, {
-                          type: "template",
-                          templateId,
-                          templateName: template.name,
-                        })
-                      }
                     >
                       {expandedTemplatesForRecipes[templateId]
                         ? "▾"
@@ -316,7 +316,8 @@ export default function Sidebar({ onOpenModal }) {
                                           handleRightClick(e, {
                                             type: "recipe",
                                             recipe,
-                                            recipeGroupId: rGroup.id,
+                                            recipeGroupId:
+                                              rGroup.id,
                                           })
                                         }
                                       >
