@@ -113,3 +113,16 @@ def soft_delete_template_group_cascade(db: Session, group: TemplateGroup):
         db.query(Recipe).filter(
             Recipe.recipe_group_id == rg.id
         ).update({"is_deleted": True}, synchronize_session=False)
+
+
+def count_active_recipes_by_template(db: Session, template_group_id: int):
+    return db.query(Recipe).join(
+        RecipeGroup,
+        Recipe.recipe_group_id == RecipeGroup.id
+    ).filter(
+        and_(
+            RecipeGroup.template_group_id == template_group_id,
+            Recipe.is_deleted == False,
+            RecipeGroup.is_deleted == False
+        )
+    ).count()
