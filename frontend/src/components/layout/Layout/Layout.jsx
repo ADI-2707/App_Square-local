@@ -1,4 +1,4 @@
-import { useState, useMemo, Fragment } from "react";
+import { useState, useMemo, useEffect, Fragment } from "react";
 import Navbar from "../Navbar/Navbar";
 import Sidebar from "../Sidebar/Sidebar";
 
@@ -10,11 +10,21 @@ import "./layout.css";
 
 export default function Layout() {
   const [activeModal, setActiveModal] = useState(null);
+  const [animateIntro, setAnimateIntro] = useState(false);
+
   const { activeRecipe } = useRecipes();
 
   const closeModal = () => {
     setActiveModal(null);
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimateIntro(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const devices = activeRecipe?.devices || [];
 
@@ -49,7 +59,10 @@ export default function Layout() {
 
       <div className="layout-content">
         {!activeRecipe ? (
-          <div className="workspace-placeholder">
+          <div className={`workspace-placeholder ${
+              animateIntro ? "intro-active" : ""
+            }`}
+          >
             <h2>Welcome to APP SQUARE</h2>
             <p>Select a recipe from the sidebar to open in workspace.</p>
           </div>

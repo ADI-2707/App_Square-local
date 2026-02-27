@@ -62,11 +62,22 @@
 }
 
 .workspace-placeholder {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
   height: 100%;
   color: var(--color-text-secondary);
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.8s ease;
+  will-change: transform, opacity;
+}
+
+.workspace-placeholder.intro-active {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .workspace-title {
