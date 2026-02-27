@@ -32,6 +32,10 @@
   letter-spacing: 0.5px;
 }
 
+.user-info:hover {
+  text-decoration: underline;
+}
+
 .logout-btn {
   background: white;
   color: var(--color-primary);
