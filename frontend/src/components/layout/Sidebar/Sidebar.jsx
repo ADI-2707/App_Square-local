@@ -195,7 +195,7 @@ export default function Sidebar({ onOpenModal }) {
           {openSections.templates && (
             <div className="sidebar-submenu">
               <button onClick={() => onOpenModal("createGroup")}>
-                Create Template
+                Create Recipe Template
               </button>
 
               {groups.allIds.map((groupId) => {
