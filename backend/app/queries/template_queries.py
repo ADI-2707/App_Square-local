@@ -174,3 +174,34 @@ def get_full_template(db: Session, template_group_id: int):
         "name": group.name,
         "devices": device_list
     }
+
+
+def get_device_with_tags(db: Session, device_id: int):
+    device = db.query(DeviceInstance).filter(
+        and_(
+            DeviceInstance.id == device_id,
+            DeviceInstance.is_deleted == False
+        )
+    ).first()
+
+    if not device:
+        return None
+
+    tags = db.query(Tag).filter(
+        and_(
+            Tag.device_instance_id == device_id,
+            Tag.is_deleted == False
+        )
+    ).all()
+
+    return {
+        "id": device.id,
+        "device_name": device.name,
+        "tag_values": [
+            {
+                "tag_name": tag.name,
+                "value": "-"
+            }
+            for tag in tags
+        ]
+    }

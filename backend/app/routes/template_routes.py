@@ -19,7 +19,8 @@ from app.services.template_service import (
     get_all_groups,
     get_devices_by_group,
     get_tags_by_device,
-    get_full_template
+    get_full_template,
+    get_device_full
 )
 
 router = APIRouter(prefix="/templates", tags=["Templates"])
@@ -63,6 +64,23 @@ def list_tags(
     current_user = Depends(get_current_user)
 ):
     return get_tags_by_device(db, device_id)
+
+
+@router.get("/devices/{device_id}/full")
+def get_device_full_route(
+    device_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    device = get_device_full(db, device_id)
+
+    if not device:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Device not found"
+        )
+
+    return device
 
 
 @router.delete("/{group_id}")
