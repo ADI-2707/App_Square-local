@@ -102,8 +102,11 @@ export default function Layout() {
             </h2>
 
             <div className="recipe-matrix-container">
+
               <table className="recipe-matrix-table">
+
                 <thead>
+
                   <tr>
                     {devices.map((device) => (
                       <th
@@ -128,30 +131,50 @@ export default function Layout() {
                       </Fragment>
                     ))}
                   </tr>
+
                 </thead>
+
                 <tbody>
 
                   {tableRows.map((row, rowIndex) => (
                     <tr key={`row-${rowIndex}`}>
+
                       {row.map((cell, colIndex) => (
 
                         <Fragment key={`cell-${rowIndex}-${colIndex}`}>
 
-                          <td className="tag-cell">{cell.tagName}</td>
+                          <td
+                            className="tag-cell"
+                            style={{ textAlign: showValues ? "left" : "center" }}
+                          >
+                            {cell.tagName}
+                          </td>
+
                           {showValues && (
-                            <td className="value-cell">{cell.value}</td>
+                            <td className="value-cell">
+                              {cell.value}
+                            </td>
                           )}
 
                         </Fragment>
+
                       ))}
+
                     </tr>
                   ))}
+
                 </tbody>
+
               </table>
+
             </div>
+
           </div>
+
         )}
+
       </div>
+
       <GroupModal
         isOpen={activeModal === "createGroup"}
         onClose={closeModal}
@@ -161,6 +184,7 @@ export default function Layout() {
         isOpen={activeModal === "createRecipe"}
         onClose={closeModal}
       />
+
     </div>
   );
 }
