@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BaseModal from "../BaseModal/BaseModal.jsx";
 import EditIcon from "../../../assets/icons/EditIcon";
 import DeleteIcon from "../../../assets/icons/DeleteIcon";
@@ -6,7 +6,7 @@ import CheckIcon from "../../../assets/icons/CheckIcon";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 import "./deviceModal.css";
 
-export default function DeviceModal({ isOpen, onClose, onSave }) {
+export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) {
   const [deviceName, setDeviceName] = useState("");
   const [tags, setTags] = useState([]);
   const [tagName, setTagName] = useState("");
@@ -15,7 +15,16 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
   const [editingIndex, setEditingIndex] = useState(null);
   const [editValue, setEditValue] = useState("");
 
-  // Check duplicate tag names (case insensitive)
+  useEffect(() => {
+  if (initialDevice) {
+    setDeviceName(initialDevice.device_name);
+    setTags(initialDevice.tags);
+  } else {
+    setDeviceName("");
+    setTags([]);
+  }
+}, [initialDevice, isOpen]);
+
   const tagExists = (name, excludeIndex = null) => {
     const normalized = name.trim().toLowerCase();
     return tags.some(
@@ -95,7 +104,6 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
 
     onSave(payload);
 
-    // Reset state
     setDeviceName("");
     setTags([]);
     setTagName("");
@@ -107,7 +115,7 @@ export default function DeviceModal({ isOpen, onClose, onSave }) {
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Create Device">
+    <BaseModal isOpen={isOpen} onClose={onClose} title={initialDevice ? "Edit Device" : "Create Device"}>
       <div className="device-form">
         <div className="form-field">
           <label>Device Name</label>

@@ -17,6 +17,7 @@ export default function GroupModal({ isOpen, onClose }) {
 
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [editingDevice, setEditingDevice] = useState(null);
 
   const [errors, setErrors] = useState({});
 
@@ -37,11 +38,13 @@ export default function GroupModal({ isOpen, onClose }) {
 
   const openAddDevice = () => {
     setEditingIndex(null);
+    setEditingDevice(null);
     setIsDeviceModalOpen(true);
   };
 
   const openEditDevice = (index) => {
     setEditingIndex(index);
+    setEditingDevice(devices[index]);
     setIsDeviceModalOpen(true);
   };
 
@@ -175,6 +178,7 @@ export default function GroupModal({ isOpen, onClose }) {
         isOpen={isDeviceModalOpen}
         onClose={() => setIsDeviceModalOpen(false)}
         onSave={editingIndex !== null ? updateDevice : addDevice}
+        initialDevice={editingDevice}
       />
     </>
   );
