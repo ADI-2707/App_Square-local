@@ -41,13 +41,15 @@ export default function Sidebar({ onOpenModal }) {
 
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
-  const [expandedTemplatesForRecipes, setExpandedTemplatesForRecipes] = useState({});
+  const [expandedTemplatesForRecipes, setExpandedTemplatesForRecipes] =
+    useState({});
 
   const hasTemplates = groups.allIds.length > 0;
 
   const templatesWithRecipeGroups = useMemo(() => {
     return groups.allIds.filter(
-      (templateId) => recipeGroups[templateId] && recipeGroups[templateId].length > 0
+      (templateId) =>
+        recipeGroups[templateId] && recipeGroups[templateId].length > 0,
     );
   }, [groups.allIds, recipeGroups]);
 
@@ -140,21 +142,30 @@ export default function Sidebar({ onOpenModal }) {
     try {
       switch (contextMenu.type) {
         case "recipe": {
-          const confirmed = window.confirm(`Delete recipe "${contextMenu.recipe.name}"?`);
+          const confirmed = window.confirm(
+            `Delete recipe "${contextMenu.recipe.name}"?`,
+          );
           if (!confirmed) return;
           await deleteRecipe(contextMenu.recipe.id, contextMenu.recipeGroupId);
           break;
         }
 
         case "recipeGroup": {
-          const confirmed = window.confirm(`Delete area "${contextMenu.recipeGroup.name}"?`);
+          const confirmed = window.confirm(
+            `Delete area "${contextMenu.recipeGroup.name}"?`,
+          );
           if (!confirmed) return;
-          await deleteRecipeGroup(contextMenu.recipeGroup.id, contextMenu.templateId);
+          await deleteRecipeGroup(
+            contextMenu.recipeGroup.id,
+            contextMenu.templateId,
+          );
           break;
         }
 
         case "template": {
-          const confirmed = window.confirm(`Delete template "${contextMenu.templateName}"?`);
+          const confirmed = window.confirm(
+            `Delete template "${contextMenu.templateName}"?`,
+          );
           if (!confirmed) return;
           await deleteTemplate(contextMenu.templateId);
           break;
@@ -173,7 +184,10 @@ export default function Sidebar({ onOpenModal }) {
   const handleViewTemplate = async () => {
     try {
       const template = await getFullTemplate(contextMenu.templateId);
-      openTemplateInWorkspace(template);
+      openTemplateInWorkspace({
+        ...template,
+        type: "template",
+      });
     } catch {
       alert("Failed to load template");
     }
@@ -188,6 +202,7 @@ export default function Sidebar({ onOpenModal }) {
       openTemplateInWorkspace({
         id: contextMenu.deviceId,
         name: contextMenu.deviceName,
+        type: "device",
         devices: [device],
       });
     } catch {
@@ -206,7 +221,10 @@ export default function Sidebar({ onOpenModal }) {
         </div>
 
         <div className="sidebar-section">
-          <div className="sidebar-title" onClick={() => toggleSection("templates")}>
+          <div
+            className="sidebar-title"
+            onClick={() => toggleSection("templates")}
+          >
             {openSections.templates ? "▾" : "▸"} Templates
           </div>
 
@@ -402,7 +420,7 @@ export default function Sidebar({ onOpenModal }) {
               </div>
             )}
           </div>,
-          document.body
+          document.body,
         )}
 
       {addRecipeModal && (

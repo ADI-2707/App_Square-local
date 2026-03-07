@@ -74,7 +74,9 @@ export default function Layout() {
             <h2 className="workspace-title">
               {activeRecipe
                 ? `Active Recipe: ${activeRecipe.name}`
-                : `Template: ${activeTemplate.name}`}
+                : activeTemplate?.type === "device"
+                  ? `Device: ${activeTemplate.name}`
+                  : `Template: ${activeTemplate.name}`}
             </h2>
 
             <div className="recipe-matrix-container">
