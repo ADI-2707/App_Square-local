@@ -126,3 +126,51 @@ def count_active_recipes_by_template(db: Session, template_group_id: int):
             RecipeGroup.is_deleted == False
         )
     ).count()
+
+
+def get_full_template(db: Session, template_group_id: int):
+    group = db.query(TemplateGroup).filter(
+        and_(
+            TemplateGroup.id == template_group_id,
+            TemplateGroup.is_deleted == False
+        )
+    ).first()
+
+    if not group:
+        return None
+
+    devices = db.query(DeviceInstance).filter(
+        and_(
+            DeviceInstance.template_group_id == template_group_id,
+            DeviceInstance.is_deleted == False
+        )
+    ).all()
+
+    device_list = []
+
+    for device in devices:
+
+        tags = db.query(Tag).filter(
+            and_(
+                Tag.device_instance_id == device.id,
+                Tag.is_deleted == False
+            )
+        ).all()
+
+        device_list.append({
+            "id": device.id,
+            "device_name": device.name,
+            "tag_values": [
+                {
+                    "tag_name": tag.name,
+                    "value": "-"
+                }
+                for tag in tags
+            ]
+        })
+
+    return {
+        "id": group.id,
+        "name": group.name,
+        "devices": device_list
+    }

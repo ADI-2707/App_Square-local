@@ -12,3 +12,7 @@ def get_devices_by_group(db: Session, group_id: int):
 
 def get_tags_by_device(db: Session, device_id: int):
     return template_queries.get_tags_by_device(db, device_id)
+
+
+def get_full_template(db: Session, template_group_id: int):
+    return template_queries.get_full_template(db, template_group_id)

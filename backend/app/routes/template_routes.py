@@ -18,7 +18,8 @@ from app.commands.template_commands import (
 from app.services.template_service import (
     get_all_groups,
     get_devices_by_group,
-    get_tags_by_device
+    get_tags_by_device,
+    get_full_template
 )
 
 router = APIRouter(prefix="/templates", tags=["Templates"])
@@ -89,3 +90,21 @@ def get_template_devices(
         DeviceInstance.template_group_id == template_group_id,
         DeviceInstance.is_deleted == False
     ).all()
+
+
+
+@router.get("/{template_group_id}/full")
+def get_full_template_route(
+    template_group_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    template = get_full_template(db, template_group_id)
+
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template not found"
+        )
+
+    return template
