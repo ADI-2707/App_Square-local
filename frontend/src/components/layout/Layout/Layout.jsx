@@ -145,7 +145,7 @@ export default function Layout() {
 
                           <td
                             className="tag-cell"
-                            style={{ textAlign: showValues ? "left" : "center" }}
+                            style={{ textAlign: "center" }}
                           >
                             {cell.tagName}
                           </td>
