@@ -22,7 +22,6 @@ async def lifespan(app: FastAPI):
 
     yield
 
-
 app = FastAPI(
     title="App Square Local",
     lifespan=lifespan
