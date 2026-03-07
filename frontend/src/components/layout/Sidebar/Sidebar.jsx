@@ -16,6 +16,7 @@ export default function Sidebar({ onOpenModal }) {
     getFullTemplate,
     getDeviceWithTags,
     openTemplateInWorkspace,
+    clearActiveTemplate,
   } = useEntities();
 
   const {
@@ -27,6 +28,7 @@ export default function Sidebar({ onOpenModal }) {
     openRecipeInWorkspace,
     deleteRecipe,
     deleteRecipeGroup,
+    clearActiveRecipe,
   } = useRecipes();
 
   const { role } = useAuth();
@@ -119,6 +121,7 @@ export default function Sidebar({ onOpenModal }) {
   const handleOpenRecipe = async (recipe) => {
     try {
       const fullRecipe = await getFullRecipe(recipe.id);
+      clearActiveTemplate();
       openRecipeInWorkspace(fullRecipe);
     } catch {
       alert("Failed to load recipe");
@@ -184,6 +187,7 @@ export default function Sidebar({ onOpenModal }) {
   const handleViewTemplate = async () => {
     try {
       const template = await getFullTemplate(contextMenu.templateId);
+      clearActiveRecipe();
       openTemplateInWorkspace({
         ...template,
         type: "template",
@@ -198,7 +202,7 @@ export default function Sidebar({ onOpenModal }) {
   const handleViewDevice = async () => {
     try {
       const device = await getDeviceWithTags(contextMenu.deviceId);
-
+      clearActiveRecipe();
       openTemplateInWorkspace({
         id: contextMenu.deviceId,
         name: contextMenu.deviceName,
