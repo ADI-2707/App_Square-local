@@ -15,61 +15,93 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0,0,0,0.65);
   z-index: 1;
 }
 
 .login-box {
   position: relative;
   z-index: 2;
-  width: 420px;
-  padding: 45px 40px;
-  background: rgba(30, 30, 35, 0.85);
+  width: 850px;
+  height: 420px;
+  display: flex;
+  background: rgba(30,30,35,0.9);
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255,255,255,0.15);
   box-shadow: var(--shadow-medium);
+  overflow: hidden;
 }
 
-.login-box h2,
-.login-subtitle {
-  text-align: center;
-}
-
-.login-box h2 {
+.login-left {
+  width: 50%;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   color: white;
-  margin-bottom: 25px;
+  background: rgba(0,0,0,0.35);
+}
+
+.welcome-title {
+  font-size: 28px;
   font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.welcome-text {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 14px;
+  color: rgba(255,255,255,0.85);
+}
+
+.welcome-footer {
+  margin-top: 20px;
+  font-size: 12px;
   letter-spacing: 1px;
+  color: rgba(255,255,255,0.6);
 }
 
-.login-subtitle {
-  margin-bottom: 24px;
-  font-size: 13px;
-  line-height: 1.5;
-  color: rgba(255, 255, 255, 0.75);
+.login-right {
+  width: 50%;
+  padding: 50px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.login-box input {
-  width: 320px;
+.login-heading {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  font-weight: 600;
+}
+
+.login-right form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-right input {
+  width: 260px;
   padding: 12px;
-  margin: 0 auto 16px auto;
-  display: block;
-  border-radius: 5px;
+  margin-bottom: 16px;
+  border-radius: 6px;
   border: none;
   background: #f1f1f1;
   font-size: 14px;
 }
 
-.login-box input:focus {
+.login-right input:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-primary);
 }
 
-.login-box button {
+.login-right button {
   width: 160px;
   padding: 10px;
-  margin: 25px auto 0 auto;
-  display: block;
+  margin-top: 10px;
   background: linear-gradient(
     135deg,
     var(--color-primary),
@@ -84,15 +116,13 @@
   transition: all 0.2s ease;
 }
 
-.login-box button:hover {
+.login-right button:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-soft);
 }
 
-.login-box button:disabled {
+.login-right button:disabled {
   background: #4a4a4a;
   cursor: not-allowed;
   opacity: 0.7;
-  box-shadow: none;
-  transform: none;
 }
