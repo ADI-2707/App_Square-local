@@ -31,6 +31,8 @@ export default function Layout() {
 
   const devices = workspace?.data?.devices || [];
 
+  const showValues = workspace?.type === "recipe";
+
   const tableRows = useMemo(() => {
 
     if (!devices.length) return [];
@@ -100,16 +102,13 @@ export default function Layout() {
             </h2>
 
             <div className="recipe-matrix-container">
-
               <table className="recipe-matrix-table">
-
                 <thead>
-
                   <tr>
                     {devices.map((device) => (
                       <th
                         key={`device-header-${device.id}`}
-                        colSpan={2}
+                        colSpan={showValues ? 2 : 1}
                         className="device-header"
                       >
                         {device.device_name}
@@ -121,46 +120,38 @@ export default function Layout() {
                     {devices.map((device) => (
                       <Fragment key={`subheader-${device.id}`}>
                         <th className="sub-header">Tag</th>
-                        <th className="sub-header">Value</th>
+
+                        {showValues && (
+                          <th className="sub-header">Value</th>
+                        )}
+
                       </Fragment>
                     ))}
                   </tr>
-
                 </thead>
-
                 <tbody>
 
                   {tableRows.map((row, rowIndex) => (
-
                     <tr key={`row-${rowIndex}`}>
-
                       {row.map((cell, colIndex) => (
 
                         <Fragment key={`cell-${rowIndex}-${colIndex}`}>
 
                           <td className="tag-cell">{cell.tagName}</td>
-                          <td className="value-cell">{cell.value}</td>
+                          {showValues && (
+                            <td className="value-cell">{cell.value}</td>
+                          )}
 
                         </Fragment>
-
                       ))}
-
                     </tr>
-
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
         )}
-
       </div>
-
       <GroupModal
         isOpen={activeModal === "createGroup"}
         onClose={closeModal}
@@ -170,7 +161,6 @@ export default function Layout() {
         isOpen={activeModal === "createRecipe"}
         onClose={closeModal}
       />
-
     </div>
   );
 }
