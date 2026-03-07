@@ -19,6 +19,8 @@ export function EntityProvider({ children }) {
     byDeviceId: {},
   });
 
+  const [activeTemplate, setActiveTemplate] = useState(null);
+
   const loadGroups = async () => {
     if (groups.allIds.length > 0) return;
 
@@ -77,6 +79,19 @@ export function EntityProvider({ children }) {
     });
   };
 
+  const getFullTemplate = async (templateId) => {
+    const res = await api.get(`/templates/${templateId}/full`);
+    return res.data;
+  };
+
+  const openTemplateInWorkspace = (template) => {
+    setActiveTemplate(template);
+  };
+
+  const clearActiveTemplate = () => {
+    setActiveTemplate(null);
+  };
+
   const addFullTemplateGroup = (groupData) => {
     const { id: groupId, name, devices: deviceList = [] } = groupData;
 
@@ -124,7 +139,7 @@ export function EntityProvider({ children }) {
 
     setGroups((prev) => ({
       byId: Object.fromEntries(
-        Object.entries(prev.byId).filter(([id]) => Number(id) !== groupId),
+        Object.entries(prev.byId).filter(([id]) => Number(id) !== groupId)
       ),
       allIds: prev.allIds.filter((id) => id !== groupId),
     }));
@@ -136,9 +151,13 @@ export function EntityProvider({ children }) {
         groups,
         devices,
         tags,
+        activeTemplate,
         loadGroups,
         loadDevices,
         loadTags,
+        getFullTemplate,
+        openTemplateInWorkspace,
+        clearActiveTemplate,
         addFullTemplateGroup,
         deleteTemplate,
       }}

@@ -13,6 +13,8 @@ export default function Sidebar({ onOpenModal }) {
     loadGroups,
     loadDevices,
     deleteTemplate,
+    getFullTemplate,
+    openTemplateInWorkspace,
   } = useEntities();
 
   const { role } = useAuth();
@@ -63,9 +65,7 @@ export default function Sidebar({ onOpenModal }) {
     };
 
     window.addEventListener("click", handleGlobalClick);
-    return () => {
-      window.removeEventListener("click", handleGlobalClick);
-    };
+    return () => window.removeEventListener("click", handleGlobalClick);
   }, []);
 
   const hasTemplates = groups.allIds.length > 0;
@@ -138,10 +138,7 @@ export default function Sidebar({ onOpenModal }) {
         );
         if (!confirmed) return;
 
-        await deleteRecipe(
-          contextMenu.recipe.id,
-          contextMenu.recipeGroupId
-        );
+        await deleteRecipe(contextMenu.recipe.id, contextMenu.recipeGroupId);
       }
 
       if (contextMenu.type === "recipeGroup") {
@@ -166,6 +163,17 @@ export default function Sidebar({ onOpenModal }) {
       }
     } catch (error) {
       alert(error.response?.data?.detail || "Delete failed");
+    }
+
+    setContextMenu(null);
+  };
+
+  const handleViewTemplate = async () => {
+    try {
+      const template = await getFullTemplate(contextMenu.templateId);
+      openTemplateInWorkspace(template);
+    } catch {
+      alert("Failed to load template");
     }
 
     setContextMenu(null);
@@ -361,10 +369,8 @@ export default function Sidebar({ onOpenModal }) {
                   className="context-item"
                   onClick={() => {
                     setAddRecipeModal({
-                      recipeGroupId:
-                        contextMenu.recipeGroup.id,
-                      templateGroupId:
-                        contextMenu.templateId,
+                      recipeGroupId: contextMenu.recipeGroup.id,
+                      templateGroupId: contextMenu.templateId,
                     });
                     setContextMenu(null);
                   }}
@@ -382,12 +388,21 @@ export default function Sidebar({ onOpenModal }) {
             )}
 
             {contextMenu.type === "template" && (
-              <div
-                className="context-item"
-                onClick={handleDelete}
-              >
-                Delete Template
-              </div>
+              <>
+                <div
+                  className="context-item"
+                  onClick={handleViewTemplate}
+                >
+                  View Template
+                </div>
+
+                <div
+                  className="context-item"
+                  onClick={handleDelete}
+                >
+                  Delete Template
+                </div>
+              </>
             )}
           </div>,
           document.body

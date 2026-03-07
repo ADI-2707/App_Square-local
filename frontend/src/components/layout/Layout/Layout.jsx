@@ -5,6 +5,7 @@ import Sidebar from "../Sidebar/Sidebar";
 import GroupModal from "../../Modals/GroupModal/GroupModal";
 import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
 
+import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import "./layout.css";
 
@@ -13,6 +14,7 @@ export default function Layout() {
   const [animateIntro, setAnimateIntro] = useState(false);
 
   const { activeRecipe } = useRecipes();
+  const { activeTemplate } = useEntities();
 
   const closeModal = () => {
     setActiveModal(null);
@@ -26,13 +28,13 @@ export default function Layout() {
     return () => clearTimeout(timer);
   }, []);
 
-  const devices = activeRecipe?.devices || [];
+  const devices = activeRecipe?.devices || activeTemplate?.devices || [];
 
   const tableRows = useMemo(() => {
     if (!devices.length) return [];
 
     const maxTags = Math.max(
-      ...devices.map((device) => device.tag_values?.length || 0)
+      ...devices.map((device) => device.tag_values?.length || 0),
     );
 
     const rows = [];
@@ -45,7 +47,7 @@ export default function Layout() {
             tagName: tag?.tag_name ?? "-",
             value: tag?.value ?? "-",
           };
-        })
+        }),
       );
     }
 
@@ -58,8 +60,9 @@ export default function Layout() {
       <Sidebar onOpenModal={setActiveModal} />
 
       <div className="layout-content">
-        {!activeRecipe ? (
-          <div className={`workspace-placeholder ${
+        {!activeRecipe && !activeTemplate ? (
+          <div
+            className={`workspace-placeholder ${
               animateIntro ? "intro-active" : ""
             }`}
           >
@@ -69,7 +72,9 @@ export default function Layout() {
         ) : (
           <div className="recipe-workspace">
             <h2 className="workspace-title">
-              Active Recipe: {activeRecipe.name}
+              {activeRecipe
+                ? `Active Recipe: ${activeRecipe.name}`
+                : `Template: ${activeTemplate.name}`}
             </h2>
 
             <div className="recipe-matrix-container">
@@ -115,10 +120,7 @@ export default function Layout() {
         )}
       </div>
 
-      <GroupModal
-        isOpen={activeModal === "createGroup"}
-        onClose={closeModal}
-      />
+      <GroupModal isOpen={activeModal === "createGroup"} onClose={closeModal} />
 
       <RecipeModal
         isOpen={activeModal === "createRecipe"}
