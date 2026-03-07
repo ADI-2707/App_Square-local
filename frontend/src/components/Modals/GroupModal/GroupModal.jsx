@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import BaseModal from "../BaseModal/BaseModal";
 import DeviceModal from "../DeviceModal/DeviceModal";
+import EditIcon from "../../../assets/icons/EditIcon";
+import DeleteIcon from "../../../assets/icons/DeleteIcon";
 import api from "../../../Utility/api";
 import "./groupModal.css";
 
@@ -10,12 +12,37 @@ export default function GroupModal({ isOpen, onClose }) {
 
   const [groupName, setGroupName] = useState("");
   const [description, setDescription] = useState("");
+
   const [devices, setDevices] = useState([]);
+
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null);
+
   const [errors, setErrors] = useState({});
 
   const addDevice = (deviceData) => {
     setDevices((prev) => [...prev, deviceData]);
+  };
+
+  const updateDevice = (deviceData) => {
+    const updated = [...devices];
+    updated[editingIndex] = deviceData;
+    setDevices(updated);
+    setEditingIndex(null);
+  };
+
+  const deleteDevice = (index) => {
+    setDevices((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const openAddDevice = () => {
+    setEditingIndex(null);
+    setIsDeviceModalOpen(true);
+  };
+
+  const openEditDevice = (index) => {
+    setEditingIndex(index);
+    setIsDeviceModalOpen(true);
   };
 
   const handleSave = async () => {
@@ -55,6 +82,8 @@ export default function GroupModal({ isOpen, onClose }) {
       setDescription("");
       setDevices([]);
       setErrors({});
+      setEditingIndex(null);
+
       onClose();
     } catch (error) {
       console.error(error);
@@ -71,7 +100,7 @@ export default function GroupModal({ isOpen, onClose }) {
       >
         <div className="group-form">
           <div className="form-field">
-            <label>Template Name</label>
+            <label>Recipe Template Name</label>
             <input
               type="text"
               value={groupName}
@@ -101,22 +130,43 @@ export default function GroupModal({ isOpen, onClose }) {
           >
             <div className="group-device-header">
               <h4>Devices</h4>
-              <button onClick={() => setIsDeviceModalOpen(true)}>
+
+              <button onClick={openAddDevice}>
                 + Add Device
               </button>
             </div>
 
             <ul>
               {devices.map((device, index) => (
-                <li key={index}>
-                  {device.device_name} ({device.tags.length} tags)
+                <li key={index} className="device-row">
+                  <div className="device-info">
+                    {device.device_name} ({device.tags.length} tags)
+                  </div>
+
+                  <div className="device-actions">
+                    <button
+                      className="icon-btn edit"
+                      onClick={() => openEditDevice(index)}
+                    >
+                      <EditIcon />
+                    </button>
+
+                    <button
+                      className="icon-btn delete"
+                      onClick={() => deleteDevice(index)}
+                    >
+                      <DeleteIcon />
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>
           </div>
 
           <div className="modal-actions">
-            <button onClick={handleSave}>Save Template</button>
+            <button onClick={handleSave}>
+              Save Template
+            </button>
           </div>
         </div>
       </BaseModal>
@@ -124,7 +174,7 @@ export default function GroupModal({ isOpen, onClose }) {
       <DeviceModal
         isOpen={isDeviceModalOpen}
         onClose={() => setIsDeviceModalOpen(false)}
-        onSave={addDevice}
+        onSave={editingIndex !== null ? updateDevice : addDevice}
       />
     </>
   );

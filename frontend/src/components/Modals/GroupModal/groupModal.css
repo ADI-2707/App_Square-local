@@ -109,3 +109,53 @@
   cursor: pointer;
   font-size: 15px;
 }
+
+.device-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.device-row:last-child {
+  border-bottom: none;
+}
+
+.device-info {
+  font-size: 14px;
+}
+
+.device-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-btn.edit {
+  color: #c79408;
+}
+
+.icon-btn.delete {
+  color: #dd0e0e;
+}
+
+.icon-btn:hover {
+  background: rgba(0,0,0,0.1);
+  border-radius: 50%;
+}
