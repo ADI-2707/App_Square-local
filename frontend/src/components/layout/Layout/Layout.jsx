@@ -11,7 +11,6 @@ import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext
 import "./layout.css";
 
 export default function Layout() {
-
   const [activeModal, setActiveModal] = useState(null);
   const [animateIntro, setAnimateIntro] = useState(false);
 
@@ -34,34 +33,28 @@ export default function Layout() {
   const showValues = workspace?.type === "recipe";
 
   const tableRows = useMemo(() => {
-
     if (!devices.length) return [];
 
     const maxTags = Math.max(
-      ...devices.map((device) => device.tag_values?.length || 0)
+      ...devices.map((device) => device.tag_values?.length || 0),
     );
 
     const rows = [];
 
     for (let i = 0; i < maxTags; i++) {
-
       rows.push(
         devices.map((device) => {
-
           const tag = device.tag_values?.[i];
 
           return {
             tagName: tag?.tag_name ?? "-",
-            value: tag?.value ?? "-"
+            value: tag?.value ?? "-",
           };
-
-        })
+        }),
       );
-
     }
 
     return rows;
-
   }, [devices]);
 
   return (
@@ -79,27 +72,25 @@ export default function Layout() {
             <h2>Welcome to APP SQUARE</h2>
             <p>Engineered software for real-time production management.</p>
           </div>
-
         ) : (
-
           <div className="recipe-workspace">
             <h2 className="workspace-title">
-
               {workspace.type === "recipe" &&
                 `Active Recipe: ${workspace.data.name}`}
 
               {workspace.type === "template" &&
                 `Template: ${workspace.data.name}`}
 
-              {workspace.type === "device" &&
-                `Device: ${workspace.data.name}`}
-
+              {workspace.type === "device" && `Device: ${workspace.data.name}`}
             </h2>
 
             <div className="recipe-matrix-container">
-              <table className="recipe-matrix-table">
+              <table
+                className={`recipe-matrix-table ${
+                  showValues ? "recipe-mode" : "template-mode"
+                }`}
+              >
                 <thead>
-
                   <tr>
                     {devices.map((device) => (
                       <th
@@ -117,21 +108,16 @@ export default function Layout() {
                       <Fragment key={`subheader-${device.id}`}>
                         <th className="sub-header">Tag</th>
 
-                        {showValues && (
-                          <th className="sub-header">Value</th>
-                        )}
+                        {showValues && <th className="sub-header">Value</th>}
                       </Fragment>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-
                   {tableRows.map((row, rowIndex) => (
                     <tr key={`row-${rowIndex}`}>
-
                       {row.map((cell, colIndex) => (
                         <Fragment key={`cell-${rowIndex}-${colIndex}`}>
-
                           <td
                             className="tag-cell"
                             style={{ textAlign: "center" }}
@@ -140,11 +126,8 @@ export default function Layout() {
                           </td>
 
                           {showValues && (
-                            <td className="value-cell">
-                              {cell.value}
-                            </td>
+                            <td className="value-cell">{cell.value}</td>
                           )}
-
                         </Fragment>
                       ))}
                     </tr>
@@ -156,16 +139,12 @@ export default function Layout() {
         )}
       </div>
 
-      <GroupModal
-        isOpen={activeModal === "createGroup"}
-        onClose={closeModal}
-      />
+      <GroupModal isOpen={activeModal === "createGroup"} onClose={closeModal} />
 
       <RecipeModal
         isOpen={activeModal === "createRecipe"}
         onClose={closeModal}
       />
-
     </div>
   );
 }

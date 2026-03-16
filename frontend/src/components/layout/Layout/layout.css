@@ -47,6 +47,7 @@
   vertical-align: middle;
   letter-spacing: 0.5px;
   border-right: 3px solid #9aa3c7;
+  position: relative;
 }
 
 .sub-header {
@@ -73,7 +74,7 @@
 
   transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
               opacity 0.8s ease;
-                  
+
   will-change: transform, opacity;
 }
 
@@ -135,6 +136,10 @@
   border-right: 3px solid #9aa3c7;
 }
 
+.device-header:not(:last-child) {
+  border-right: 3px solid #9aa3c7;
+}
+
 .recipe-matrix-table thead tr:first-child th:last-child {
   border-right: none;
 }
@@ -146,4 +151,12 @@
 .recipe-matrix-container::-webkit-scrollbar-thumb {
   background: #9aa3c7;
   border-radius: 5px;
+}
+
+.recipe-matrix-table.recipe-mode tr > *:nth-child(2n):not(:last-child) {
+  border-right: 3px solid #9aa3c7;
+}
+
+.recipe-matrix-table.template-mode tr > *:not(:last-child) {
+  border-right: 3px solid #9aa3c7;
 }
