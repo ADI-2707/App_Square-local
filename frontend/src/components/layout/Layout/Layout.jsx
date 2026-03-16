@@ -1,13 +1,10 @@
 import { useState, useMemo, useEffect, Fragment } from "react";
-
 import Navbar from "../Navbar/Navbar";
 import Sidebar from "../Sidebar/Sidebar";
-
 import GroupModal from "../../Modals/GroupModal/GroupModal";
 import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
-
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
-
+import WorkspaceToolbar from "../../workspace/WorkspaceToolbar/WorkspaceToolbar";
 import "./layout.css";
 
 export default function Layout() {
@@ -29,7 +26,6 @@ export default function Layout() {
   }, []);
 
   const devices = workspace?.data?.devices || [];
-
   const showValues = workspace?.type === "recipe";
 
   const tableRows = useMemo(() => {
@@ -83,6 +79,11 @@ export default function Layout() {
 
               {workspace.type === "device" && `Device: ${workspace.data.name}`}
             </h2>
+
+            <WorkspaceToolbar
+              onUpload={() => console.log("Upload clicked")}
+              onDownload={() => console.log("Download clicked")}
+            />
 
             <div className="recipe-matrix-container">
               <table
