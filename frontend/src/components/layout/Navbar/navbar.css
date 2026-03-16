@@ -55,7 +55,7 @@
 .admin-link {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
   height: 34px;
   padding: 0 14px;
   font-size: 13px;
@@ -77,4 +77,9 @@
 .admin-link.active {
   background: rgba(255, 251, 0, 0.85);
   color: white;
+}
+
+.admin-icon {
+  width: 14px;
+  height: 14px;
 }

@@ -28,6 +28,7 @@ export default function Navbar() {
 
       <div className="navbar-right">
         <Link to="/admin" className={`admin-link ${isAdminPage ? "active" : ""}`}>
+          <img src="/icons/user.svg" className="admin-icon" />
           {username?.toUpperCase()}
         </Link>
 
