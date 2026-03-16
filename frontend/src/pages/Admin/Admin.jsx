@@ -3,16 +3,15 @@ import "./admin.css";
 export default function Admin() {
   return (
     <div className="admin-page">
-      <div className="admin-container">
 
-        <h2 className="admin-title">Admin Settings</h2>
+      <h2 className="admin-title">Admin Settings</h2>
 
-        <div className="admin-card">
+      <div className="admin-panel">
+        <div className="admin-panel-header">
+          Account Security
+        </div>
 
-          <h3 className="admin-section-title">
-            Change Password
-          </h3>
-
+        <div className="admin-panel-body">
           <form className="admin-form">
 
             <div className="form-group">
@@ -30,9 +29,11 @@ export default function Admin() {
               <input type="password" />
             </div>
 
-            <button className="admin-btn">
-              Update Password
-            </button>
+            <div className="admin-actions">
+              <button className="admin-btn">
+                Update Password
+              </button>
+            </div>
 
           </form>
         </div>

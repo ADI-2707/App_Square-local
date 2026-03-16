@@ -1,31 +1,30 @@
 .admin-page {
-  width: 100%;
-  padding-top: 120px;
-}
-
-.admin-container {
-  width: 420px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 700px;
+  margin: 80px auto;
 }
 
 .admin-title {
   font-weight: 600;
-  margin-bottom: 24px;
-  text-align: center;
+  margin-bottom: 18px;
 }
 
-.admin-card {
+.admin-panel {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;
-  padding: 20px;
   box-shadow: var(--shadow-soft);
+  overflow: hidden;
 }
 
-.admin-section-title {
-  font-size: 16px;
-  margin-bottom: 14px;
+.admin-panel-header {
+  padding: 12px 16px;
+  font-weight: 600;
+  background: #eef1ff;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-panel-body {
+  padding: 20px;
 }
 
 .admin-form {
@@ -52,9 +51,15 @@
   border-radius: 4px;
 }
 
-.admin-btn {
+.admin-actions {
+  display: flex;
+  justify-content: flex-end;
   margin-top: 10px;
+}
+
+.admin-btn {
   height: 34px;
+  padding: 0 16px;
   background: var(--color-primary);
   color: white;
   border: none;
