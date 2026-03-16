@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import "./navbar.css";
 
 export default function Navbar() {
@@ -20,13 +20,13 @@ export default function Navbar() {
   return (
     <div className="navbar">
       <div className="navbar-title">
-        {import.meta.env.VITE_APP_NAME}
+        <Link to="/">{import.meta.env.VITE_APP_NAME}</Link>
       </div>
 
       <div className="navbar-right">
-        <span className="user-info">
+        <Link to="/admin" className="admin-link">
           {username?.toUpperCase()}
-        </span>
+        </Link>
 
         <button className="logout-btn" onClick={handleLogout}>
           Logout
