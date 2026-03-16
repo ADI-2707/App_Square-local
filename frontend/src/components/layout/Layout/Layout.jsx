@@ -75,7 +75,10 @@ export default function Layout({ children }) {
 
         ) : (
 
-          <div className="recipe-workspace">
+          <div
+          key={`${workspace.type}-${workspace.data.id}`}
+          className="recipe-workspace"
+          >
             <h2 className="workspace-title">
               {workspace.type === "recipe" &&
                 `Active Recipe: ${workspace.data.name}`}
