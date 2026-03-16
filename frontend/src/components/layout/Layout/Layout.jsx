@@ -66,28 +66,23 @@ export default function Layout() {
 
   return (
     <div className="layout-container">
-
       <Navbar />
-
       <Sidebar onOpenModal={setActiveModal} />
 
       <div className="layout-content">
-
         {!workspace ? (
-
           <div
             className={`workspace-placeholder ${
               animateIntro ? "intro-active" : ""
             }`}
           >
             <h2>Welcome to APP SQUARE</h2>
-            <p>Select an item from the sidebar to open in workspace.</p>
+            <p>Engineered software for real-time production management.</p>
           </div>
 
         ) : (
 
           <div className="recipe-workspace">
-
             <h2 className="workspace-title">
 
               {workspace.type === "recipe" &&
@@ -102,9 +97,7 @@ export default function Layout() {
             </h2>
 
             <div className="recipe-matrix-container">
-
               <table className="recipe-matrix-table">
-
                 <thead>
 
                   <tr>
@@ -127,20 +120,16 @@ export default function Layout() {
                         {showValues && (
                           <th className="sub-header">Value</th>
                         )}
-
                       </Fragment>
                     ))}
                   </tr>
-
                 </thead>
-
                 <tbody>
 
                   {tableRows.map((row, rowIndex) => (
                     <tr key={`row-${rowIndex}`}>
 
                       {row.map((cell, colIndex) => (
-
                         <Fragment key={`cell-${rowIndex}-${colIndex}`}>
 
                           <td
@@ -157,22 +146,14 @@ export default function Layout() {
                           )}
 
                         </Fragment>
-
                       ))}
-
                     </tr>
                   ))}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </div>
-
         )}
-
       </div>
 
       <GroupModal
