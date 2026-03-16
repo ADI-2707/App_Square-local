@@ -1,11 +1,12 @@
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext/AuthContext";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./navbar.css";
 
 export default function Navbar() {
   const { logout, username } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
@@ -17,6 +18,8 @@ export default function Navbar() {
     }
   };
 
+  const isAdminPage = location.pathname === "/admin";
+
   return (
     <div className="navbar">
       <div className="navbar-title">
@@ -24,7 +27,7 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-right">
-        <Link to="/admin" className="admin-link">
+        <Link to="/admin" className={`admin-link ${isAdminPage ? "active" : ""}`}>
           {username?.toUpperCase()}
         </Link>
 

@@ -53,15 +53,28 @@
 }
 
 .admin-link {
-  text-decoration: none;
-  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 14px;
+  font-size: 13px;
   font-weight: 600;
-  padding: 4px 8px;
+  color: var(--color-primary);
+  text-decoration: none;
+  background: #ffffff;
+  border: 1px solid #9aa3c7;
   border-radius: 4px;
-  transition: background 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .admin-link:hover {
   text-decoration: underline;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255, 251, 0, 0.85);
+  color: white;
+}
+
+.admin-link.active {
+  background: rgba(255, 251, 0, 0.85);
+  color: white;
 }
