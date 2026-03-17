@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from datetime import datetime
 from app.database import Base
 
@@ -45,5 +45,11 @@ class User(Base):
     created_at = Column(
         DateTime,
         default=datetime.utcnow,
+        nullable=False
+    )
+
+    is_active = Column(
+        Boolean,
+        default=True,
         nullable=False
     )
