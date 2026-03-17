@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import eyeOpen from "../../assets/icons/eye-open.svg";
+import eyeClosed from "../../assets/icons/eye-closed.svg";
 import api from "../../Utility/api";
 import "./admin.css";
 
@@ -93,7 +95,7 @@ export default function Admin() {
   const handleToggle = async (id, currentState) => {
     if (currentState) {
       const confirmDeactivate = window.confirm(
-        "Are you sure you want to deactivate this operator?\nThey will not be able to log in."
+        "Are you sure you want to deactivate this operator?\nThey will not be able to log in.",
       );
       if (!confirmDeactivate) return;
     }
@@ -147,7 +149,6 @@ export default function Admin() {
 
         <div className="admin-panel-body">
           <form className="admin-form" onSubmit={handleSubmit}>
-
             <div className="form-group">
               <label>Current Password</label>
               <div className="password-field">
@@ -158,11 +159,8 @@ export default function Admin() {
                   onChange={handleChange}
                 />
                 <img
-                  src={
-                    showPassword.current
-                      ? "/icons/eye-open.svg"
-                      : "/icons/eye-closed.svg"
-                  }
+                  src={showPassword.current ? eyeOpen : eyeClosed}
+                  alt="toggle"
                   className="eye-icon"
                   onClick={() => toggleMainPassword("current")}
                 />
@@ -179,11 +177,8 @@ export default function Admin() {
                   onChange={handleChange}
                 />
                 <img
-                  src={
-                    showPassword.new
-                      ? "/icons/eye-open.svg"
-                      : "/icons/eye-closed.svg"
-                  }
+                  src={showPassword.new ? eyeOpen : eyeClosed}
+                  alt="toggle"
                   className="eye-icon"
                   onClick={() => toggleMainPassword("new")}
                 />
@@ -200,11 +195,8 @@ export default function Admin() {
                   onChange={handleChange}
                 />
                 <img
-                  src={
-                    showPassword.confirm
-                      ? "/icons/eye-open.svg"
-                      : "/icons/eye-closed.svg"
-                  }
+                  src={showPassword.confirm ? eyeOpen : eyeClosed}
+                  alt="toggle"
                   className="eye-icon"
                   onClick={() => toggleMainPassword("confirm")}
                 />
@@ -229,7 +221,6 @@ export default function Admin() {
           ) : (
             operators.map((op) => (
               <div key={op.id} className="operator-row">
-                
                 <div className="op-name">
                   <span
                     className={`status-dot ${
@@ -244,9 +235,7 @@ export default function Admin() {
                     <input
                       type="checkbox"
                       checked={op.is_active}
-                      onChange={() =>
-                        handleToggle(op.id, op.is_active)
-                      }
+                      onChange={() => handleToggle(op.id, op.is_active)}
                     />
                     <span className="slider"></span>
                   </label>
@@ -255,11 +244,7 @@ export default function Admin() {
                 <div className="op-password">
                   <div className="password-field">
                     <input
-                      type={
-                        showPassword.operators[op.id]
-                          ? "text"
-                          : "password"
-                      }
+                      type={showPassword.operators[op.id] ? "text" : "password"}
                       placeholder="New Password"
                       value={opPasswords[op.id] || ""}
                       onChange={(e) =>
@@ -267,23 +252,14 @@ export default function Admin() {
                       }
                     />
                     <img
-                      src={
-                        showPassword.operators[op.id]
-                          ? "/icons/eye-open.svg"
-                          : "/icons/eye-closed.svg"
-                      }
+                      src={showPassword.operators[op.id] ? eyeOpen : eyeClosed}
+                      alt="toggle"
                       className="eye-icon"
-                      onClick={() =>
-                        toggleOperatorPassword(op.id)
-                      }
+                      onClick={() => toggleOperatorPassword(op.id)}
                     />
                   </div>
 
-                  <button
-                    onClick={() =>
-                      handleOpPasswordSubmit(op.id)
-                    }
-                  >
+                  <button onClick={() => handleOpPasswordSubmit(op.id)}>
                     Update
                   </button>
                 </div>
