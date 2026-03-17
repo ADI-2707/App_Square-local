@@ -117,8 +117,11 @@ def toggle_operator_status(db: Session, user_id: int, current_user: User):
 
     user_queries.toggle_active(db, user)
 
+    db.commit()
+    db.refresh(user)
+
     return {
-        "message": f"{user.username} is now {'active' if user.is_active else 'inactive'}"
+        "message": f"{user.username} is now {'active' if user.is_active else 'inactive'}", "is_active": user.is_active
     }
 
 
