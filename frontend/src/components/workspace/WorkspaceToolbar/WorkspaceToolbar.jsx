@@ -5,6 +5,7 @@ export default function WorkspaceToolbar({
   onDownload,
   isEditing,
   onEditToggle,
+  onCancel,
   showEdit,
 }) {
   return (
@@ -14,6 +15,13 @@ export default function WorkspaceToolbar({
       </div>
 
       <div className="toolbar-actions">
+        {showEdit && isEditing && (
+          <button className="hmi-btn cancel-btn" onClick={onCancel}>
+            <img src="/icons/close.svg" className="btn-icon" />
+            Cancel
+          </button>
+        )}
+
         {showEdit && (
           <button
             className={`hmi-btn ${isEditing ? "apply-btn" : "edit-btn"}`}

@@ -110,3 +110,18 @@
 .apply-btn:active {
   transform: translateY(1px) scale(0.98);
 }
+
+.cancel-btn {
+  background: linear-gradient(#ffeaea, #ffc9c9);
+  border: 1px solid #d46a6a;
+  color: #7a1f1f;
+  box-shadow: 0 0 6px rgba(212, 106, 106, 0.3);
+}
+
+.cancel-btn:hover {
+  background: linear-gradient(#ffd6d6, #ffb3b3);
+}
+
+.cancel-btn:active {
+  transform: translateY(1px);
+}

@@ -80,7 +80,7 @@ export default function Layout({ children }) {
 
       if (changed) {
         const confirmed = window.confirm(
-          "Are you sure you want to apply these changes?"
+          "Are you sure you want to apply these changes?",
         );
 
         if (!confirmed) return;
@@ -105,7 +105,7 @@ export default function Layout({ children }) {
     if (!devices.length) return [];
 
     const maxTags = Math.max(
-      ...devices.map((device) => device.tag_values?.length || 0)
+      ...devices.map((device) => device.tag_values?.length || 0),
     );
 
     const rows = [];
@@ -119,12 +119,26 @@ export default function Layout({ children }) {
             tagName: tag?.tag_name ?? "-",
             value: tag?.value ?? "-",
           };
-        })
+        }),
       );
     }
 
     return rows;
   }, [devices]);
+
+  const handleCancelEdit = () => {
+    const originalDevices = workspace?.data?.devices || [];
+
+    const cloned = originalDevices.map((device) => ({
+      ...device,
+      tag_values: device.tag_values?.map((tag) => ({
+        ...tag,
+      })),
+    }));
+
+    setEditableData(cloned);
+    setIsEditing(false);
+  };
 
   return (
     <div className="layout-container">
@@ -155,8 +169,7 @@ export default function Layout({ children }) {
               {workspace.type === "template" &&
                 `Template: ${workspace.data.name}`}
 
-              {workspace.type === "device" &&
-                `Device: ${workspace.data.name}`}
+              {workspace.type === "device" && `Device: ${workspace.data.name}`}
             </h2>
 
             <WorkspaceToolbar
@@ -164,6 +177,7 @@ export default function Layout({ children }) {
               onDownload={() => console.log("Download clicked")}
               isEditing={isEditing}
               onEditToggle={handleEditToggle}
+              onCancel={handleCancelEdit}
               showEdit={workspace?.type === "recipe"}
             />
 
@@ -235,7 +249,7 @@ export default function Layout({ children }) {
                                       handleValueChange(
                                         colIndex,
                                         rowIndex,
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                   />
@@ -256,10 +270,7 @@ export default function Layout({ children }) {
         )}
       </div>
 
-      <GroupModal
-        isOpen={activeModal === "createGroup"}
-        onClose={closeModal}
-      />
+      <GroupModal isOpen={activeModal === "createGroup"} onClose={closeModal} />
 
       <RecipeModal
         isOpen={activeModal === "createRecipe"}
