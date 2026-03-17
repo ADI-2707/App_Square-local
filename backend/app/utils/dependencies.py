@@ -1,12 +1,11 @@
 from fastapi import Depends, HTTPException, status, Response
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-from jose import jwt
 from datetime import datetime
+
 from app.database import SessionLocal
 from app.models.user import User
 from app.utils.jwt_handler import decode_access_token, create_access_token
-from app.config import SECRET_KEY, ALGORITHM
 
 security = HTTPBearer()
 
@@ -26,7 +25,6 @@ def get_current_user(
 ):
     try:
         token = credentials.credentials
-
         user, payload = decode_access_token(token, db, return_payload=True)
 
         exp = payload.get("exp")
@@ -44,8 +42,19 @@ def get_current_user(
 
         return user
 
-    except Exception as e:
+    except HTTPException:
+        raise
+
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication"
         )
+
+def require_admin(current_user: User = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+    return current_user
