@@ -72,7 +72,15 @@ export default function Admin() {
     }
   };
 
-  const handleToggle = async (id) => {
+  const handleToggle = async (id, currentState) => {
+    if (currentState) {
+      const confirmDeactivate = window.confirm(
+        "Are you sure you want to deactivate this operator?\nThey will not be able to log in.",
+      );
+
+      if (!confirmDeactivate) return;
+    }
+
     try {
       await api.patch(`/admin/operators/${id}/toggle`);
       fetchOperators();
@@ -176,7 +184,7 @@ export default function Admin() {
                     <input
                       type="checkbox"
                       checked={op.is_active}
-                      onChange={() => handleToggle(op.id)}
+                      onChange={() => handleToggle(op.id, op.is_active)}
                     />
                     <span className="slider"></span>
                   </label>
