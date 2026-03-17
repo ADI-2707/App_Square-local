@@ -141,7 +141,9 @@ export default function GroupModal({ isOpen, onClose }) {
             <div className="group-device-header">
               <h4>Devices</h4>
 
-              <button onClick={openAddDevice}>+ Add Device</button>
+              <button onClick={openAddDevice} disabled={isLocked}>
+                + Add Device
+              </button>
             </div>
 
             <ul>
@@ -172,14 +174,19 @@ export default function GroupModal({ isOpen, onClose }) {
           </div>
 
           <div className="modal-actions">
-            <button onClick={handleSave}>Save Template</button>
+            <button onClick={handleSave} disabled={isLocked}>
+              {isLocked ? "Saving..." : "Save Template"}
+            </button>
           </div>
         </div>
       </BaseModal>
 
       <DeviceModal
         isOpen={isDeviceModalOpen}
-        onClose={() => setIsDeviceModalOpen(false)}
+        onClose={() => {
+          if (isLocked) return;
+          setIsDeviceModalOpen(false);
+        }}
         onSave={editingIndex !== null ? updateDevice : addDevice}
         initialDevice={editingDevice}
       />
