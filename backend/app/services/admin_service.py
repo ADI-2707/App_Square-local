@@ -17,12 +17,6 @@ def change_user_password(
             detail="Admin access required"
         )
 
-    if request.target_user not in ["admin", "guest"]:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid target user"
-        )
-
     target = user_queries.get_by_username(db, request.target_user)
 
     if not target:
