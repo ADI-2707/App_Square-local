@@ -194,3 +194,18 @@
 .context-item:hover {
   background-color: #374151;
 }
+
+.disabled-btn {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.disabled-item {
+  color: #888;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.disabled-item:hover {
+  background: none;
+}
