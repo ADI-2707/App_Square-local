@@ -146,7 +146,7 @@ export default function RecipeModal({
         <select
           value={selectedTemplate}
           onChange={(e) => setSelectedTemplate(e.target.value)}
-          disabled={!!initialTemplateId}
+          disabled={!!initialTemplateId || isLocked}
         >
           <option value="">Select Template</option>
           {groups.allIds.map((id) => (
@@ -162,10 +162,10 @@ export default function RecipeModal({
 
             <div className="device-selection">
               <div className="device-actions">
-                <button type="button" onClick={selectAllDevices}>
+                <button type="button" onClick={selectAllDevices} disabled={isLocked}>
                   Select All
                 </button>
-                <button type="button" onClick={clearDevices}>
+                <button type="button" onClick={clearDevices} disabled={isLocked}>
                   Clear
                 </button>
                 <span className="device-count">
@@ -182,6 +182,7 @@ export default function RecipeModal({
                     checked={selectedDevices.includes(device.id)}
                     onChange={() => toggleDevice(device.id)}
                     className="device-checkbox"
+                    disabled={isLocked}
                   />
                 </div>
               ))}
@@ -194,6 +195,7 @@ export default function RecipeModal({
           type="text"
           value={recipeGroupName}
           onChange={(e) => setRecipeGroupName(e.target.value)}
+          disabled={isLocked}
         />
 
         <button onClick={handleCreateRecipeGroup}>Create Area</button>
@@ -205,6 +207,7 @@ export default function RecipeModal({
               type="text"
               value={recipeName}
               onChange={(e) => setRecipeName(e.target.value)}
+              disabled={isLocked}
             />
 
             <button onClick={handleSave} disabled={isLocked}>
