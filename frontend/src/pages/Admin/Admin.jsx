@@ -29,6 +29,23 @@ export default function Admin() {
     });
   };
 
+  const toggleMainPassword = (field) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
+  const toggleOperatorPassword = (id) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      operators: {
+        ...prev.operators,
+        [id]: !prev.operators[id],
+      },
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -54,12 +71,6 @@ export default function Admin() {
 
       localStorage.removeItem("token");
       window.location.href = "/";
-
-      setForm({
-        current_password: "",
-        new_password: "",
-        confirm_password: "",
-      });
     } catch (error) {
       alert(error.response?.data?.detail || "Something went wrong");
     } finally {
@@ -72,7 +83,7 @@ export default function Admin() {
       setLoadingOps(true);
       const res = await api.get("/admin/operators");
       setOperators(res.data);
-    } catch (err) {
+    } catch {
       alert("Failed to load operators");
     } finally {
       setLoadingOps(false);
@@ -82,9 +93,8 @@ export default function Admin() {
   const handleToggle = async (id, currentState) => {
     if (currentState) {
       const confirmDeactivate = window.confirm(
-        "Are you sure you want to deactivate this operator?\nThey will not be able to log in.",
+        "Are you sure you want to deactivate this operator?\nThey will not be able to log in."
       );
-
       if (!confirmDeactivate) return;
     }
 
@@ -94,23 +104,6 @@ export default function Admin() {
     } catch {
       alert("Failed to update operator");
     }
-  };
-
-  const toggleMainPassword = (field) => {
-    setShowPassword((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
-  };
-
-  const toggleOperatorPassword = (id) => {
-    setShowPassword((prev) => ({
-      ...prev,
-      operators: {
-        ...prev.operators,
-        [id]: !prev.operators[id],
-      },
-    }));
   };
 
   const handleOpPasswordChange = (id, value) => {
@@ -154,34 +147,68 @@ export default function Admin() {
 
         <div className="admin-panel-body">
           <form className="admin-form" onSubmit={handleSubmit}>
+
             <div className="form-group">
               <label>Current Password</label>
-              <input
-                type="password"
-                name="current_password"
-                value={form.current_password}
-                onChange={handleChange}
-              />
+              <div className="password-field">
+                <input
+                  type={showPassword.current ? "text" : "password"}
+                  name="current_password"
+                  value={form.current_password}
+                  onChange={handleChange}
+                />
+                <img
+                  src={
+                    showPassword.current
+                      ? "/icons/eye-open.svg"
+                      : "/icons/eye-closed.svg"
+                  }
+                  className="eye-icon"
+                  onClick={() => toggleMainPassword("current")}
+                />
+              </div>
             </div>
 
             <div className="form-group">
               <label>New Password</label>
-              <input
-                type="password"
-                name="new_password"
-                value={form.new_password}
-                onChange={handleChange}
-              />
+              <div className="password-field">
+                <input
+                  type={showPassword.new ? "text" : "password"}
+                  name="new_password"
+                  value={form.new_password}
+                  onChange={handleChange}
+                />
+                <img
+                  src={
+                    showPassword.new
+                      ? "/icons/eye-open.svg"
+                      : "/icons/eye-closed.svg"
+                  }
+                  className="eye-icon"
+                  onClick={() => toggleMainPassword("new")}
+                />
+              </div>
             </div>
 
             <div className="form-group">
               <label>Confirm New Password</label>
-              <input
-                type="password"
-                name="confirm_password"
-                value={form.confirm_password}
-                onChange={handleChange}
-              />
+              <div className="password-field">
+                <input
+                  type={showPassword.confirm ? "text" : "password"}
+                  name="confirm_password"
+                  value={form.confirm_password}
+                  onChange={handleChange}
+                />
+                <img
+                  src={
+                    showPassword.confirm
+                      ? "/icons/eye-open.svg"
+                      : "/icons/eye-closed.svg"
+                  }
+                  className="eye-icon"
+                  onClick={() => toggleMainPassword("confirm")}
+                />
+              </div>
             </div>
 
             <div className="admin-actions">
@@ -192,6 +219,7 @@ export default function Admin() {
           </form>
         </div>
       </div>
+
       <div className="admin-panel">
         <div className="admin-panel-header">Operator Management</div>
 
@@ -201,9 +229,12 @@ export default function Admin() {
           ) : (
             operators.map((op) => (
               <div key={op.id} className="operator-row">
+                
                 <div className="op-name">
                   <span
-                    className={`status-dot ${op.is_active ? "active" : "inactive"}`}
+                    className={`status-dot ${
+                      op.is_active ? "active" : "inactive"
+                    }`}
                   ></span>
                   {op.username}
                 </div>
@@ -213,22 +244,46 @@ export default function Admin() {
                     <input
                       type="checkbox"
                       checked={op.is_active}
-                      onChange={() => handleToggle(op.id, op.is_active)}
+                      onChange={() =>
+                        handleToggle(op.id, op.is_active)
+                      }
                     />
                     <span className="slider"></span>
                   </label>
                 </div>
 
                 <div className="op-password">
-                  <input
-                    type="password"
-                    placeholder="New Password"
-                    value={opPasswords[op.id] || ""}
-                    onChange={(e) =>
-                      handleOpPasswordChange(op.id, e.target.value)
+                  <div className="password-field">
+                    <input
+                      type={
+                        showPassword.operators[op.id]
+                          ? "text"
+                          : "password"
+                      }
+                      placeholder="New Password"
+                      value={opPasswords[op.id] || ""}
+                      onChange={(e) =>
+                        handleOpPasswordChange(op.id, e.target.value)
+                      }
+                    />
+                    <img
+                      src={
+                        showPassword.operators[op.id]
+                          ? "/icons/eye-open.svg"
+                          : "/icons/eye-closed.svg"
+                      }
+                      className="eye-icon"
+                      onClick={() =>
+                        toggleOperatorPassword(op.id)
+                      }
+                    />
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      handleOpPasswordSubmit(op.id)
                     }
-                  />
-                  <button onClick={() => handleOpPasswordSubmit(op.id)}>
+                  >
                     Update
                   </button>
                 </div>
