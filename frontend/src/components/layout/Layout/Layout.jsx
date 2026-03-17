@@ -43,13 +43,21 @@ export default function Layout({ children }) {
 
   const handleEditToggle = () => {
     if (isEditing) {
-      const confirmed = window.confirm(
-        "Are you sure you want to apply these changes?",
-      );
+      const changed = hasChanges();
 
-      if (!confirmed) return;
+      if (changed) {
+        const confirmed = window.confirm(
+          "Are you sure you want to apply these changes?",
+        );
+
+        if (!confirmed) return;
+      }
+
+      setIsEditing(false);
+      return;
     }
-    setIsEditing((prev) => !prev);
+
+    setIsEditing(true);
   };
 
   const handleValueChange = (deviceIndex, tagIndex, newValue) => {
@@ -58,6 +66,28 @@ export default function Layout({ children }) {
       updated[deviceIndex].tag_values[tagIndex].value = newValue;
       return updated;
     });
+  };
+
+  const hasChanges = () => {
+    if (!workspace?.data?.devices || !editableData.length) return false;
+
+    const originalDevices = workspace.data.devices;
+
+    for (let d = 0; d < originalDevices.length; d++) {
+      const originalTags = originalDevices[d].tag_values || [];
+      const editedTags = editableData[d]?.tag_values || [];
+
+      for (let t = 0; t < originalTags.length; t++) {
+        if (
+          String(originalTags[t]?.value ?? "") !==
+          String(editedTags[t]?.value ?? "")
+        ) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   };
 
   const devices = editableData.length
