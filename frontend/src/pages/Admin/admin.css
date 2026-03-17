@@ -1,6 +1,9 @@
 .admin-page {
   max-width: 700px;
   margin: 80px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
 .admin-title {
