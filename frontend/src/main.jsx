@@ -7,6 +7,7 @@ import { AuthProvider } from "./context/AuthContext/AuthContext";
 import { EntityProvider } from "./context/EntityContext/EntityContext";
 import { RecipeProvider } from "./context/RecipeContext/RecipeContext";
 import { WorkspaceProvider } from "./context/WorkspaceContext/WorkspaceContext";
+import { UiLockProvider } from "./context/UiLockContext/UiLockContext";
 
 import "./index.css";
 
@@ -17,7 +18,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <WorkspaceProvider>
           <EntityProvider>
             <RecipeProvider>
-              <App />
+              <UiLockProvider>
+                <App />
+              </UiLockProvider>
             </RecipeProvider>
           </EntityProvider>
         </WorkspaceProvider>
