@@ -10,6 +10,8 @@ import "./layout.css";
 export default function Layout({ children }) {
   const [activeModal, setActiveModal] = useState(null);
   const [animateIntro, setAnimateIntro] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableData, setEditableData] = useState([]);
 
   const { workspace } = useWorkspace();
 
@@ -25,14 +27,43 @@ export default function Layout({ children }) {
     return () => clearTimeout(timer);
   }, []);
 
-  const devices = workspace?.data?.devices || [];
+  useEffect(() => {
+    if (!devices.length) return;
+
+    const cloned = devices.map((device) => ({
+      ...device,
+      tag_values: device.tag_values?.map((tag) => ({
+        ...tag,
+      })),
+    }));
+
+    setEditableData(cloned);
+    setIsEditing(false);
+  }, [workspace]);
+
+  const handleEditToggle = () => {
+    setIsEditing((prev) => !prev);
+  };
+
+  const handleValueChange = (deviceIndex, tagIndex, newValue) => {
+    setEditableData((prev) => {
+      const updated = [...prev];
+      updated[deviceIndex].tag_values[tagIndex].value = newValue;
+      return updated;
+    });
+  };
+
+  const devices = editableData.length
+    ? editableData
+    : workspace?.data?.devices || [];
+
   const showValues = workspace?.type === "recipe";
 
   const tableRows = useMemo(() => {
     if (!devices.length) return [];
 
     const maxTags = Math.max(
-      ...devices.map((device) => device.tag_values?.length || 0)
+      ...devices.map((device) => device.tag_values?.length || 0),
     );
 
     const rows = [];
@@ -46,7 +77,7 @@ export default function Layout({ children }) {
             tagName: tag?.tag_name ?? "-",
             value: tag?.value ?? "-",
           };
-        })
+        }),
       );
     }
 
@@ -59,11 +90,9 @@ export default function Layout({ children }) {
       <Sidebar onOpenModal={setActiveModal} />
 
       <div className="layout-content">
-
         {children ? (
           children
         ) : !workspace ? (
-
           <div
             className={`workspace-placeholder ${
               animateIntro ? "intro-active" : ""
@@ -72,12 +101,10 @@ export default function Layout({ children }) {
             <h2>Welcome to APP SQUARE</h2>
             <p>Engineered software for real-time production management.</p>
           </div>
-
         ) : (
-
           <div
-          key={`${workspace.type}-${workspace.data.id}`}
-          className="recipe-workspace"
+            key={`${workspace.type}-${workspace.data.id}`}
+            className="recipe-workspace"
           >
             <h2 className="workspace-title">
               {workspace.type === "recipe" &&
@@ -86,13 +113,15 @@ export default function Layout({ children }) {
               {workspace.type === "template" &&
                 `Template: ${workspace.data.name}`}
 
-              {workspace.type === "device" &&
-                `Device: ${workspace.data.name}`}
+              {workspace.type === "device" && `Device: ${workspace.data.name}`}
             </h2>
 
             <WorkspaceToolbar
               onUpload={() => console.log("Upload clicked")}
               onDownload={() => console.log("Download clicked")}
+              isEditing={isEditing}
+              onEditToggle={handleEditToggle}
+              showEdit={workspace?.type === "recipe"}
             />
 
             <div className="recipe-matrix-container">
@@ -119,9 +148,7 @@ export default function Layout({ children }) {
                       <Fragment key={`subheader-${device.id}`}>
                         <th className="sub-header">Tag</th>
 
-                        {showValues && (
-                          <th className="sub-header">Value</th>
-                        )}
+                        {showValues && <th className="sub-header">Value</th>}
                       </Fragment>
                     ))}
                   </tr>
@@ -140,7 +167,26 @@ export default function Layout({ children }) {
                           </td>
 
                           {showValues && (
-                            <td className="value-cell">{cell.value}</td>
+                            <td className="value-cell">
+                              {isEditing ? (
+                                <input
+                                  className="value-input"
+                                  value={
+                                    devices[colIndex]?.tag_values?.[rowIndex]
+                                      ?.value ?? ""
+                                  }
+                                  onChange={(e) =>
+                                    handleValueChange(
+                                      colIndex,
+                                      rowIndex,
+                                      e.target.value,
+                                    )
+                                  }
+                                />
+                              ) : (
+                                cell.value
+                              )}
+                            </td>
                           )}
                         </Fragment>
                       ))}
@@ -150,15 +196,10 @@ export default function Layout({ children }) {
               </table>
             </div>
           </div>
-
         )}
-
       </div>
 
-      <GroupModal
-        isOpen={activeModal === "createGroup"}
-        onClose={closeModal}
-      />
+      <GroupModal isOpen={activeModal === "createGroup"} onClose={closeModal} />
 
       <RecipeModal
         isOpen={activeModal === "createRecipe"}

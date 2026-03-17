@@ -179,6 +179,22 @@
   animation: fadeWorkspace 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.value-input {
+  width: 90%;
+  height: 24px;
+  border: 1px solid #9aa3c7;
+  border-radius: 3px;
+  text-align: center;
+  font-size: 13px;
+  background: #ffffff;
+}
+
+.value-input:focus {
+  outline: none;
+  border-color: #5a67d8;
+  box-shadow: 0 0 3px rgba(90, 103, 216, 0.4);
+}
+
 @keyframes fadeWorkspace {
   from {
     opacity: 0;
