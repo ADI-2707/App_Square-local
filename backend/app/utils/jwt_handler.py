@@ -20,7 +20,7 @@ def decode_access_token(token: str, db, return_payload: bool = False):
         username = payload.get("sub")
         token_version = payload.get("tv")
 
-        if username is None:
+        if username is None or token_version is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid token payload"
@@ -38,6 +38,12 @@ def decode_access_token(token: str, db, return_payload: bool = False):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token invalidated"
+            )
+        
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="User is inactive"
             )
 
         if return_payload:
