@@ -6,12 +6,16 @@ import Login from "./pages/Login/Login";
 import Layout from "./components/layout/Layout/Layout";
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useContext(AuthContext);
+  const { isAuthenticated, loading, role } = useContext(AuthContext);
 
   if (loading) return null;
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  if (requiredRole && role !== requiredRole) {
+    return <Navigate to="/home" replace />;
   }
 
   return children;
@@ -35,7 +39,7 @@ function App() {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requiredRole="admin">
             <Layout>
               <Admin />
             </Layout>

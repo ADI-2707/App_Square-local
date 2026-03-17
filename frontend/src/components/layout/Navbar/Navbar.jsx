@@ -4,7 +4,7 @@ import { useNavigate, Link, useLocation } from "react-router-dom";
 import "./navbar.css";
 
 export default function Navbar() {
-  const { logout, username } = useContext(AuthContext);
+  const { logout, username, role } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -27,10 +27,20 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-right">
-        <Link to="/admin" className={`admin-link ${isAdminPage ? "active" : ""}`}>
-          <img src="/icons/user.svg" className="admin-icon" />
-          {username?.toUpperCase()}
-        </Link>
+        {role === "admin" ? (
+          <Link
+            to="/admin"
+            className={`admin-link ${isAdminPage ? "active" : ""}`}
+          >
+            <img src="/icons/user.svg" className="admin-icon" />
+            {username?.toUpperCase()}
+          </Link>
+        ) : (
+          <div className="admin-link disabled">
+            <img src="/icons/user.svg" className="admin-icon" />
+            {username?.toUpperCase()}
+          </div>
+        )}
 
         <button className="logout-btn" onClick={handleLogout}>
           Logout

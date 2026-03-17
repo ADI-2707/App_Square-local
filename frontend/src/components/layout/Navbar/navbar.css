@@ -74,6 +74,15 @@
   color: white;
 }
 
+.admin-link.disabled {
+  background: #d1d5db;
+  color: #666;
+  border: 1px solid #aaa;
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
 .admin-link.active {
   background: rgba(255, 251, 0, 0.85);
   color: white;
