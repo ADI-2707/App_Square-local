@@ -8,6 +8,7 @@ export default function Admin() {
   const [operators, setOperators] = useState([]);
   const [opPasswords, setOpPasswords] = useState({});
   const [loadingOps, setLoadingOps] = useState(false);
+  const [blinking, setBlinking] = useState({});
 
   const [form, setForm] = useState({
     current_password: "",
@@ -31,11 +32,20 @@ export default function Admin() {
     });
   };
 
+  const triggerBlink = (key) => {
+    setBlinking((prev) => ({ ...prev, [key]: true }));
+
+    setTimeout(() => {
+      setBlinking((prev) => ({ ...prev, [key]: false }));
+    }, 150);
+  };
+
   const toggleMainPassword = (field) => {
     setShowPassword((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
+    triggerBlink(field);
   };
 
   const toggleOperatorPassword = (id) => {
@@ -46,6 +56,7 @@ export default function Admin() {
         [id]: !prev.operators[id],
       },
     }));
+    triggerBlink(id);
   };
 
   const handleSubmit = async (e) => {
@@ -161,7 +172,7 @@ export default function Admin() {
                 <img
                   src={showPassword.current ? eyeOpen : eyeClosed}
                   alt="toggle"
-                  className="eye-icon"
+                  className={`eye-icon ${blinking.current ? "blink" : ""}`}
                   onClick={() => toggleMainPassword("current")}
                 />
               </div>
@@ -179,7 +190,7 @@ export default function Admin() {
                 <img
                   src={showPassword.new ? eyeOpen : eyeClosed}
                   alt="toggle"
-                  className="eye-icon"
+                  className={`eye-icon ${blinking.new ? "blink" : ""}`}
                   onClick={() => toggleMainPassword("new")}
                 />
               </div>
@@ -197,7 +208,7 @@ export default function Admin() {
                 <img
                   src={showPassword.confirm ? eyeOpen : eyeClosed}
                   alt="toggle"
-                  className="eye-icon"
+                  className={`eye-icon ${blinking.confirm ? "blink" : ""}`}
                   onClick={() => toggleMainPassword("confirm")}
                 />
               </div>
@@ -254,7 +265,7 @@ export default function Admin() {
                     <img
                       src={showPassword.operators[op.id] ? eyeOpen : eyeClosed}
                       alt="toggle"
-                      className="eye-icon"
+                      className={`eye-icon ${blinking[op.id] ? "blink" : ""}`}
                       onClick={() => toggleOperatorPassword(op.id)}
                     />
                   </div>

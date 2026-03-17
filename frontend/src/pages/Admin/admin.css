@@ -1,6 +1,6 @@
 .admin-page {
   max-width: 700px;
-  margin: 80px auto;
+  margin: 30px auto;
   display: flex;
   flex-direction: column;
   gap: 30px;
@@ -8,7 +8,7 @@
 
 .admin-title {
   font-weight: 600;
-  margin-bottom: 18px;
+  margin-bottom: 10px;
 }
 
 .admin-panel {
@@ -233,4 +233,14 @@ input:checked + .slider:before {
 .eye-icon:hover {
   opacity: 1;
   transform: scale(1.1);
+}
+
+.eye-icon.blink {
+  animation: blinkEye 0.15s ease;
+}
+
+@keyframes blinkEye {
+  0% { transform: scaleY(1); }
+  50% { transform: scaleY(0.1); }
+  100% { transform: scaleY(1); }
 }
