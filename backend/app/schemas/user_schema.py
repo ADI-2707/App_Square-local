@@ -9,5 +9,5 @@ class TokenResponse(BaseModel):
     token_type: str
 
 class PasswordChangeRequest(BaseModel):
-    target_user: str
+    current_password: str
     new_password: str
