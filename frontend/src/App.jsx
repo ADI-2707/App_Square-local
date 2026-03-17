@@ -5,7 +5,7 @@ import Admin from "./pages/Admin/Admin";
 import Login from "./pages/Login/Login";
 import Layout from "./components/layout/Layout/Layout";
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, requiredRole }) {
   const { isAuthenticated, loading, role } = useContext(AuthContext);
 
   if (loading) return null;
