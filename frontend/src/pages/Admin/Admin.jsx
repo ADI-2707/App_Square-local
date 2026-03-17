@@ -81,6 +81,34 @@ export default function Admin() {
     }
   };
 
+  const handleOpPasswordChange = (id, value) => {
+    setOpPasswords((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleOpPasswordSubmit = async (id) => {
+    const new_password = opPasswords[id];
+
+    if (!new_password) {
+      alert("Enter password");
+      return;
+    }
+
+    try {
+      await api.put(`/admin/operators/${id}/password`, new_password);
+      alert("Password updated");
+
+      setOpPasswords((prev) => ({
+        ...prev,
+        [id]: "",
+      }));
+    } catch {
+      alert("Failed to update password");
+    }
+  };
+
   useEffect(() => {
     fetchOperators();
   }, []);
