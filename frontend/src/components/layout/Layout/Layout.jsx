@@ -28,9 +28,14 @@ export default function Layout({ children }) {
   }, []);
 
   useEffect(() => {
-    if (!devices.length) return;
+    const originalDevices = workspace?.data?.devices || [];
 
-    const cloned = devices.map((device) => ({
+    if (!originalDevices.length) {
+      setEditableData([]);
+      return;
+    }
+
+    const cloned = originalDevices.map((device) => ({
       ...device,
       tag_values: device.tag_values?.map((tag) => ({
         ...tag,
@@ -41,32 +46,11 @@ export default function Layout({ children }) {
     setIsEditing(false);
   }, [workspace]);
 
-  const handleEditToggle = () => {
-    if (isEditing) {
-      const changed = hasChanges();
+  const devices = editableData.length
+    ? editableData
+    : workspace?.data?.devices || [];
 
-      if (changed) {
-        const confirmed = window.confirm(
-          "Are you sure you want to apply these changes?",
-        );
-
-        if (!confirmed) return;
-      }
-
-      setIsEditing(false);
-      return;
-    }
-
-    setIsEditing(true);
-  };
-
-  const handleValueChange = (deviceIndex, tagIndex, newValue) => {
-    setEditableData((prev) => {
-      const updated = [...prev];
-      updated[deviceIndex].tag_values[tagIndex].value = newValue;
-      return updated;
-    });
-  };
+  const showValues = workspace?.type === "recipe";
 
   const hasChanges = () => {
     if (!workspace?.data?.devices || !editableData.length) return false;
@@ -90,17 +74,38 @@ export default function Layout({ children }) {
     return false;
   };
 
-  const devices = editableData.length
-    ? editableData
-    : workspace?.data?.devices || [];
+  const handleEditToggle = () => {
+    if (isEditing) {
+      const changed = hasChanges();
 
-  const showValues = workspace?.type === "recipe";
+      if (changed) {
+        const confirmed = window.confirm(
+          "Are you sure you want to apply these changes?"
+        );
+
+        if (!confirmed) return;
+      }
+
+      setIsEditing(false);
+      return;
+    }
+
+    setIsEditing(true);
+  };
+
+  const handleValueChange = (deviceIndex, tagIndex, newValue) => {
+    setEditableData((prev) => {
+      const updated = [...prev];
+      updated[deviceIndex].tag_values[tagIndex].value = newValue;
+      return updated;
+    });
+  };
 
   const tableRows = useMemo(() => {
     if (!devices.length) return [];
 
     const maxTags = Math.max(
-      ...devices.map((device) => device.tag_values?.length || 0),
+      ...devices.map((device) => device.tag_values?.length || 0)
     );
 
     const rows = [];
@@ -114,7 +119,7 @@ export default function Layout({ children }) {
             tagName: tag?.tag_name ?? "-",
             value: tag?.value ?? "-",
           };
-        }),
+        })
       );
     }
 
@@ -150,7 +155,8 @@ export default function Layout({ children }) {
               {workspace.type === "template" &&
                 `Template: ${workspace.data.name}`}
 
-              {workspace.type === "device" && `Device: ${workspace.data.name}`}
+              {workspace.type === "device" &&
+                `Device: ${workspace.data.name}`}
             </h2>
 
             <WorkspaceToolbar
@@ -184,7 +190,6 @@ export default function Layout({ children }) {
                     {devices.map((device) => (
                       <Fragment key={`subheader-${device.id}`}>
                         <th className="sub-header">Tag</th>
-
                         {showValues && <th className="sub-header">Value</th>}
                       </Fragment>
                     ))}
@@ -194,39 +199,54 @@ export default function Layout({ children }) {
                 <tbody>
                   {tableRows.map((row, rowIndex) => (
                     <tr key={`row-${rowIndex}`}>
-                      {row.map((cell, colIndex) => (
-                        <Fragment key={`cell-${rowIndex}-${colIndex}`}>
-                          <td
-                            className="tag-cell"
-                            style={{ textAlign: "center" }}
-                          >
-                            {cell.tagName}
-                          </td>
+                      {row.map((cell, colIndex) => {
+                        const originalValue =
+                          workspace?.data?.devices?.[colIndex]?.tag_values?.[
+                            rowIndex
+                          ]?.value;
 
-                          {showValues && (
-                            <td className="value-cell">
-                              {isEditing ? (
-                                <input
-                                  className="value-input"
-                                  value={
-                                    devices[colIndex]?.tag_values?.[rowIndex]
-                                      ?.value ?? ""
-                                  }
-                                  onChange={(e) =>
-                                    handleValueChange(
-                                      colIndex,
-                                      rowIndex,
-                                      e.target.value,
-                                    )
-                                  }
-                                />
-                              ) : (
-                                cell.value
-                              )}
+                        const currentValue =
+                          devices[colIndex]?.tag_values?.[rowIndex]?.value;
+
+                        const isChanged =
+                          String(originalValue ?? "") !==
+                          String(currentValue ?? "");
+
+                        return (
+                          <Fragment key={`cell-${rowIndex}-${colIndex}`}>
+                            <td
+                              className="tag-cell"
+                              style={{ textAlign: "center" }}
+                            >
+                              {cell.tagName}
                             </td>
-                          )}
-                        </Fragment>
-                      ))}
+
+                            {showValues && (
+                              <td
+                                className={`value-cell ${
+                                  isChanged ? "changed-cell" : ""
+                                }`}
+                              >
+                                {isEditing ? (
+                                  <input
+                                    className="value-input"
+                                    value={currentValue ?? ""}
+                                    onChange={(e) =>
+                                      handleValueChange(
+                                        colIndex,
+                                        rowIndex,
+                                        e.target.value
+                                      )
+                                    }
+                                  />
+                                ) : (
+                                  currentValue
+                                )}
+                              </td>
+                            )}
+                          </Fragment>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>
@@ -236,7 +256,10 @@ export default function Layout({ children }) {
         )}
       </div>
 
-      <GroupModal isOpen={activeModal === "createGroup"} onClose={closeModal} />
+      <GroupModal
+        isOpen={activeModal === "createGroup"}
+        onClose={closeModal}
+      />
 
       <RecipeModal
         isOpen={activeModal === "createRecipe"}

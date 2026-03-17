@@ -195,6 +195,10 @@
   box-shadow: 0 0 3px rgba(90, 103, 216, 0.4);
 }
 
+.changed-cell {
+  background: #fff7cc;
+}
+
 @keyframes fadeWorkspace {
   from {
     opacity: 0;
