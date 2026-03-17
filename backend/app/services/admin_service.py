@@ -85,3 +85,73 @@ def get_logs(
             for log in logs
         ]
     }
+
+
+def get_all_operators(db: Session, current_user: User):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    operators = user_queries.get_by_role(db, "operator")
+
+    return [
+        {
+            "id": op.id,
+            "username": op.username,
+            "is_active": op.is_active
+        }
+        for op in operators
+    ]
+
+
+def toggle_operator_status(db: Session, user_id: int, current_user: User):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    user = user_queries.get_by_id(db, user_id)
+
+    if not user:
+        raise HTTPException(404, "User not found")
+
+    if user.role != "operator":
+        raise HTTPException(400, "Only operators can be modified")
+
+    user_queries.toggle_active(db, user)
+
+    return {
+        "message": f"{user.username} is now {'active' if user.is_active else 'inactive'}"
+    }
+
+
+def admin_change_operator_password(
+    db: Session,
+    user_id: int,
+    new_password: str,
+    current_user: User
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    user = user_queries.get_by_id(db, user_id)
+
+    if not user:
+        raise HTTPException(404, "User not found")
+
+    if user.role != "operator":
+        raise HTTPException(400, "Only operators allowed")
+
+    user_queries.update_password_and_increment_token(
+        db,
+        user,
+        hash_password(new_password)
+    )
+
+    return {"message": f"{user.username} password updated successfully"}
