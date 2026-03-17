@@ -157,7 +157,6 @@ export default function Sidebar({ onOpenModal }) {
 
   const handleRightClick = (e, payload) => {
     e.preventDefault();
-    if (role !== "admin") return;
 
     setContextMenu({
       x: e.pageX,
