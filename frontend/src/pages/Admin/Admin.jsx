@@ -41,6 +41,9 @@ export default function Admin() {
 
       alert("Password updated successfully");
 
+      localStorage.removeItem("token");
+      window.location.href = "/";
+
       setForm({
         current_password: "",
         new_password: "",
@@ -58,13 +61,10 @@ export default function Admin() {
       <h2 className="admin-title">Admin Settings</h2>
 
       <div className="admin-panel">
-        <div className="admin-panel-header">
-          Account Security
-        </div>
+        <div className="admin-panel-header">Account Security</div>
 
         <div className="admin-panel-body">
           <form className="admin-form" onSubmit={handleSubmit}>
-            
             <div className="form-group">
               <label>Current Password</label>
               <input
@@ -100,7 +100,6 @@ export default function Admin() {
                 {loading ? "Updating..." : "Update Password"}
               </button>
             </div>
-
           </form>
         </div>
       </div>
