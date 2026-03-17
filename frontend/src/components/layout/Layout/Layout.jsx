@@ -42,6 +42,13 @@ export default function Layout({ children }) {
   }, [workspace]);
 
   const handleEditToggle = () => {
+    if (isEditing) {
+      const confirmed = window.confirm(
+        "Are you sure you want to apply these changes?",
+      );
+
+      if (!confirmed) return;
+    }
     setIsEditing((prev) => !prev);
   };
 
