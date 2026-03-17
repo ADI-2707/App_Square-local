@@ -160,6 +160,46 @@ export default function Admin() {
           </form>
         </div>
       </div>
+      <div className="admin-panel">
+        <div className="admin-panel-header">Operator Management</div>
+
+        <div className="admin-panel-body">
+          {loadingOps ? (
+            <p>Loading operators...</p>
+          ) : (
+            operators.map((op) => (
+              <div key={op.id} className="operator-row">
+                <div className="op-name">{op.username}</div>
+
+                <div className="op-toggle">
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={op.is_active}
+                      onChange={() => handleToggle(op.id)}
+                    />
+                    <span className="slider"></span>
+                  </label>
+                </div>
+
+                <div className="op-password">
+                  <input
+                    type="password"
+                    placeholder="New Password"
+                    value={opPasswords[op.id] || ""}
+                    onChange={(e) =>
+                      handleOpPasswordChange(op.id, e.target.value)
+                    }
+                  />
+                  <button onClick={() => handleOpPasswordSubmit(op.id)}>
+                    Update
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
