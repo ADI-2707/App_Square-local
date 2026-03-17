@@ -102,7 +102,7 @@ export default function AddRecipeModal({
       isOpen={isOpen}
       onClose={() => {
         if (!isLocked) return;
-          onClose();
+        onClose();
       }}
       title="Add Recipe"
     >
@@ -154,7 +154,9 @@ export default function AddRecipeModal({
           ))}
         </div>
 
-        <button onClick={handleCreate}>Save Recipe</button>
+        <button onClick={handleCreate} disabled={isLocked}>
+          {isLocked ? "Saving..." : "Save Recipe"}
+        </button>
       </div>
     </BaseModal>
   );
