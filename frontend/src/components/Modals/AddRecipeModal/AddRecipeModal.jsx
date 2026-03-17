@@ -3,6 +3,7 @@ import BaseModal from "../BaseModal/BaseModal";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import api from "../../../Utility/api";
 import "../RecipeModal/recipeModal.css";
+import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 
 export default function AddRecipeModal({
   isOpen,
@@ -11,6 +12,7 @@ export default function AddRecipeModal({
   templateGroupId,
 }) {
   const { addRecipeLocal } = useRecipes();
+  const { lockUI, unlockUI, isLocked } = useUiLock();
 
   const [recipeName, setRecipeName] = useState("");
   const [templateDevices, setTemplateDevices] = useState([]);
@@ -26,9 +28,7 @@ export default function AddRecipeModal({
 
     const fetchDevices = async () => {
       try {
-        const res = await api.get(
-          `/templates/${templateGroupId}/devices`
-        );
+        const res = await api.get(`/templates/${templateGroupId}/devices`);
         setTemplateDevices(res.data);
       } catch (err) {
         console.error("Device load failed:", err);
@@ -79,6 +79,8 @@ export default function AddRecipeModal({
     }
 
     try {
+      lockUI("Creating recipe...");
+
       const res = await api.post("/recipes", {
         name: recipeName.trim(),
         recipe_group_id: recipeGroupId,
@@ -90,11 +92,20 @@ export default function AddRecipeModal({
       onClose();
     } catch (err) {
       alert(err.response?.data?.detail || "Failed to create recipe");
+    } finally {
+      unlockUI();
     }
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Add Recipe">
+    <BaseModal
+      isOpen={isOpen}
+      onClose={() => {
+        if (!isLocked) return;
+          onClose();
+      }}
+      title="Add Recipe"
+    >
       <div className="group-form">
         <label>Recipe Name</label>
         <input
@@ -115,9 +126,7 @@ export default function AddRecipeModal({
         <label>Select Devices</label>
 
         <div
-          className={`device-selection ${
-            errors.devices ? "error-field" : ""
-          }`}
+          className={`device-selection ${errors.devices ? "error-field" : ""}`}
         >
           <div className="device-actions">
             <button type="button" onClick={selectAll}>
@@ -127,16 +136,13 @@ export default function AddRecipeModal({
               Clear
             </button>
             <span>
-              Selected: {selectedDevices.length} /{" "}
-              {templateDevices.length}
+              Selected: {selectedDevices.length} / {templateDevices.length}
             </span>
           </div>
 
           {templateDevices.map((device) => (
             <div key={device.id} className="device-row">
-              <span className="device-name">
-                {device.name}
-              </span>
+              <span className="device-name">{device.name}</span>
 
               <input
                 type="checkbox"
@@ -148,9 +154,7 @@ export default function AddRecipeModal({
           ))}
         </div>
 
-        <button onClick={handleCreate}>
-          Save Recipe
-        </button>
+        <button onClick={handleCreate}>Save Recipe</button>
       </div>
     </BaseModal>
   );
