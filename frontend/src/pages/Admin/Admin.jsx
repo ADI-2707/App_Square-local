@@ -13,6 +13,13 @@ export default function Admin() {
     confirm_password: "",
   });
 
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+    operators: {},
+  });
+
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -87,6 +94,23 @@ export default function Admin() {
     } catch {
       alert("Failed to update operator");
     }
+  };
+
+  const toggleMainPassword = (field) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
+  const toggleOperatorPassword = (id) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      operators: {
+        ...prev.operators,
+        [id]: !prev.operators[id],
+      },
+    }));
   };
 
   const handleOpPasswordChange = (id, value) => {
