@@ -61,3 +61,17 @@ def update_password_and_increment_token(
     user.hashed_password = hashed_password
     user.token_version += 1
     db.add(user)
+
+
+def get_by_id(db: Session, user_id: int) -> User | None:
+    return db.query(User).filter(User.id == user_id).first()
+
+
+def get_by_role(db: Session, role: str):
+    return db.query(User).filter(User.role == role).all()
+
+
+def toggle_active(db: Session, user: User):
+    user.is_active = not user.is_active
+    db.add(user)
+    return user
