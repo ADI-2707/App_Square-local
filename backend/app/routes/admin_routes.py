@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Body
 from sqlalchemy.orm import Session
 
 from app.schemas.user_schema import PasswordChangeRequest
@@ -11,8 +11,8 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 
 @router.put("/change-password")
 def change_password(
-    request: PasswordChangeRequest,
     request_obj: Request,
+    request: PasswordChangeRequest = Body(...),
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):

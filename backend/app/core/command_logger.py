@@ -14,13 +14,14 @@ def command_logger(action: str):
         def wrapper(*args, **kwargs):
 
             current_user = kwargs.get("current_user")
-            request: Request = kwargs.get("request")
+            request_obj: Request = kwargs.get("request_obj")
+
             endpoint = None
             method = None
 
-            if request:
-                endpoint = request.url.path
-                method = request.method
+            if request_obj:
+                endpoint = request_obj.url.path
+                method = request_obj.method
 
             try:
                 result = func(*args, **kwargs)
@@ -36,8 +37,8 @@ def command_logger(action: str):
                 return result
 
             except HTTPException as e:
-                if request:
-                    request.state.already_logged = True
+                if request_obj:
+                    request_obj.state.already_logged = True
 
                 _log_independent(
                     user=current_user,
@@ -53,8 +54,8 @@ def command_logger(action: str):
 
             except Exception as e:
 
-                if request:
-                    request.state.already_logged = True
+                if request_obj:
+                    request_obj.state.already_logged = True
 
                 _log_independent(
                     user=current_user,
@@ -73,6 +74,7 @@ def command_logger(action: str):
     return decorator
 
 
+
 def _log_independent(
     user,
     action,
@@ -82,12 +84,11 @@ def _log_independent(
     error_type=None,
     error_message=None
 ):
-
-    log_db = SessionLocal()
+    db = SessionLocal()
 
     try:
         add_log(
-            db=log_db,
+            db=db,
             user=user,
             action=action,
             status=status,
@@ -96,8 +97,8 @@ def _log_independent(
             error_type=error_type,
             error_message=error_message
         )
-        log_db.commit()
+        db.commit()
     except Exception:
-        log_db.rollback()
+        db.rollback()
     finally:
-        log_db.close()
+        db.close()

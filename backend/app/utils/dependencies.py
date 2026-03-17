@@ -24,20 +24,28 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ):
-    token = credentials.credentials
+    try:
+        token = credentials.credentials
 
-    user, payload = decode_access_token(token, db, return_payload=True)
+        user, payload = decode_access_token(token, db, return_payload=True)
 
-    exp = payload.get("exp")
-    if exp:
-        expire_time = datetime.utcfromtimestamp(exp)
-        remaining_seconds = (expire_time - datetime.utcnow()).total_seconds()
+        exp = payload.get("exp")
+        if exp:
+            expire_time = datetime.utcfromtimestamp(exp)
+            remaining_seconds = (expire_time - datetime.utcnow()).total_seconds()
 
-        if remaining_seconds < 600:
-            new_token = create_access_token({
-                "sub": user.username,
-                "tv": user.token_version
-            })
-            response.headers["X-Refreshed-Token"] = new_token
+            if remaining_seconds < 600:
+                new_token = create_access_token({
+                    "sub": user.username,
+                    "tv": user.token_version
+                })
 
-    return user
+                response.headers["X-Refreshed-Token"] = new_token
+
+        return user
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication"
+        )
