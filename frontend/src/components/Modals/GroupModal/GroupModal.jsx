@@ -104,7 +104,10 @@ export default function GroupModal({ isOpen, onClose }) {
     <>
       <BaseModal
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={() => {
+          if (isLocked) return;
+          onClose();
+        }}
         title="Create Recipe Template Group"
       >
         <div className="group-form">
