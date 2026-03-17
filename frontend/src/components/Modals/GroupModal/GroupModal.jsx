@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
+import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 import BaseModal from "../BaseModal/BaseModal";
 import DeviceModal from "../DeviceModal/DeviceModal";
 import EditIcon from "../../../assets/icons/EditIcon";
@@ -9,6 +10,7 @@ import "./groupModal.css";
 
 export default function GroupModal({ isOpen, onClose }) {
   const { addFullTemplateGroup } = useEntities();
+  const { lockUI, unlockUI, isLocked } = useUiLock();
 
   const [groupName, setGroupName] = useState("");
   const [description, setDescription] = useState("");
@@ -77,6 +79,8 @@ export default function GroupModal({ isOpen, onClose }) {
     };
 
     try {
+      lockUI("Creating template...");
+
       const response = await api.post("/templates/full", payload);
 
       addFullTemplateGroup(response.data);
@@ -91,6 +95,8 @@ export default function GroupModal({ isOpen, onClose }) {
     } catch (error) {
       console.error(error);
       alert("Failed to save group");
+    } finally {
+      unlockUI();
     }
   };
 
@@ -127,16 +133,12 @@ export default function GroupModal({ isOpen, onClose }) {
           </div>
 
           <div
-            className={`device-section ${
-              errors.devices ? "error-field" : ""
-            }`}
+            className={`device-section ${errors.devices ? "error-field" : ""}`}
           >
             <div className="group-device-header">
               <h4>Devices</h4>
 
-              <button onClick={openAddDevice}>
-                + Add Device
-              </button>
+              <button onClick={openAddDevice}>+ Add Device</button>
             </div>
 
             <ul>
@@ -167,9 +169,7 @@ export default function GroupModal({ isOpen, onClose }) {
           </div>
 
           <div className="modal-actions">
-            <button onClick={handleSave}>
-              Save Template
-            </button>
+            <button onClick={handleSave}>Save Template</button>
           </div>
         </div>
       </BaseModal>
