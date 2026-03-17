@@ -72,6 +72,15 @@ export default function Admin() {
     }
   };
 
+  const handleToggle = async (id) => {
+    try {
+      await api.patch(`/admin/operators/${id}/toggle`);
+      fetchOperators();
+    } catch {
+      alert("Failed to update operator");
+    }
+  };
+
   useEffect(() => {
     fetchOperators();
   }, []);
