@@ -68,6 +68,17 @@
   transition: all 0.15s ease;
 }
 
+.admin-link.admin-role {
+  background: rgba(255, 251, 0, 0.85);
+  color: #000;
+  border: 1px solid #e6d800;
+}
+
+.admin-link.admin-role:hover {
+  background: rgba(255, 230, 0, 1);
+  color: #000;
+}
+
 .admin-link:hover {
   text-decoration: underline;
   background: rgba(255, 251, 0, 0.85);
@@ -75,12 +86,12 @@
 }
 
 .admin-link.disabled {
-  background: #d1d5db;
+  background: #fff !important;
   color: #666;
   border: 1px solid #aaa;
   cursor: not-allowed;
   pointer-events: none;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .admin-link.active {

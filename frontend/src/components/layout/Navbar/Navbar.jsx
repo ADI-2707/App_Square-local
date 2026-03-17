@@ -18,7 +18,7 @@ export default function Navbar() {
     }
   };
 
-  const isAdminPage = location.pathname === "/admin";
+  const isAdminPage = role === "admin" && location.pathname === "/admin";
 
   return (
     <div className="navbar">
@@ -30,7 +30,7 @@ export default function Navbar() {
         {role === "admin" ? (
           <Link
             to="/admin"
-            className={`admin-link ${isAdminPage ? "active" : ""}`}
+            className={`admin-link ${role === "admin" ? "admin-role" : ""}`}
           >
             <img src="/icons/user.svg" className="admin-icon" />
             {username?.toUpperCase()}
