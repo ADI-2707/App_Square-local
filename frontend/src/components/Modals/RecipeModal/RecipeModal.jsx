@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import BaseModal from "../BaseModal/BaseModal";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
+import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 import api from "../../../Utility/api";
 import "./recipeModal.css";
 
@@ -12,6 +13,7 @@ export default function RecipeModal({
 }) {
   const { groups } = useEntities();
   const { addRecipeGroupLocal, addRecipeLocal } = useRecipes();
+  const { lockUI, unlockUI, isLocked } = useUiLock();
 
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [recipeGroupName, setRecipeGroupName] = useState("");
@@ -70,6 +72,8 @@ export default function RecipeModal({
     };
 
     try {
+      lockUI("Creating area...");
+
       const res = await api.post("/recipes/groups", payload);
 
       setCreatedGroupId(res.data.id);
@@ -77,6 +81,8 @@ export default function RecipeModal({
     } catch (err) {
       console.error("Recipe Group Error:", err);
       alert("Failed to create recipe group");
+    } finally {
+      unlockUI();
     }
   };
 
@@ -92,6 +98,8 @@ export default function RecipeModal({
     }
 
     try {
+      lockUI("Creating recipe...");
+
       const res = await api.post("/recipes", {
         name: recipeName.trim(),
         recipe_group_id: createdGroupId,
@@ -103,6 +111,8 @@ export default function RecipeModal({
     } catch (err) {
       console.error("Recipe Creation Error:", err);
       alert("Failed to create recipe");
+    } finally {
+      unlockUI();
     }
   };
 
@@ -123,7 +133,14 @@ export default function RecipeModal({
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="Create Recipe">
+    <BaseModal
+      isOpen={isOpen}
+      onClose={() => {
+        if (isLocked) return;
+        onClose();
+      }}
+      title="Create Recipe"
+    >
       <div className="group-form">
         <label>Select Template</label>
         <select
@@ -190,7 +207,9 @@ export default function RecipeModal({
               onChange={(e) => setRecipeName(e.target.value)}
             />
 
-            <button onClick={handleCreateRecipe}>Save Recipe</button>
+            <button onClick={handleSave} disabled={isLocked}>
+              {isLocked ? "Saving..." : "Save Recipe"}
+            </button>
           </>
         )}
       </div>
