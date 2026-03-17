@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../Utility/api";
 import "./admin.css";
 
 export default function Admin() {
+  const [operators, setOperators] = useState([]);
+  const [opPasswords, setOpPasswords] = useState({});
+  const [loadingOps, setLoadingOps] = useState(false);
+
   const [form, setForm] = useState({
     current_password: "",
     new_password: "",
@@ -55,6 +59,22 @@ export default function Admin() {
       setLoading(false);
     }
   };
+
+  const fetchOperators = async () => {
+    try {
+      setLoadingOps(true);
+      const res = await api.get("/admin/operators");
+      setOperators(res.data);
+    } catch (err) {
+      alert("Failed to load operators");
+    } finally {
+      setLoadingOps(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOperators();
+  }, []);
 
   return (
     <div className="admin-page">
