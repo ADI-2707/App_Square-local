@@ -36,11 +36,18 @@ def update_role(db: Session, user: User, role: str):
     db.add(user)
 
 
-def create_user(db: Session, username: str, hashed_password: str, role: str):
+def create_user(
+    db: Session,
+    username: str,
+    hashed_password: str,
+    role: str,
+    is_active: bool = True
+):
     user = User(
         username=username,
         hashed_password=hashed_password,
-        role=role
+        role=role,
+        is_active=is_active
     )
     db.add(user)
     return user

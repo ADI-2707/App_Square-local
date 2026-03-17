@@ -11,25 +11,36 @@ def initialize_system_users(db: Session):
 
     try:
         admin = user_queries.get_by_username(db, "admin")
-        guest = user_queries.get_by_username(db, "guest")
 
         if not admin:
             user_queries.create_user(
                 db=db,
                 username="admin",
                 hashed_password=hash_password(ROOT_ADMIN_PASSWORD),
-                role="admin"
+                role="admin",
+                is_active=True
             )
         else:
             user_queries.update_role(db, admin, "admin")
 
-        if not guest:
-            user_queries.create_user(
-                db=db,
-                username="guest",
-                hashed_password=hash_password(GUEST_PASSWORD),
-                role="guest"
-            )
+        operators = [
+            ("operator1", True),
+            ("operator2", False),
+            ("operator3", False),
+            ("operator4", False),
+        ]
+
+        for username, is_active in operators:
+            existing = user_queries.get_by_username(db, username)
+
+            if not existing:
+                user_queries.create_user(
+                    db=db,
+                    username=username,
+                    hashed_password=hash_password(GUEST_PASSWORD),
+                    role="operator",
+                    is_active=is_active
+                )
 
         db.commit()
 
