@@ -177,7 +177,12 @@ export default function Admin() {
           ) : (
             operators.map((op) => (
               <div key={op.id} className="operator-row">
-                <div className="op-name">{op.username}</div>
+                <div className="op-name">
+                  <span
+                    className={`status-dot ${op.is_active ? "active" : "inactive"}`}
+                  ></span>
+                  {op.username}
+                </div>
 
                 <div className="op-toggle">
                   <label className="switch">
