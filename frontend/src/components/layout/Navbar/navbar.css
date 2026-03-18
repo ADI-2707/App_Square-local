@@ -48,8 +48,8 @@
 }
 
 .logout-btn:hover {
-  background: var(--logout-hover);
-  color: var(--color-surface);
+  background: var(--color-logout-hover);
+  color: var(--color-white);
 }
 
 .admin-link {

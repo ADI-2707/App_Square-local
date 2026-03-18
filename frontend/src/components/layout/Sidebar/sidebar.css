@@ -43,7 +43,7 @@
 .sidebar-appname {
   font-size: var(--text-lg);
   font-weight: 700;
-  color: var(--color-surface);
+  color: var(--color-white);
   letter-spacing: 0.5px;
 }
 
@@ -54,7 +54,7 @@
 
 .sidebar-title {
   padding: 14px 20px;
-  color: var(--color-surface);
+  color: var(--color-white);
   font-weight: 600;
   cursor: pointer;
   user-select: none;
@@ -192,7 +192,7 @@
 }
 
 .context-item:hover {
-  background-color: var(--color-border);
+  background-color: var(--color-sidebar-hover);
 }
 
 .context-item.disabled-item {
