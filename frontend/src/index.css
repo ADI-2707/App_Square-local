@@ -51,16 +51,16 @@ input, textarea, select {
 }
 
 ::-webkit-scrollbar-track {
-  background: #eceff1;
+  background: var(--color-scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #b0bec5;
+  background: var(--color-scrollbar-thumb);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #90a4ae;
+  background: var(--color-scrollbar-thumb-hover);
 }
 
 #root {

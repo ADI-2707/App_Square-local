@@ -16,6 +16,7 @@
 
   --color-table-hover: #eef2ff;
   --color-changed-cell: #fff7cc;
+  --color-accent-border: #d4c200;
 
   --color-border: #e3e6ee;
   --color-border-strong: #9aa3c7;
@@ -33,4 +34,8 @@
   --color-danger: #d32f2f;
 
   --color-logout-hover: red;
+
+  --color-scrollbar-track: #eceff1;
+  --color-scrollbar-thumb: #b0bec5;
+  --color-scrollbar-thumb-hover: #90a4ae;
 }
