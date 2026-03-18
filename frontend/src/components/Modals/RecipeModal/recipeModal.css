@@ -22,7 +22,7 @@
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--color-white);
   font-size: 14px;
   color: var(--color-text-primary);
   transition: all 0.15s ease-in-out;
@@ -37,7 +37,7 @@
 
 .group-form input:disabled,
 .group-form select:disabled {
-  background-color: #f5f6fa;
+  background-color: var(--color-bg-soft);
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -45,7 +45,7 @@
 .group-form button {
   padding: 9px 16px;
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-white);
   border: none;
   border-radius: 4px;
   font-size: 13px;

@@ -11,7 +11,7 @@
 .modal-container {
   width: 620px;
   height: 520px;
-  background: var(--color-surface);
+  background: var(--color-white);
   border-radius: 10px;
   box-shadow: var(--shadow-medium);
   display: flex;

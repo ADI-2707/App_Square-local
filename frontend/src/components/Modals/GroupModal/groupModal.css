@@ -28,7 +28,7 @@
   border: 1px solid var(--color-border);
   border-radius: 6px;
   box-sizing: border-box;
-  background: #fff;
+  background: var(--color-white);
 }
 
 .device-section {
@@ -46,7 +46,7 @@
   align-items: center;
   min-height: 40px;
   padding: 6px 12px;
-  background: #dfe4ff;
+  background: var(--color-bg-active);
   border-radius: 6px;
   box-sizing: border-box;
 }
@@ -102,7 +102,7 @@
   min-width: 160px;
   height: 40px;
   background: #2e7d32;
-  color: white;
+  color: var(--color-white);
   border: none;
   border-radius: 8px;
   font-weight: 600;
