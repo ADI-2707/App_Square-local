@@ -9,6 +9,8 @@ import { RecipeProvider } from "./context/RecipeContext/RecipeContext";
 import { WorkspaceProvider } from "./context/WorkspaceContext/WorkspaceContext";
 import { UiLockProvider } from "./context/UiLockContext/UiLockContext";
 
+import "./styles/tokens/colors.css";
+import "./styles/tokens/typography.css";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(

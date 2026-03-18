@@ -1,0 +1,19 @@
+:root {
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-bg-soft: #f4f6f8;
+  --color-bg-hover: #eef2ff;
+  --color-bg-light: #fafbff;
+
+  --color-border-strong: #9aa3c7;
+  --color-border-muted: rgba(0,0,0,0.08);
+
+  --color-yellow: #ffe600;
+  --color-yellow-dark: #ffd000;
+
+  --color-success: #2ecc71;
+  --color-danger: #d32f2f;
+
+  --color-sidebar-submenu: #242933;
+}
