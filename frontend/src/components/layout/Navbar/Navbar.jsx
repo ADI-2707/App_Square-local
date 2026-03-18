@@ -18,7 +18,7 @@ export default function Navbar() {
     }
   };
 
-  const isAdminPage = role === "admin" && location.pathname === "/admin";
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
     <div className="navbar">
@@ -28,14 +28,21 @@ export default function Navbar() {
 
       <div className="navbar-right">
         {role === "admin" ? (
-          <Link
-            to="/admin"
-            className={`admin-link ${role === "admin" ? "admin-role" : ""}`}
-          >
-            <img src="/icons/user.svg" className="admin-icon" />
-            {username?.toUpperCase()}
-          </Link>
+          isAdminPage ? (
+
+            <Link to="/home" className="admin-link admin-role">
+              <img src="/icons/home.svg" className="admin-icon" />
+              HOME
+            </Link>
+          ) : (
+
+            <Link to="/admin" className="admin-link admin-role">
+              <img src="/icons/user.svg" className="admin-icon" />
+              {username?.toUpperCase()}
+            </Link>
+          )
         ) : (
+          
           <div className="admin-link disabled">
             <img src="/icons/user.svg" className="admin-icon" />
             {username?.toUpperCase()}
