@@ -41,7 +41,7 @@
 }
 
 .sidebar-appname {
-  font-size: 16px;
+  font-size: var(--text-lg);
   font-weight: 700;
   color: var(--color-surface);
   letter-spacing: 0.5px;
@@ -83,7 +83,7 @@
   color: #b0bec5;
   text-align: left;
   font-weight: 500;
-  font-size: 14px;
+  font-size: var(--text-md);
   cursor: pointer;
   transition: background 0.2s ease;
 }
@@ -130,7 +130,7 @@
 .tree-item {
   position: relative;
   padding: 6px 8px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   cursor: pointer;
   color: #d0d4ff;
   transition: background 0.2s ease;
@@ -162,14 +162,14 @@
 }
 
 .tree-empty {
-  font-size: 12px;
+  font-size: var(--text-xs);
   opacity: 0.6;
   padding: 4px 8px;
 }
 
 .tree-empty-centered {
   padding: 16px 35px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   opacity: 0.9;
   font-weight: 700;
   color: grey;

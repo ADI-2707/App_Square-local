@@ -43,13 +43,13 @@
 }
 
 .welcome-title {
-  font-size: 28px;
+  font-size: var(--text-xxl);
   font-weight: 600;
   margin-bottom: 20px;
 }
 
 .welcome-text {
-  font-size: 14px;
+  font-size: var(--text-md);
   line-height: 1.6;
   margin-bottom: 14px;
   color: rgba(255,255,255,0.85);
@@ -57,7 +57,7 @@
 
 .welcome-footer {
   margin-top: 20px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   letter-spacing: 1px;
   color: rgba(255,255,255,0.6);
 }
@@ -102,11 +102,13 @@
   width: 160px;
   padding: 10px;
   margin-top: 10px;
+
   background: linear-gradient(
     135deg,
     var(--color-primary),
     var(--color-primary-dark)
   );
+
   color: white;
   border: none;
   border-radius: 6px;
@@ -179,12 +181,14 @@
   left: -100%;
   width: 50%;
   height: 100%;
+
   background: linear-gradient(
     120deg,
     transparent,
     rgba(255,255,255,0.08),
     transparent
   );
+  
   animation: glassSweep 2.5s ease-out 1.2s forwards;
 }
 

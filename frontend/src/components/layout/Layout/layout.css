@@ -41,7 +41,7 @@
   text-align: center;
   background: #dfe4ff;
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--text-lg);
   padding: 16px 10px;
   height: 48px;
   vertical-align: middle;
@@ -58,7 +58,7 @@
   height: 40px;
   border-bottom: 1px solid var(--color-border);
   border-right: 1px solid var(--color-border);
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
 
@@ -92,7 +92,7 @@
   padding: 8px 10px;
   border-bottom: 1px solid var(--color-border);
   border-right: 1px solid var(--color-border);
-  font-size: 13px;
+  font-size: var(--text-sm);
 }
 
 .recipe-matrix-table thead tr {
@@ -185,7 +185,7 @@
   border: 1px solid #9aa3c7;
   border-radius: 3px;
   text-align: center;
-  font-size: 13px;
+  font-size: var(--text-sm);
   background: #ffffff;
 }
 
