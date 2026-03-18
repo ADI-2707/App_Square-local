@@ -72,7 +72,7 @@
 .sidebar-submenu {
   display: flex;
   flex-direction: column;
-  background: #242933;
+  background: var(--color-sidebar-submenu);
   flex-grow: 1;
 }
 
@@ -80,7 +80,7 @@
   padding: 12px 35px;
   background: none;
   border: none;
-  color: #b0bec5;
+  color: var(--color-text-secondary);
   text-align: left;
   font-weight: 500;
   font-size: var(--text-md);
@@ -95,7 +95,7 @@
 
 .sidebar-title.active-section {
   background: #323a56;
-  color: white;
+  color: var(--color-white);
   border-left: 4px solid var(--color-sidebar-active);
 }
 
@@ -158,7 +158,7 @@
 
 .leaf {
   font-weight: 500;
-  color: #c7ceff;
+  color: var(--color-text-light);
 }
 
 .tree-empty {
@@ -188,7 +188,7 @@
 .context-item {
   padding: 6px 12px;
   cursor: pointer;
-  color: #fff;
+  color: var(--color-white);
 }
 
 .context-item:hover {
@@ -206,7 +206,7 @@
 }
 
 .disabled-item {
-  color: #888;
+  color: var(--color-text-secondary);
   cursor: not-allowed;
   pointer-events: none;
 }

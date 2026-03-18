@@ -3,11 +3,13 @@
   --color-black: #000000;
 
   --color-bg-soft: #f4f6f8;
-  --color-bg-hover: #eef2ff;
+  --color-bg-hover: #eef1ff;
   --color-bg-light: #fafbff;
 
+  --color-table-hover: #eef2ff;
   --color-border-strong: #9aa3c7;
   --color-border-muted: rgba(0,0,0,0.08);
+  --color-changed-cell: #fff7cc;
 
   --color-yellow: #ffe600;
   --color-yellow-dark: #ffd000;

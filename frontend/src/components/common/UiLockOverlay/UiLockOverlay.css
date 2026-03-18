@@ -15,7 +15,7 @@
 
 .ui-lock-content {
   text-align: center;
-  color: #fff;
+  color: var(--color-white);
   font-size: 18px;
   font-weight: 500;
 }
