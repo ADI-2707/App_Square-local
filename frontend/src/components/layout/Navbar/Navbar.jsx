@@ -29,20 +29,17 @@ export default function Navbar() {
       <div className="navbar-right">
         {role === "admin" ? (
           isAdminPage ? (
-
             <Link to="/home" className="admin-link admin-role">
               <img src="/icons/home.svg" className="admin-icon" />
-              HOME
+              <span className="admin-text">HOME</span>
             </Link>
           ) : (
-
             <Link to="/admin" className="admin-link admin-role">
               <img src="/icons/user.svg" className="admin-icon" />
-              {username?.toUpperCase()}
+              <span className="admin-text">{username?.toUpperCase()}</span>
             </Link>
           )
         ) : (
-          
           <div className="admin-link disabled">
             <img src="/icons/user.svg" className="admin-icon" />
             {username?.toUpperCase()}

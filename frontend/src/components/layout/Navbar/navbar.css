@@ -53,30 +53,32 @@
 }
 
 .admin-link {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 34px;
-  padding: 0 14px;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  min-width: 110px;
+  padding: 0 16px;
   font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0.5px;
   color: var(--color-primary);
   text-decoration: none;
   background: #ffffff;
   border: 1px solid #9aa3c7;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.15s ease;
 }
 
 .admin-link.admin-role {
-  background: rgba(255, 251, 0, 0.85);
+  background: #ffe600;
   color: #000;
-  border: 1px solid #e6d800;
+  border: 1px solid #d4c200;
 }
 
 .admin-link.admin-role:hover {
-  background: rgba(255, 230, 0, 1);
-  color: #000;
+  background: #ffd000;
 }
 
 .admin-link:hover {
@@ -100,6 +102,15 @@
 }
 
 .admin-icon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
+  display: block;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  fill: none;
+}
+
+.admin-text {
+  display: inline-block;
+  line-height: 1;
 }
