@@ -2,20 +2,36 @@
   --color-white: #ffffff;
   --color-black: #000000;
 
-  --color-bg-soft: #f4f6f8;
+  --color-primary: #5c6bc0;
+  --color-primary-dark: #3f51b5;
+
+  --color-text-primary: #1e1f26;
+  --color-text-secondary: #6b7280;
+  --color-text-light: #c7ced9;
+
+  --color-bg-main: #f4f6f8;
+  --color-bg-surface: #ffffff;
+  --color-bg-soft: #fafbff;
   --color-bg-hover: #eef1ff;
-  --color-bg-light: #fafbff;
+  --color-bg-active: #dfe4ff;
 
   --color-table-hover: #eef2ff;
-  --color-border-strong: #9aa3c7;
-  --color-border-muted: rgba(0,0,0,0.08);
   --color-changed-cell: #fff7cc;
 
-  --color-yellow: #ffe600;
-  --color-yellow-dark: #ffd000;
+  --color-border: #e3e6ee;
+  --color-border-strong: #9aa3c7;
+  --color-border-muted: rgba(0,0,0,0.08);
+
+  --color-sidebar-bg: #1f242b;
+  --color-sidebar-hover: #2a2f38;
+  --color-sidebar-active: #4f5fbf;
+  --color-sidebar-submenu: #242933;
+
+  --color-accent: #ffe600;
+  --color-accent-hover: #ffd000;
 
   --color-success: #2ecc71;
   --color-danger: #d32f2f;
 
-  --color-sidebar-submenu: #242933;
+  --color-logout-hover: red;
 }

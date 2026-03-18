@@ -89,12 +89,12 @@
 }
 
 .sidebar-submenu button:hover {
-  background: #3a4060;
-  color: white;
+  background: var(--color-sidebar-hover);
+  color: var(--color-white);
 }
 
 .sidebar-title.active-section {
-  background: #323a56;
+  background: var(--color-sidebar-active);
   color: var(--color-white);
   border-left: 4px solid var(--color-sidebar-active);
 }
@@ -132,7 +132,7 @@
   padding: 6px 8px;
   font-size: var(--text-sm);
   cursor: pointer;
-  color: #d0d4ff;
+  color: var(--color-text-light);
   transition: background 0.2s ease;
   display: flex;
   align-items: center;
@@ -172,13 +172,13 @@
   font-size: var(--text-xs);
   opacity: 0.9;
   font-weight: 700;
-  color: grey;
+  color: var(--color-text-secondary);
 }
 
 .context-menu {
   position: fixed;
-  background: #1f2937;
-  border: 1px solid #374151;
+  background: var(--color-sidebar-bg);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 5px 0;
   z-index: 9999;
@@ -192,7 +192,7 @@
 }
 
 .context-item:hover {
-  background-color: #374151;
+  background-color: var(--color-border);
 }
 
 .context-item.disabled-item {

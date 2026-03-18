@@ -6,7 +6,7 @@
   width: 100%;
   box-sizing: border-box;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-white);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -37,7 +37,7 @@
 }
 
 .logout-btn {
-  background: white;
+  background: var(--color-white);
   color: var(--color-primary);
   border: none;
   padding: 8px 16px;
@@ -65,32 +65,32 @@
   letter-spacing: 0.5px;
   color: var(--color-primary);
   text-decoration: none;
-  background: #ffffff;
-  border: 1px solid #9aa3c7;
+  background: var(--color-white);
+  border: 1px solid var(--color-border-strong);
   border-radius: 6px;
   transition: all 0.15s ease;
 }
 
 .admin-link.admin-role {
-  background: #ffe600;
-  color: #000;
+  background: var(--color-accent);
+  color: var(--color-black);
   border: 1px solid #d4c200;
 }
 
 .admin-link.admin-role:hover {
-  background: #ffd000;
+  background: var(--color-accent-hover);
 }
 
 .admin-link:hover {
   text-decoration: underline;
   background: rgba(255, 251, 0, 0.85);
-  color: white;
+  color: var(--color-white);
 }
 
 .admin-link.disabled {
-  background: #fff !important;
-  color: #666;
-  border: 1px solid #aaa;
+  background: var(--color-white) !important;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
   cursor: not-allowed;
   pointer-events: none;
   opacity: 0.85;
@@ -98,7 +98,7 @@
 
 .admin-link.active {
   background: rgba(255, 251, 0, 0.85);
-  color: white;
+  color: var(--color-white);
 }
 
 .admin-icon {

@@ -46,7 +46,7 @@
   height: 48px;
   vertical-align: middle;
   letter-spacing: 0.5px;
-  border-right: 3px solid #9aa3c7;
+  border-right: 3px solid var(--color-border-strong);
   position: relative;
 }
 
@@ -136,11 +136,11 @@
 }
 
 .recipe-matrix-table tr > *:nth-child(2n):not(:last-child) {
-  border-right: 3px solid #9aa3c7;
+  border-right: 3px solid var(--color-border-strong);
 }
 
 .device-header:not(:last-child) {
-  border-right: 3px solid #9aa3c7;
+  border-right: 3px solid var(--color-border-strong);
 }
 
 .recipe-matrix-table thead tr:first-child th:last-child {
@@ -172,7 +172,7 @@
 }
 
 .recipe-matrix-table tbody tr:nth-child(even) {
-  background: #f8f9ff;
+  background: var(--color-bg-soft);
 }
 
 .recipe-workspace {
