@@ -229,10 +229,10 @@ export default function Sidebar({ onOpenModal }) {
           {openSections.templates && (
             <div className="sidebar-submenu">
               <button
+                className={`sidebar-action-btn ${role !== "admin" ? "disabled-btn" : ""}`}
                 onClick={() => role === "admin" && onOpenModal("createGroup")}
-                className={role !== "admin" ? "disabled-btn" : ""}
               >
-                Create Recipe Template
+               + Create Recipe Template
               </button>
 
               {groups.allIds.map((groupId) => {
@@ -296,8 +296,11 @@ export default function Sidebar({ onOpenModal }) {
 
           {openSections.recipes && hasTemplates && (
             <div className="sidebar-submenu">
-              <button onClick={() => onOpenModal("createRecipe")}>
-                Create Recipe
+              <button
+                className="sidebar-action-btn"
+                onClick={() => onOpenModal("createRecipe")}
+              >
+               + Create Recipe
               </button>
 
               {templatesWithRecipeGroups.map((templateId) => {
