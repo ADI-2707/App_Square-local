@@ -92,29 +92,29 @@
 }
 
 .sidebar-submenu .sidebar-action-btn {
-  margin: 10px 16px;
-  padding: 10px 14px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: linear-gradient(
-    to right,
-    rgba(255, 255, 255, 0.12),
-    rgba(255, 255, 255, 0.04)
-  );
+  margin: 8px 16px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.25);
+  border-left: 3px solid var(--color-accent);
+  background: rgba(255,255,255,0.04);
   color: var(--color-white);
   font-size: var(--text-md);
   font-weight: var(--font-semibold);
-  display: block;
   width: calc(100% - 32px);
   text-align: left;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: all 0.15s ease;
 }
 
 .sidebar-submenu .sidebar-action-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-submenu .sidebar-action-btn:active {
+  background: rgba(255,255,255,0.18);
+  transform: translateY(1px);
 }
 
 .sidebar-submenu button:not(.sidebar-action-btn) {
