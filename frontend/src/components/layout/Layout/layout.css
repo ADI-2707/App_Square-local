@@ -92,7 +92,7 @@
   padding: 8px 10px;
   border-bottom: 1px solid var(--color-border);
   border-right: 1px solid var(--color-border);
-  font-size: var(--text-sm);
+  font-size: var(--text-lg);
 }
 
 .recipe-matrix-table thead tr {
