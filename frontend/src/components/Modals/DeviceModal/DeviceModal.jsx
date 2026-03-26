@@ -115,10 +115,10 @@ export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) 
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title={initialDevice ? "Edit Device" : "Create Device"}>
+    <BaseModal isOpen={isOpen} onClose={onClose} title={initialDevice ? "Edit Equipment" : "Create Equipment"}>
       <div className="device-form">
         <div className="form-field">
-          <label>Device Name</label>
+          <label>Equipment Name</label>
           <input
             type="text"
             value={deviceName}
@@ -222,7 +222,7 @@ export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) 
 
         <div className="modal-actions">
           <button onClick={handleSave}>
-            Save Device
+            Save Equipment
           </button>
         </div>
       </div>

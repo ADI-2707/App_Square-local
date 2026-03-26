@@ -52,7 +52,7 @@ export default function RecipeModal({
         setTemplateDevices(res.data);
         setSelectedDevices([]);
       } catch (err) {
-        console.error("Failed to fetch template devices:", err);
+        console.error("Failed to fetch template equipments:", err);
         setTemplateDevices([]);
       }
     };
@@ -93,7 +93,7 @@ export default function RecipeModal({
     }
 
     if (selectedDevices.length === 0) {
-      alert("Select at least one device");
+      alert("Select at least one equipment");
       return;
     }
 
@@ -158,7 +158,7 @@ export default function RecipeModal({
 
         {templateDevices.length > 0 && (
           <>
-            <label>Select Devices</label>
+            <label>Select Equipments</label>
 
             <div className="device-selection">
               <div className="device-actions">
@@ -169,7 +169,7 @@ export default function RecipeModal({
                   Clear
                 </button>
                 <span className="device-count">
-                  Selected: {selectedDevices.length} / {templateDevices.length}
+                  Selected Equipment: {selectedDevices.length} / {templateDevices.length}
                 </span>
               </div>
 

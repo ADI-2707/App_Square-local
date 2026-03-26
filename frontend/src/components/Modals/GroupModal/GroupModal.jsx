@@ -139,10 +139,10 @@ export default function GroupModal({ isOpen, onClose }) {
             className={`device-section ${errors.devices ? "error-field" : ""}`}
           >
             <div className="group-device-header">
-              <h4>Devices</h4>
+              <h4>Equipments</h4>
 
               <button onClick={openAddDevice} disabled={isLocked}>
-                + Add Device
+                + Add Equipment
               </button>
             </div>
 

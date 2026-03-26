@@ -31,7 +31,7 @@ export default function AddRecipeModal({
         const res = await api.get(`/templates/${templateGroupId}/devices`);
         setTemplateDevices(res.data);
       } catch (err) {
-        console.error("Device load failed:", err);
+        console.error("Equipment load failed:", err);
       }
     };
 
@@ -123,7 +123,7 @@ export default function AddRecipeModal({
           }}
         />
 
-        <label>Select Devices</label>
+        <label>Select Equipments</label>
 
         <div
           className={`device-selection ${errors.devices ? "error-field" : ""}`}
