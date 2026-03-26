@@ -46,6 +46,7 @@ export default function Sidebar({ onOpenModal }) {
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
 
   const [activeRecipeId, setActiveRecipeId] = useState(null);
+  const [activeDeviceId, setActiveDeviceId] = useState(null);
 
   const hasTemplates = groups.allIds.length > 0;
 
@@ -156,6 +157,13 @@ export default function Sidebar({ onOpenModal }) {
         name: contextMenu.deviceName,
         devices: [device],
       });
+
+      setActiveDeviceId(contextMenu.deviceId);
+
+      setExpandedGroups((prev) => ({
+        ...prev,
+        [contextMenu.templateId]: true,
+      }));
     } catch {
       alert("Failed to load device");
     }
@@ -259,6 +267,7 @@ export default function Sidebar({ onOpenModal }) {
                           type: "template",
                           templateId: groupId,
                           templateName: group.name,
+                          templateId: groupId,
                         })
                       }
                     >
@@ -273,7 +282,11 @@ export default function Sidebar({ onOpenModal }) {
                           return (
                             <div key={deviceId} className="tree-node">
                               <div
-                                className="tree-item leaf"
+                                className={`tree-item leaf ${
+                                  activeDeviceId === device.id
+                                    ? "active-device"
+                                    : ""
+                                }`}
                                 onContextMenu={(e) =>
                                   handleRightClick(e, {
                                     type: "device",

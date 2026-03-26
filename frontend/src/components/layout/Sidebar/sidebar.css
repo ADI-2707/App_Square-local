@@ -180,7 +180,7 @@
     rgba(255, 215, 0, 0.15) 0%,
     rgba(255, 215, 0, 0.05) 100%
   );
-  
+
   border-left: 3px solid #ffd700;
   color: #ffffff;
   font-weight: 600;
@@ -191,6 +191,26 @@
     90deg,
     rgba(255, 215, 0, 0.25) 0%,
     rgba(255, 215, 0, 0.08) 100%
+  );
+}
+
+.active-device {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 180, 255, 0.15) 0%,
+    rgba(0, 180, 255, 0.05) 100%
+  );
+  
+  border-left: 3px solid #00b4ff;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.active-device:hover {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 180, 255, 0.25) 0%,
+    rgba(0, 180, 255, 0.08) 100%
   );
 }
 
