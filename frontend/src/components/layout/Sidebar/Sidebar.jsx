@@ -44,17 +44,28 @@ export default function Sidebar({ onOpenModal }) {
 
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
-  const [expandedTemplatesForRecipes, setExpandedTemplatesForRecipes] =
-    useState({});
 
   const hasTemplates = groups.allIds.length > 0;
 
-  const templatesWithRecipeGroups = useMemo(() => {
-    return groups.allIds.filter(
-      (templateId) =>
-        recipeGroups[templateId] && recipeGroups[templateId].length > 0,
-    );
-  }, [groups.allIds, recipeGroups]);
+  const flattenedRecipeGroups = useMemo(() => {
+    const result = [];
+
+    Object.entries(recipeGroups).forEach(([templateId, groupsArr]) => {
+      const template = groups.byId[templateId];
+
+      groupsArr.forEach((group) => {
+        result.push({
+          ...group,
+          templateId,
+          templateName: template?.name || "Unknown",
+        });
+      });
+    });
+
+    result.sort((a, b) => a.name.localeCompare(b.name));
+
+    return result;
+  }, [recipeGroups, groups.byId]);
 
   useEffect(() => {
     loadGroups();
@@ -98,13 +109,6 @@ export default function Sidebar({ onOpenModal }) {
     setExpandedGroups((prev) => ({
       ...prev,
       [groupId]: !prev[groupId],
-    }));
-  };
-
-  const toggleTemplateForRecipes = (templateId) => {
-    setExpandedTemplatesForRecipes((prev) => ({
-      ...prev,
-      [templateId]: !prev[templateId],
     }));
   };
 
@@ -229,10 +233,12 @@ export default function Sidebar({ onOpenModal }) {
           {openSections.templates && (
             <div className="sidebar-submenu">
               <button
-                className={`sidebar-action-btn ${role !== "admin" ? "disabled-btn" : ""}`}
+                className={`sidebar-action-btn ${
+                  role !== "admin" ? "disabled-btn" : ""
+                }`}
                 onClick={() => role === "admin" && onOpenModal("createGroup")}
               >
-               + Create Recipe Template
+                + Create Recipe Template
               </button>
 
               {groups.allIds.map((groupId) => {
@@ -288,7 +294,9 @@ export default function Sidebar({ onOpenModal }) {
 
         <div className="sidebar-section">
           <div
-            className={`sidebar-title ${!hasTemplates ? "disabled-section" : ""}`}
+            className={`sidebar-title ${
+              !hasTemplates ? "disabled-section" : ""
+            }`}
             onClick={() => hasTemplates && toggleSection("recipes")}
           >
             {openSections.recipes ? "▾" : "▸"} Recipes
@@ -300,69 +308,55 @@ export default function Sidebar({ onOpenModal }) {
                 className="sidebar-action-btn"
                 onClick={() => onOpenModal("createRecipe")}
               >
-               + Create Recipe
+                + Create Recipe
               </button>
 
-              {templatesWithRecipeGroups.map((templateId) => {
-                const template = groups.byId[templateId];
-                const rGroups = recipeGroups[templateId] || [];
+              {flattenedRecipeGroups.map((rGroup) => {
+                const recipeList = recipes[rGroup.id]?.[1] || [];
 
                 return (
-                  <div key={templateId} className="tree-node">
+                  <div key={rGroup.id} className="tree-node">
                     <div
                       className="tree-item expandable"
-                      onClick={() => toggleTemplateForRecipes(templateId)}
+                      onClick={() => toggleRecipeGroup(rGroup)}
+                      onContextMenu={(e) =>
+                        handleRightClick(e, {
+                          type: "recipeGroup",
+                          recipeGroup: rGroup,
+                          templateId: rGroup.templateId,
+                        })
+                      }
                     >
-                      {expandedTemplatesForRecipes[templateId] ? "▾" : "▸"}{" "}
-                      {template.name}
+                      {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}{" "}
+                      {rGroup.name}{" "}
+                      <span className="template-label">
+                        ({rGroup.templateName})
+                      </span>
                     </div>
 
-                    {expandedTemplatesForRecipes[templateId] && (
+                    {expandedRecipeGroups[rGroup.id] && (
                       <div className="tree-children">
-                        {rGroups.map((rGroup) => {
-                          const recipeList = recipes[rGroup.id]?.[1] || [];
-
-                          return (
-                            <div key={rGroup.id} className="tree-node">
+                        {recipeList.length > 0 ? (
+                          recipeList.map((recipe) => (
+                            <div key={recipe.id} className="tree-node">
                               <div
-                                className="tree-item expandable"
-                                onClick={() => toggleRecipeGroup(rGroup)}
+                                className="tree-item leaf"
+                                onClick={() => handleOpenRecipe(recipe)}
                                 onContextMenu={(e) =>
                                   handleRightClick(e, {
-                                    type: "recipeGroup",
-                                    recipeGroup: rGroup,
-                                    templateId,
+                                    type: "recipe",
+                                    recipe,
+                                    recipeGroupId: rGroup.id,
                                   })
                                 }
                               >
-                                {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}{" "}
-                                {rGroup.name}
+                                {recipe.name}
                               </div>
-
-                              {expandedRecipeGroups[rGroup.id] && (
-                                <div className="tree-children">
-                                  {recipeList.map((recipe) => (
-                                    <div key={recipe.id} className="tree-node">
-                                      <div
-                                        className="tree-item leaf"
-                                        onClick={() => handleOpenRecipe(recipe)}
-                                        onContextMenu={(e) =>
-                                          handleRightClick(e, {
-                                            type: "recipe",
-                                            recipe,
-                                            recipeGroupId: rGroup.id,
-                                          })
-                                        }
-                                      >
-                                        {recipe.name}
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
                             </div>
-                          );
-                        })}
+                          ))
+                        ) : (
+                          <div className="tree-empty">No recipes</div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -381,7 +375,9 @@ export default function Sidebar({ onOpenModal }) {
           >
             {contextMenu.type === "recipe" && (
               <div
-                className={`context-item ${role !== "admin" ? "disabled-item" : ""}`}
+                className={`context-item ${
+                  role !== "admin" ? "disabled-item" : ""
+                }`}
                 onClick={() => role === "admin" && handleDelete()}
               >
                 Delete Recipe
@@ -404,7 +400,9 @@ export default function Sidebar({ onOpenModal }) {
                 </div>
 
                 <div
-                  className={`context-item ${role !== "admin" ? "disabled-item" : ""}`}
+                  className={`context-item ${
+                    role !== "admin" ? "disabled-item" : ""
+                  }`}
                   onClick={() => role === "admin" && handleDelete()}
                 >
                   Delete Area
@@ -419,7 +417,9 @@ export default function Sidebar({ onOpenModal }) {
                 </div>
 
                 <div
-                  className={`context-item ${role !== "admin" ? "disabled-item" : ""}`}
+                  className={`context-item ${
+                    role !== "admin" ? "disabled-item" : ""
+                  }`}
                   onClick={() => role === "admin" && handleDelete()}
                 >
                   Delete Template
