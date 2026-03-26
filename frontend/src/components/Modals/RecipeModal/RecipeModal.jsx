@@ -76,11 +76,14 @@ export default function RecipeModal({
 
       const res = await api.post("/recipes/groups", payload);
 
-      setCreatedGroupId(res.data.id);
       addRecipeGroupLocal(selectedTemplate, res.data);
+
+      setRecipeGroupName("");
+      setSelectedTemplate("");
+      onClose();
     } catch (err) {
       console.error("Recipe Group Error:", err);
-      alert("Failed to create recipe group");
+      alert(err.response?.data?.detail || "Failed to create area");
     } finally {
       unlockUI();
     }
@@ -93,7 +96,7 @@ export default function RecipeModal({
         if (isLocked) return;
         onClose();
       }}
-      title="Create Recipe"
+      title="Create Area"
     >
       <div className="group-form">
         <label>Select Template</label>
@@ -118,7 +121,9 @@ export default function RecipeModal({
           disabled={isLocked}
         />
 
-        <button onClick={handleCreateRecipeGroup}>Create Area</button>
+        <button onClick={handleCreateRecipeGroup} disabled={isLocked}>
+          {isLocked ? "Creating..." : "Create Area"}
+        </button>
       </div>
     </BaseModal>
   );
