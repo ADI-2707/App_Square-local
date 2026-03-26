@@ -326,9 +326,9 @@ export default function Sidebar({ onOpenModal }) {
             <div className="sidebar-submenu">
               <button
                 className="sidebar-action-btn"
-                onClick={() => onOpenModal("createRecipe")}
+                onClick={() => onOpenModal("createArea")}
               >
-                + Create Recipe
+                + Create Area
               </button>
 
               {flattenedRecipeGroups.map((rGroup) => {

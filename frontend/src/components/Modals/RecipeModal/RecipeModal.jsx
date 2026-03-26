@@ -86,52 +86,6 @@ export default function RecipeModal({
     }
   };
 
-  const handleCreateRecipe = async () => {
-    if (!createdGroupId || !recipeName.trim()) {
-      alert("Create recipe group and enter recipe name");
-      return;
-    }
-
-    if (selectedDevices.length === 0) {
-      alert("Select at least one equipment");
-      return;
-    }
-
-    try {
-      lockUI("Creating recipe...");
-
-      const res = await api.post("/recipes", {
-        name: recipeName.trim(),
-        recipe_group_id: createdGroupId,
-        selected_device_ids: selectedDevices,
-      });
-
-      addRecipeLocal(createdGroupId, res.data);
-      onClose();
-    } catch (err) {
-      console.error("Recipe Creation Error:", err);
-      alert("Failed to create recipe");
-    } finally {
-      unlockUI();
-    }
-  };
-
-  const toggleDevice = (deviceId) => {
-    if (selectedDevices.includes(deviceId)) {
-      setSelectedDevices(selectedDevices.filter((id) => id !== deviceId));
-    } else {
-      setSelectedDevices([...selectedDevices, deviceId]);
-    }
-  };
-
-  const selectAllDevices = () => {
-    setSelectedDevices(templateDevices.map((d) => d.id));
-  };
-
-  const clearDevices = () => {
-    setSelectedDevices([]);
-  };
-
   return (
     <BaseModal
       isOpen={isOpen}
@@ -156,40 +110,6 @@ export default function RecipeModal({
           ))}
         </select>
 
-        {templateDevices.length > 0 && (
-          <>
-            <label>Select Equipments</label>
-
-            <div className="device-selection">
-              <div className="device-actions">
-                <button type="button" onClick={selectAllDevices} disabled={isLocked}>
-                  Select All
-                </button>
-                <button type="button" onClick={clearDevices} disabled={isLocked}>
-                  Clear
-                </button>
-                <span className="device-count">
-                  Selected Equipment: {selectedDevices.length} / {templateDevices.length}
-                </span>
-              </div>
-
-              {templateDevices.map((device) => (
-                <div key={device.id} className="device-row">
-                  <span className="device-name">{device.name}</span>
-
-                  <input
-                    type="checkbox"
-                    checked={selectedDevices.includes(device.id)}
-                    onChange={() => toggleDevice(device.id)}
-                    className="device-checkbox"
-                    disabled={isLocked}
-                  />
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
         <label>Area Name</label>
         <input
           type="text"
@@ -199,22 +119,6 @@ export default function RecipeModal({
         />
 
         <button onClick={handleCreateRecipeGroup}>Create Area</button>
-
-        {createdGroupId && (
-          <>
-            <label>Recipe Name</label>
-            <input
-              type="text"
-              value={recipeName}
-              onChange={(e) => setRecipeName(e.target.value)}
-              disabled={isLocked}
-            />
-
-            <button onClick={handleSave} disabled={isLocked}>
-              {isLocked ? "Saving..." : "Save Recipe"}
-            </button>
-          </>
-        )}
       </div>
     </BaseModal>
   );

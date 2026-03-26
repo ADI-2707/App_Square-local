@@ -273,7 +273,7 @@ export default function Layout({ children }) {
       <GroupModal isOpen={activeModal === "createGroup"} onClose={closeModal} />
 
       <RecipeModal
-        isOpen={activeModal === "createRecipe"}
+        isOpen={activeModal === "createArea"}
         onClose={closeModal}
       />
     </div>
