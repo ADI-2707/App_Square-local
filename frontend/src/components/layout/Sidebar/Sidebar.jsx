@@ -45,6 +45,8 @@ export default function Sidebar({ onOpenModal }) {
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
 
+  const [activeRecipeId, setActiveRecipeId] = useState(null);
+
   const hasTemplates = groups.allIds.length > 0;
 
   const flattenedRecipeGroups = useMemo(() => {
@@ -127,6 +129,8 @@ export default function Sidebar({ onOpenModal }) {
     try {
       const fullRecipe = await getFullRecipe(recipe.id);
       openWorkspace("recipe", fullRecipe);
+
+      setActiveRecipeId(recipe.id);
     } catch {
       alert("Failed to load recipe");
     }
@@ -340,7 +344,11 @@ export default function Sidebar({ onOpenModal }) {
                           recipeList.map((recipe) => (
                             <div key={recipe.id} className="tree-node">
                               <div
-                                className="tree-item leaf"
+                                className={`tree-item leaf ${
+                                  activeRecipeId === recipe.id
+                                    ? "active-recipe"
+                                    : ""
+                                }`}
                                 onClick={() => handleOpenRecipe(recipe)}
                                 onContextMenu={(e) =>
                                   handleRightClick(e, {
