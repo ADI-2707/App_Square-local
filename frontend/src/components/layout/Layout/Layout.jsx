@@ -169,7 +169,7 @@ export default function Layout({ children }) {
               {workspace.type === "template" &&
                 `Template: ${workspace.data.name}`}
 
-              {workspace.type === "device" && `Device: ${workspace.data.name}`}
+              {workspace.type === "device" && `Equipment: ${workspace.data.name}`}
             </h2>
 
             <WorkspaceToolbar

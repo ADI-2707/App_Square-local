@@ -168,7 +168,7 @@ export default function Sidebar({ onOpenModal }) {
       }));
       
     } catch {
-      alert("Failed to load device");
+      alert("Failed to load equipment");
     }
 
     setContextMenu(null);
@@ -453,7 +453,7 @@ export default function Sidebar({ onOpenModal }) {
 
             {contextMenu.type === "device" && (
               <div className="context-item" onClick={handleViewDevice}>
-                View Device
+                View Equipment
               </div>
             )}
           </div>,
