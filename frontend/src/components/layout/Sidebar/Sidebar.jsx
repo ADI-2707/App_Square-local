@@ -132,6 +132,7 @@ export default function Sidebar({ onOpenModal }) {
       openWorkspace("recipe", fullRecipe);
 
       setActiveRecipeId(recipe.id);
+      setActiveDeviceId(null);
     } catch {
       alert("Failed to load recipe");
     }
@@ -159,11 +160,13 @@ export default function Sidebar({ onOpenModal }) {
       });
 
       setActiveDeviceId(contextMenu.deviceId);
+      setActiveRecipeId(null);
 
       setExpandedGroups((prev) => ({
         ...prev,
         [contextMenu.templateId]: true,
       }));
+      
     } catch {
       alert("Failed to load device");
     }
@@ -284,7 +287,7 @@ export default function Sidebar({ onOpenModal }) {
                               <div
                                 className={`tree-item leaf ${
                                   activeDeviceId === device.id
-                                    ? "active-device"
+                                    ? "active-item"
                                     : ""
                                 }`}
                                 onContextMenu={(e) =>
@@ -359,7 +362,7 @@ export default function Sidebar({ onOpenModal }) {
                               <div
                                 className={`tree-item leaf ${
                                   activeRecipeId === recipe.id
-                                    ? "active-recipe"
+                                    ? "active-item"
                                     : ""
                                 }`}
                                 onClick={() => handleOpenRecipe(recipe)}
