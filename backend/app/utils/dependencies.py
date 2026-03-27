@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status, Response
+from fastapi import Depends, HTTPException, status, Response, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -19,6 +19,7 @@ def get_db():
 
 
 def get_current_user(
+    request: Request,
     response: Response,
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
@@ -27,6 +28,8 @@ def get_current_user(
         token = credentials.credentials
         user, payload = decode_access_token(token, db, return_payload=True)
 
+        request.state.user = user
+        
         exp = payload.get("exp")
         if exp:
             expire_time = datetime.utcfromtimestamp(exp)

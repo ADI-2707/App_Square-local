@@ -24,7 +24,7 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
                 try:
                     add_log(
                         db=log_db,
-                        user=None,
+                        user=getattr(request.state, "user", None),
                         action="HTTP_ERROR",
                         status="FAILURE",
                         endpoint=request.url.path,
@@ -50,7 +50,7 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
             try:
                 add_log(
                     db=log_db,
-                    user=None,
+                    user=getattr(request.state, "user", None),
                     action="UNHANDLED_EXCEPTION",
                     status="FAILURE",
                     endpoint=request.url.path,

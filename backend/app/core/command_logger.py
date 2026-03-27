@@ -2,7 +2,6 @@ from functools import wraps
 from fastapi import HTTPException, Request
 from sqlalchemy.orm import Session
 
-from app.database import SessionLocal
 from app.services.log_service import add_log
 
 
@@ -13,6 +12,7 @@ def command_logger(action: str):
         @wraps(func)
         def wrapper(*args, **kwargs):
 
+            db: Session = kwargs.get("db")
             current_user = kwargs.get("current_user")
             request: Request = kwargs.get("request")
 
@@ -22,7 +22,8 @@ def command_logger(action: str):
             try:
                 result = func(*args, **kwargs)
 
-                _log_independent(
+                add_log(
+                    db=db,
                     user=current_user,
                     action=action,
                     status="SUCCESS",
@@ -30,11 +31,15 @@ def command_logger(action: str):
                     method=method
                 )
 
+                if request:
+                    request.state.already_logged = True
+
                 return result
 
             except HTTPException as e:
 
-                _log_independent(
+                add_log(
+                    db=db,
                     user=current_user,
                     action=action,
                     status="FAILURE",
@@ -44,11 +49,15 @@ def command_logger(action: str):
                     error_message=e.detail
                 )
 
+                if request:
+                    request.state.already_logged = True
+
                 raise
 
             except Exception as e:
 
-                _log_independent(
+                add_log(
+                    db=db,
                     user=current_user,
                     action=action,
                     status="FAILURE",
@@ -58,42 +67,11 @@ def command_logger(action: str):
                     error_message=str(e)
                 )
 
+                if request:
+                    request.state.already_logged = True
+
                 raise
 
         return wrapper
 
     return decorator
-
-
-def _log_independent(
-    user,
-    action,
-    status,
-    endpoint=None,
-    method=None,
-    error_type=None,
-    error_message=None
-):
-    db = SessionLocal()
-
-    try:
-        db.rollback()
-
-        add_log(
-            db=db,
-            user=user,
-            action=action,
-            status=status,
-            endpoint=endpoint,
-            method=method,
-            error_type=error_type,
-            error_message=error_message
-        )
-        db.commit()
-
-    except Exception as e:
-        db.rollback()
-        print("❌ LOGGING FAILED:", str(e))
-
-    finally:
-        db.close()
