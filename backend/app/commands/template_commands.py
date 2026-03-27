@@ -100,19 +100,27 @@ def delete_device_from_template(
     ).first()
 
     if not device:
-        raise HTTPException(status_code=404, detail="Device not found")
+        raise HTTPException(status_code=404, detail="Equipment not found")
 
     from app.models.template_change_log import TemplateChangeLog
+    from app.models.tag import Tag
+    from app.models.recipe import RecipeDevice
+
+    db.query(Tag).filter(
+        Tag.device_instance_id == device_id
+    ).delete(synchronize_session=False)
+
+    db.query(RecipeDevice).filter(
+        RecipeDevice.device_name == device.name
+    ).delete(synchronize_session=False)
 
     log = TemplateChangeLog(
         template_group_id=device.template_group_id,
-        change_type="DEVICE_DELETED",
+        change_type="EQUIPMENT_DELETED",
         entity_name=device.name,
         entity_id=device.id
     )
-
     db.add(log)
-
     db.delete(device)
 
-    return {"message": "Device deleted from template"}
+    return {"message": "Equipment deleted from template"}
