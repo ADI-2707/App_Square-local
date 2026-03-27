@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, Request
 
 from app.models.user import User
+from app.models.device import DeviceInstance
 from app.core.transaction import transactional
 from app.core.command_logger import command_logger
 from app.queries import template_queries
