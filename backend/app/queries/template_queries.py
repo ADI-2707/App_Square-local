@@ -7,26 +7,18 @@ from app.models.tag import Tag
 from app.models.recipe import RecipeGroup, Recipe
 
 def get_all_groups(db: Session):
-    return db.query(TemplateGroup).filter(
-        TemplateGroup.is_deleted == False
-    ).all()
+    return db.query(TemplateGroup).all()
 
 
 def get_devices_by_group(db: Session, group_id: int):
     return db.query(DeviceInstance).filter(
-        and_(
-            DeviceInstance.template_group_id == group_id,
-            DeviceInstance.is_deleted == False
-        )
+        DeviceInstance.template_group_id == group_id
     ).all()
 
 
 def get_tags_by_device(db: Session, device_id: int):
     return db.query(Tag).filter(
-        and_(
-            Tag.device_instance_id == device_id,
-            Tag.is_deleted == False
-        )
+        Tag.device_instance_id == device_id
     ).all()
 
 
@@ -41,10 +33,7 @@ def get_template_group_by_name(db: Session, name: str):
 
 def get_template_group_by_id(db: Session, group_id: int):
     return db.query(TemplateGroup).filter(
-        and_(
-            TemplateGroup.id == group_id,
-            TemplateGroup.is_deleted == False
-        )
+        TemplateGroup.id == group_id
     ).first()
 
 
@@ -87,32 +76,6 @@ def create_tag(db: Session, name: str, device_id: int):
     db.add(tag)
     return tag
 
-
-def soft_delete_template_group_cascade(db: Session, group: TemplateGroup):
-
-    group.is_deleted = True
-
-    db.query(DeviceInstance).filter(
-        DeviceInstance.template_group_id == group.id
-    ).update({"is_deleted": True}, synchronize_session=False)
-
-    db.query(Tag).filter(
-        Tag.device_instance_id.in_(
-            db.query(DeviceInstance.id)
-            .filter(DeviceInstance.template_group_id == group.id)
-        )
-    ).update({"is_deleted": True}, synchronize_session=False)
-
-    recipe_groups = db.query(RecipeGroup).filter(
-        RecipeGroup.template_group_id == group.id
-    ).all()
-
-    for rg in recipe_groups:
-        rg.is_deleted = True
-
-        db.query(Recipe).filter(
-            Recipe.recipe_group_id == rg.id
-        ).update({"is_deleted": True}, synchronize_session=False)
 
 
 def count_active_recipes_by_template(db: Session, template_group_id: int):

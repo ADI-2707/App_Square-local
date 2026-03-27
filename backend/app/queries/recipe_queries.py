@@ -13,16 +13,10 @@ from app.models.template_group import TemplateGroup
 from app.models.device import DeviceInstance
 from app.models.template_change_log import TemplateChangeLog
 
-def get_recipe_groups_by_template(
-    db: Session,
-    template_group_id: int,
-    search: str | None = None
-):
+
+def get_recipe_groups_by_template(db, template_group_id, search=None):
     query = db.query(RecipeGroup).filter(
-        and_(
-            RecipeGroup.template_group_id == template_group_id,
-            RecipeGroup.is_deleted == False
-        )
+        RecipeGroup.template_group_id == template_group_id
     )
 
     if search:
@@ -31,19 +25,11 @@ def get_recipe_groups_by_template(
     return query.order_by(RecipeGroup.created_at.desc()).all()
 
 
-def get_recipes_by_group_paginated(
-    db: Session,
-    recipe_group_id: int,
-    page: int = 1,
-    limit: int = 10
-):
+def get_recipes_by_group_paginated(db, recipe_group_id, page=1, limit=10):
     offset = (page - 1) * limit
 
     return db.query(Recipe).filter(
-        and_(
-            Recipe.recipe_group_id == recipe_group_id,
-            Recipe.is_deleted == False
-        )
+        Recipe.recipe_group_id == recipe_group_id
     ).order_by(Recipe.created_at.desc()).offset(offset).limit(limit).all()
 
 
@@ -73,7 +59,6 @@ def get_full_recipe(db: Session, recipe_id: int):
     template_devices = db.query(DeviceInstance).filter(
         and_(
             DeviceInstance.template_group_id == template_group.id,
-            DeviceInstance.is_deleted == False
         )
     ).all()
 

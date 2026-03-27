@@ -13,7 +13,7 @@ from app.schemas.template_schema import (
 from app.commands.template_commands import (
     create_full_template_group,
     delete_device_from_template,
-    soft_delete_template_group
+    delete_template_group as delete_template_group_command
 )
 
 from app.services.template_service import (
@@ -91,7 +91,7 @@ def delete_template_group(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return soft_delete_template_group(
+    return delete_template_group_command(
         db=db,
         group_id=group_id,
         current_user=current_user,
