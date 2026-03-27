@@ -6,6 +6,9 @@ from app.models.device import DeviceInstance
 from app.core.transaction import transactional
 from app.core.command_logger import command_logger
 from app.queries import template_queries
+from app.models.template_change_log import TemplateChangeLog
+from app.models.tag import Tag
+from app.models.recipe import RecipeDevice
 
 
 @transactional
@@ -102,9 +105,6 @@ def delete_device_from_template(
     if not device:
         raise HTTPException(status_code=404, detail="Equipment not found")
 
-    from app.models.template_change_log import TemplateChangeLog
-    from app.models.tag import Tag
-    from app.models.recipe import RecipeDevice
 
     db.query(Tag).filter(
         Tag.device_instance_id == device_id
