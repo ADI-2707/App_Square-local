@@ -14,8 +14,8 @@ from app.schemas.recipe_schema import (
 from app.commands.recipe_commands import (
     create_recipe_group,
     create_recipe,
-    soft_delete_recipe,
-    soft_delete_recipe_group_command
+    delete_recipe_command,
+    delete_recipe_group_command
 )
 
 from app.queries.recipe_queries import (
@@ -117,7 +117,7 @@ def delete_recipe_route(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return soft_delete_recipe(
+    return delete_recipe_command(
         db=db,
         recipe_id=recipe_id,
         current_user=current_user,
@@ -132,7 +132,7 @@ def delete_recipe_group_route(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return soft_delete_recipe_group_command(
+    return delete_recipe_group_command(
         db=db,
         recipe_group_id=recipe_group_id,
         current_user=current_user,
