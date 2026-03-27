@@ -14,14 +14,10 @@ def command_logger(action: str):
         def wrapper(*args, **kwargs):
 
             current_user = kwargs.get("current_user")
-            request_obj: Request = kwargs.get("request_obj")
+            request: Request = kwargs.get("request")
 
-            endpoint = None
-            method = None
-
-            if request_obj:
-                endpoint = request_obj.url.path
-                method = request_obj.method
+            endpoint = request.url.path if request else None
+            method = request.method if request else None
 
             try:
                 result = func(*args, **kwargs)
@@ -37,8 +33,6 @@ def command_logger(action: str):
                 return result
 
             except HTTPException as e:
-                if request_obj:
-                    request_obj.state.already_logged = True
 
                 _log_independent(
                     user=current_user,
@@ -53,9 +47,6 @@ def command_logger(action: str):
                 raise
 
             except Exception as e:
-
-                if request_obj:
-                    request_obj.state.already_logged = True
 
                 _log_independent(
                     user=current_user,
@@ -74,7 +65,6 @@ def command_logger(action: str):
     return decorator
 
 
-
 def _log_independent(
     user,
     action,
@@ -87,6 +77,8 @@ def _log_independent(
     db = SessionLocal()
 
     try:
+        db.rollback()
+
         add_log(
             db=db,
             user=user,
@@ -98,7 +90,10 @@ def _log_independent(
             error_message=error_message
         )
         db.commit()
-    except Exception:
+
+    except Exception as e:
         db.rollback()
+        print("❌ LOGGING FAILED:", str(e))
+
     finally:
         db.close()

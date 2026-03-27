@@ -188,8 +188,8 @@ def count_active_recipes_by_group(db: Session, recipe_group_id: int):
     ).count()
 
 
-def soft_delete_recipe_group(db: Session, group: RecipeGroup):
-    group.is_deleted = True
+def delete_recipe_group(db: Session, group: RecipeGroup):
+    db.delete(group)
 
 
 def get_devices_by_ids_for_template(

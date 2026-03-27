@@ -172,6 +172,6 @@ def soft_delete_recipe_group_command(
             detail="Cannot delete recipe group with existing recipes"
         )
 
-    recipe_queries.soft_delete_recipe_group(db, group)
+    recipe_queries.delete_recipe_group(db, group)
 
     return {"message": "Recipe group deleted successfully"}

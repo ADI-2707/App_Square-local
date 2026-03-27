@@ -31,9 +31,9 @@ def add_log(
     error_type: str = None,
     error_message: str = None
 ):
-    actor = _resolve_actor(user)
-
     try:
+        actor = _resolve_actor(user)
+
         log_queries.create_log(
             db=db,
             actor=actor,
@@ -44,8 +44,9 @@ def add_log(
             error_type=error_type,
             error_message=error_message
         )
-    except Exception:
-        pass
+
+    except Exception as e:
+        print("❌ add_log failed:", str(e))
 
 
 def cleanup_old_logs(db: Session):

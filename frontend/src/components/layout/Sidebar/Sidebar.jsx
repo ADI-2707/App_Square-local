@@ -270,7 +270,6 @@ export default function Sidebar({ onOpenModal }) {
                           type: "template",
                           templateId: groupId,
                           templateName: group.name,
-                          templateId: groupId,
                         })
                       }
                     >
