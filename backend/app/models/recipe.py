@@ -115,6 +115,12 @@ class Recipe(Base):
         cascade="all, delete"
     )
 
+    last_synced_at = Column(
+        DateTime,
+        nullable=True,
+        default=datetime.utcnow
+    )
+
 
 class RecipeDevice(Base):
     __tablename__ = "recipe_devices"
