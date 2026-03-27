@@ -54,7 +54,54 @@ def get_full_recipe(db: Session, recipe_id: int):
         )
     ).first()
 
-    return recipe
+    if not recipe:
+        return None
+
+    template_group = db.query(TemplateGroup).join(
+        RecipeGroup,
+        RecipeGroup.template_group_id == TemplateGroup.id
+    ).filter(
+        RecipeGroup.id == recipe.recipe_group_id
+    ).first()
+
+    template_devices = db.query(DeviceInstance).filter(
+        and_(
+            DeviceInstance.template_group_id == template_group.id,
+            DeviceInstance.is_deleted == False
+        )
+    ).all()
+
+    template_device_names = set([d.name for d in template_devices])
+
+    removed_devices = []
+
+    for device in recipe.devices:
+        if device.device_name not in template_device_names:
+            removed_devices.append(device.device_name)
+            db.delete(device)
+
+    from app.models.template_change_log import TemplateChangeLog
+
+    logs = db.query(TemplateChangeLog).filter(
+        TemplateChangeLog.template_group_id == template_group.id
+    ).order_by(TemplateChangeLog.created_at.desc()).all()
+
+    db.flush()
+
+    return {
+        "id": recipe.id,
+        "name": recipe.name,
+        "devices": recipe.devices,
+        "changes": [
+            {
+                "type": log.change_type,
+                "name": log.entity_name,
+                "timestamp": log.created_at.isoformat()
+            }
+            for log in logs
+        ],
+        "removed_devices": removed_devices
+    }
 
 
 def get_recipe_group_by_id(db: Session, group_id: int):

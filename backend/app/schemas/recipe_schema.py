@@ -52,5 +52,6 @@ class FullRecipeResponse(BaseModel):
     id: int
     name: str
     devices: List[RecipeDeviceResponse]
-
+    changes: list = []
+    removed_devices: list = []
     model_config = ConfigDict(from_attributes=True)
