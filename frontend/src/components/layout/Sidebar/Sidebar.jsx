@@ -5,6 +5,7 @@ import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import { useAuth } from "../../../context/AuthContext/AuthContext";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
+import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 
 import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
 
@@ -34,6 +35,7 @@ export default function Sidebar({ onOpenModal }) {
   } = useRecipes();
 
   const { openWorkspace } = useWorkspace();
+  const { lockUI, unlockUI } = useUiLock();
   const { role } = useAuth();
 
   const [contextMenu, setContextMenu] = useState(null);
@@ -129,18 +131,18 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const handleOpenRecipe = async (recipe) => {
-  try {
-    const fullRecipe = await openRecipeInWorkspace(recipe);
+    try {
+      const fullRecipe = await openRecipeInWorkspace(recipe);
 
-    openWorkspace("recipe", fullRecipe);
+      openWorkspace("recipe", fullRecipe);
 
-    setActiveRecipeId(recipe.id);
-    setActiveDeviceId(null);
-  } catch (error) {
-    console.error(error);
-    alert("Failed to load recipe");
-  }
-};
+      setActiveRecipeId(recipe.id);
+      setActiveDeviceId(null);
+    } catch (error) {
+      console.error(error);
+      alert("Failed to load recipe");
+    }
+  };
 
   const handleViewTemplate = async () => {
     try {
@@ -228,7 +230,14 @@ export default function Sidebar({ onOpenModal }) {
           );
           if (!confirmed) return;
 
-          await deleteDevice(contextMenu.deviceId, contextMenu.templateId);
+          try {
+            lockUI("Deleting equipment...");
+
+            await deleteDevice(contextMenu.deviceId, contextMenu.templateId);
+          } finally {
+            unlockUI();
+          }
+
           break;
         }
 
