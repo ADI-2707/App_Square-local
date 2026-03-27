@@ -79,31 +79,25 @@ def get_full_recipe(db: Session, recipe_id: int):
 
     active_device_names = {d.name for d in template_devices}
 
-    removed_devices = []
     valid_devices = []
-
     for device in recipe.devices:
-        if device.device_name not in active_device_names:
-            removed_devices.append(device.device_name)
-        else:
+        if device.device_name in active_device_names:
             valid_devices.append(device)
-
-    last_synced_at = recipe.last_synced_at or datetime.min
 
     logs = db.query(TemplateChangeLog).filter(
         and_(
             TemplateChangeLog.template_group_id == template_group.id,
-            TemplateChangeLog.change_type == "DEVICE_DELETED",
-            TemplateChangeLog.created_at > last_synced_at
+            TemplateChangeLog.change_type == "EQUIPMENT_DELETED"  # ✅ MATCHED
         )
     ).order_by(TemplateChangeLog.created_at.desc()).all()
 
-    removed_devices_from_logs = [log.entity_name for log in logs]
+    new_logs = []
+    for log in logs:
+        if recipe.last_synced_at is None or log.created_at > recipe.last_synced_at:
+            new_logs.append(log)
+    removed_devices = [log.entity_name for log in new_logs]
 
-    recipe.last_synced_at = datetime.utcnow()
-    db.commit()
-
-    return {
+    response = {
         "id": recipe.id,
         "name": recipe.name,
 
@@ -129,11 +123,16 @@ def get_full_recipe(db: Session, recipe_id: int):
                 "name": log.entity_name,
                 "timestamp": log.created_at.isoformat()
             }
-            for log in logs
+            for log in new_logs
         ],
 
-        "removed_devices": removed_devices_from_logs
+        "removed_devices": removed_devices
     }
+
+    recipe.last_synced_at = datetime.utcnow()
+    db.commit()
+
+    return response
 
 def get_recipe_group_by_id(db: Session, group_id: int):
     return db.query(RecipeGroup).filter(

@@ -27,6 +27,7 @@ export default function Sidebar({ onOpenModal }) {
     recipes,
     loadRecipeGroups,
     loadRecipesPaginated,
+    openRecipeInWorkspace,
     getFullRecipe,
     deleteRecipe,
     deleteRecipeGroup,
@@ -128,16 +129,18 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const handleOpenRecipe = async (recipe) => {
-    try {
-      const fullRecipe = await getFullRecipe(recipe.id);
-      openWorkspace("recipe", fullRecipe);
+  try {
+    const fullRecipe = await openRecipeInWorkspace(recipe);
 
-      setActiveRecipeId(recipe.id);
-      setActiveDeviceId(null);
-    } catch {
-      alert("Failed to load recipe");
-    }
-  };
+    openWorkspace("recipe", fullRecipe);
+
+    setActiveRecipeId(recipe.id);
+    setActiveDeviceId(null);
+  } catch (error) {
+    console.error(error);
+    alert("Failed to load recipe");
+  }
+};
 
   const handleViewTemplate = async () => {
     try {

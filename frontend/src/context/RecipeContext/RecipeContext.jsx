@@ -49,8 +49,11 @@ export function RecipeProvider({ children }) {
       }
 
       setActiveRecipe(fullRecipe);
+      return fullRecipe;
+
     } catch (error) {
       console.error("Failed to load full recipe:", error);
+      throw error;
     }
   };
 
