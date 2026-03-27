@@ -1,12 +1,4 @@
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    DateTime,
-    ForeignKey,
-    Boolean,
-    UniqueConstraint
-)
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -17,11 +9,7 @@ class TemplateGroup(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    name = Column(
-        String(100),
-        nullable=False,
-        index=True
-    )
+    name = Column(String(100), nullable=False, index=True)
 
     created_by = Column(
         Integer,
@@ -35,22 +23,18 @@ class TemplateGroup(Base):
         nullable=False
     )
 
-    is_deleted = Column(
-        Boolean,
-        default=False,
-        nullable=False,
-        index=True
-    )
-
     __table_args__ = (
-        UniqueConstraint(
-            "name",
-            "is_deleted",
-            name="uq_template_name_soft"
-        ),
+        UniqueConstraint("name", name="uq_template_name"),
     )
 
     devices = relationship(
         "DeviceInstance",
-        back_populates="group"
+        back_populates="group",
+        cascade="all, delete"
+    )
+
+    recipe_groups = relationship(
+        "RecipeGroup",
+        back_populates="template_group",
+        cascade="all, delete"
     )

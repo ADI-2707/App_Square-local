@@ -13,6 +13,7 @@ from datetime import datetime
 from app.database import Base
 
 
+
 class RecipeGroup(Base):
     __tablename__ = "recipe_groups"
 
@@ -39,20 +40,17 @@ class RecipeGroup(Base):
         nullable=False
     )
 
-    is_deleted = Column(
-        Boolean,
-        default=False,
-        nullable=False,
-        index=True
-    )
-
     __table_args__ = (
         UniqueConstraint(
             "template_group_id",
             "name",
-            "is_deleted",
             name="uq_recipe_group_template_name"
         ),
+    )
+
+    template_group = relationship(
+        "TemplateGroup",
+        back_populates="recipe_groups"
     )
 
     recipes = relationship(
@@ -88,18 +86,10 @@ class Recipe(Base):
         nullable=False
     )
 
-    is_deleted = Column(
-        Boolean,
-        default=False,
-        nullable=False,
-        index=True
-    )
-
     __table_args__ = (
         UniqueConstraint(
             "recipe_group_id",
             "name",
-            "is_deleted",
             name="uq_recipe_name_per_group"
         ),
     )
@@ -165,7 +155,7 @@ class RecipeTagValue(Base):
     data_type = Column(String(20), nullable=False)
 
     value = Column(
-        Text,
+        String,
         nullable=False,
         default="0"
     )

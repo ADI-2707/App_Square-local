@@ -22,13 +22,6 @@ class DeviceInstance(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    is_deleted = Column(
-        Boolean,
-        default=False,
-        nullable=False,
-        index=True
-    )
-
     group = relationship("TemplateGroup", back_populates="devices")
 
-    tags = relationship("Tag", back_populates="device")
+    tags = relationship("Tag", back_populates="device", cascade="all, delete")
