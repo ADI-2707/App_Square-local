@@ -41,6 +41,13 @@ export function RecipeProvider({ children }) {
   const openRecipeInWorkspace = async (recipe) => {
     try {
       const fullRecipe = await getFullRecipe(recipe.id);
+
+      if (fullRecipe.removed_devices?.length > 0) {
+        alert(
+          `Template updated:\nRemoved devices: ${fullRecipe.removed_devices.join(", ")}`,
+        );
+      }
+
       setActiveRecipe(fullRecipe);
     } catch (error) {
       console.error("Failed to load full recipe:", error);
