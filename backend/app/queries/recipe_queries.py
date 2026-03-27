@@ -7,8 +7,10 @@ from app.models.recipe import (
     RecipeDevice,
     RecipeTagValue
 )
+
 from app.models.template_group import TemplateGroup
 from app.models.device import DeviceInstance
+from app.models.template_change_log import TemplateChangeLog
 
 def get_recipe_groups_by_template(
     db: Session,
@@ -75,12 +77,18 @@ def get_full_recipe(db: Session, recipe_id: int):
 
     removed_devices = []
 
-    for device in recipe.devices:
-        if device.device_name not in template_device_names:
-            removed_devices.append(device.device_name)
-            db.delete(device)
+    devices_to_remove = [
+        d for d in recipe.devices
+        if d.device_name not in template_device_names
+    ]
 
-    from app.models.template_change_log import TemplateChangeLog
+    for device in devices_to_remove:
+        removed_devices.append(device.device_name)
+        db.delete(device)
+
+    db.flush()
+    db.refresh(recipe)
+
 
     logs = db.query(TemplateChangeLog).filter(
         TemplateChangeLog.template_group_id == template_group.id
@@ -91,7 +99,21 @@ def get_full_recipe(db: Session, recipe_id: int):
     return {
         "id": recipe.id,
         "name": recipe.name,
-        "devices": recipe.devices,
+        "devices": [
+            {
+                "id": d.id,
+                "device_name": d.device_name,
+                "tag_values": [
+                    {
+                        "id": tv.id,
+                        "tag_name": tv.tag_name,
+                        "value": tv.value
+                    }
+                    for tv in d.tag_values
+                ]
+            }
+            for d in recipe.devices
+        ],
         "changes": [
             {
                 "type": log.change_type,
