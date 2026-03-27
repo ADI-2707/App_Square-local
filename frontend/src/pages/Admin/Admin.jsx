@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import eyeOpen from "../../assets/icons/eye-open.svg";
 import eyeClosed from "../../assets/icons/eye-closed.svg";
 import api from "../../Utility/api";
@@ -9,6 +10,8 @@ export default function Admin() {
   const [opPasswords, setOpPasswords] = useState({});
   const [loadingOps, setLoadingOps] = useState(false);
   const [blinking, setBlinking] = useState({});
+
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     current_password: "",
@@ -277,6 +280,15 @@ export default function Admin() {
               </div>
             ))
           )}
+        </div>
+      </div>
+      <div className="admin-panel">
+        <div className="admin-panel-header">System Logs</div>
+
+        <div className="admin-panel-body">
+          <button className="admin-btn" onClick={() => navigate("/admin/logs")}>
+            View Logs →
+          </button>
         </div>
       </div>
     </div>

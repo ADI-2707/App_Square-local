@@ -5,6 +5,7 @@ import Admin from "./pages/Admin/Admin";
 import Login from "./pages/Login/Login";
 import Layout from "./components/layout/Layout/Layout";
 import UiLockOverlay from "./components/common/UiLockOverlay/UiLockOverlay";
+import Logs from "./pages/Admin/Logs";
 
 function ProtectedRoute({ children, requiredRole }) {
   const { isAuthenticated, loading, role } = useContext(AuthContext);
@@ -44,6 +45,17 @@ function App() {
             <ProtectedRoute requiredRole="admin">
               <Layout>
                 <Admin />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/logs"
+          element={
+            <ProtectedRoute requiredRole="admin">
+              <Layout>
+                <Logs />
               </Layout>
             </ProtectedRoute>
           }
