@@ -150,6 +150,27 @@ export function EntityProvider({ children }) {
     }));
   };
 
+  const deleteDevice = async (deviceId, templateId) => {
+    await api.delete(`/templates/devices/${deviceId}`);
+
+    setDevices((prev) => {
+      const newById = { ...prev.byId };
+      delete newById[deviceId];
+
+      const newByGroupId = {
+        ...prev.byGroupId,
+        [templateId]: prev.byGroupId[templateId].filter(
+          (id) => id !== deviceId,
+        ),
+      };
+
+      return {
+        byId: newById,
+        byGroupId: newByGroupId,
+      };
+    });
+  };
+
   return (
     <EntityContext.Provider
       value={{
@@ -166,6 +187,7 @@ export function EntityProvider({ children }) {
         clearActiveTemplate,
         addFullTemplateGroup,
         deleteTemplate,
+        deleteDevice,
       }}
     >
       {children}

@@ -19,6 +19,7 @@ export default function Sidebar({ onOpenModal }) {
     deleteTemplate,
     getFullTemplate,
     getDeviceWithTags,
+    deleteDevice,
   } = useEntities();
 
   const {
@@ -166,7 +167,6 @@ export default function Sidebar({ onOpenModal }) {
         ...prev,
         [contextMenu.templateId]: true,
       }));
-      
     } catch {
       alert("Failed to load equipment");
     }
@@ -216,6 +216,16 @@ export default function Sidebar({ onOpenModal }) {
           );
           if (!confirmed) return;
           await deleteTemplate(contextMenu.templateId);
+          break;
+        }
+
+        case "device": {
+          const confirmed = window.confirm(
+            `Delete equipment "${contextMenu.deviceName}"?\n\nThis will also update all linked recipes.`,
+          );
+          if (!confirmed) return;
+
+          await deleteDevice(contextMenu.deviceId, contextMenu.templateId);
           break;
         }
 
@@ -294,6 +304,7 @@ export default function Sidebar({ onOpenModal }) {
                                     type: "device",
                                     deviceId: device.id,
                                     deviceName: device.name,
+                                    templateId: groupId,
                                   })
                                 }
                               >
@@ -451,9 +462,20 @@ export default function Sidebar({ onOpenModal }) {
             )}
 
             {contextMenu.type === "device" && (
-              <div className="context-item" onClick={handleViewDevice}>
-                View Equipment
-              </div>
+              <>
+                <div className="context-item" onClick={handleViewDevice}>
+                  View Equipment
+                </div>
+
+                <div
+                  className={`context-item ${
+                    role !== "admin" ? "disabled-item" : ""
+                  }`}
+                  onClick={() => role === "admin" && handleDelete()}
+                >
+                  Delete Equipment
+                </div>
+              </>
             )}
           </div>,
           document.body,
