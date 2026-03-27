@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 
 class RecipeGroupCreate(BaseModel):
     name: str
@@ -46,12 +47,18 @@ class RecipeDeviceResponse(BaseModel):
     tag_values: List[TagValueResponse]
 
     model_config = ConfigDict(from_attributes=True)
+    
+
+class ChangeLog(BaseModel):
+    type: str
+    name: str
+    timestamp: str
 
 
 class FullRecipeResponse(BaseModel):
     id: int
     name: str
     devices: List[RecipeDeviceResponse]
-    changes: list = []
-    removed_devices: list = []
+    removed_devices: Optional[List[str]] = []
+    changes: Optional[List[ChangeLog]] = []
     model_config = ConfigDict(from_attributes=True)
