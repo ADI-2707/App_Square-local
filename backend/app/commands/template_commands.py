@@ -80,3 +80,38 @@ def soft_delete_template_group(
     template_queries.soft_delete_template_group_cascade(db, group)
 
     return {"message": "Template group deleted successfully"}
+
+
+@transactional
+@command_logger(action="TEMPLATE_DEVICE_DELETE")
+def delete_device_from_template(
+    db: Session,
+    device_id: int,
+    current_user: User,
+    request: Request = None
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin required")
+
+    device = db.query(DeviceInstance).filter(
+        DeviceInstance.id == device_id,
+        DeviceInstance.is_deleted == False
+    ).first()
+
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    from app.models.template_change_log import TemplateChangeLog
+
+    log = TemplateChangeLog(
+        template_group_id=device.template_group_id,
+        change_type="DEVICE_DELETED",
+        entity_name=device.name,
+        entity_id=device.id
+    )
+
+    db.add(log)
+
+    db.delete(device)
+
+    return {"message": "Device deleted from template"}

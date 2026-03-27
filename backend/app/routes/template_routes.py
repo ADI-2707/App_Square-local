@@ -12,6 +12,7 @@ from app.schemas.template_schema import (
 )
 from app.commands.template_commands import (
     create_full_template_group,
+    delete_device_from_template,
     soft_delete_template_group
 )
 
@@ -126,3 +127,18 @@ def get_full_template_route(
         )
 
     return template
+
+
+@router.delete("/devices/{device_id}")
+def delete_device(
+    device_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return delete_device_from_template(
+        db=db,
+        device_id=device_id,
+        current_user=current_user,
+        request=request
+    )
