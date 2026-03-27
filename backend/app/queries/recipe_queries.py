@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import and_
+from datetime import datetime
 
 from app.models.recipe import (
     RecipeGroup,
@@ -87,9 +88,20 @@ def get_full_recipe(db: Session, recipe_id: int):
         else:
             valid_devices.append(device)
 
+    last_synced_at = recipe.last_synced_at or datetime.min
+
     logs = db.query(TemplateChangeLog).filter(
-        TemplateChangeLog.template_group_id == template_group.id
+        and_(
+            TemplateChangeLog.template_group_id == template_group.id,
+            TemplateChangeLog.change_type == "DEVICE_DELETED",
+            TemplateChangeLog.created_at > last_synced_at
+        )
     ).order_by(TemplateChangeLog.created_at.desc()).all()
+
+    removed_devices_from_logs = [log.entity_name for log in logs]
+
+    recipe.last_synced_at = datetime.utcnow()
+    db.commit()
 
     return {
         "id": recipe.id,
@@ -120,7 +132,7 @@ def get_full_recipe(db: Session, recipe_id: int):
             for log in logs
         ],
 
-        "removed_devices": removed_devices
+        "removed_devices": removed_devices_from_logs
     }
 
 def get_recipe_group_by_id(db: Session, group_id: int):
