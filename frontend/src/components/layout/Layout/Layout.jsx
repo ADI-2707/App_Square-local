@@ -112,9 +112,16 @@ export default function Layout({ children }) {
 
   const handleValueChange = (deviceIndex, tagIndex, newValue) => {
     setEditableData((prev) => {
-      const updated = [...prev];
-      updated[deviceIndex].tag_values[tagIndex].value = newValue;
-      return updated;
+      return prev.map((device, dIndex) => {
+        if (dIndex !== deviceIndex) return device;
+
+        return {
+          ...device,
+          tag_values: device.tag_values.map((tag, tIndex) =>
+            tIndex === tagIndex ? { ...tag, value: newValue } : tag,
+          ),
+        };
+      });
     });
   };
 
@@ -267,11 +274,24 @@ export default function Layout({ children }) {
                                     value={currentValue ?? ""}
                                     onChange={(e) => {
                                       const val = e.target.value;
-                                      if (val === "" || isNaN(val)) return;
+
+                                      if (val === "") {
+                                        handleValueChange(
+                                          colIndex,
+                                          rowIndex,
+                                          "",
+                                        );
+                                        return;
+                                      }
+
+                                      const num = Number(val);
+
+                                      if (Number.isNaN(num)) return;
+
                                       handleValueChange(
                                         colIndex,
                                         rowIndex,
-                                        val,
+                                        num,
                                       );
                                     }}
                                   />

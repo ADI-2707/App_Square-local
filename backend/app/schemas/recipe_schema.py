@@ -36,7 +36,7 @@ class AddDeviceToRecipe(BaseModel):
 class TagValueResponse(BaseModel):
     id: int
     tag_name: str
-    value: str
+    value: float
 
     model_config = ConfigDict(from_attributes=True)
 
