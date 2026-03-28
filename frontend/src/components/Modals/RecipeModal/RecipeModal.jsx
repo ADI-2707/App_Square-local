@@ -48,7 +48,7 @@ export default function RecipeModal({
 
     const fetchDevices = async () => {
       try {
-        const res = await api.get(`/templates/${selectedTemplate}/devices`);
+        const res = await api.get(`/templates/groups/${selectedTemplate}/devices`);
         setTemplateDevices(res.data);
         setSelectedDevices([]);
       } catch (err) {
