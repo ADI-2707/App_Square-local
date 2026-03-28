@@ -5,6 +5,7 @@ from app.models.user import User
 from app.core.transaction import transactional
 from app.core.command_logger import command_logger
 from app.queries import recipe_queries
+from app.models.recipe import Recipe, RecipeTagValue
 
 
 @transactional
@@ -166,3 +167,29 @@ def delete_recipe_group_command(
     recipe_queries.delete_recipe_group(db, group)
 
     return {"message": "Recipe group deleted successfully"}
+
+
+
+@transactional
+@command_logger(action="RECIPE_UPDATE_VALUES")
+def update_recipe_values(
+    db: Session,
+    recipe_id: int,
+    devices: list,
+    current_user,
+    request=None
+):
+    recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
+
+    if not recipe:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+
+    for device in devices:
+        for tag in device["tag_values"]:
+            db.query(RecipeTagValue).filter(
+                RecipeTagValue.id == tag["id"]
+            ).update({
+                "value": tag["value"]
+            })
+
+    return {"message": "Recipe updated successfully"}

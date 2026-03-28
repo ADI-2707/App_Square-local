@@ -4,7 +4,9 @@ import Sidebar from "../Sidebar/Sidebar";
 import GroupModal from "../../Modals/GroupModal/GroupModal";
 import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
+import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import WorkspaceToolbar from "../../workspace/WorkspaceToolbar/WorkspaceToolbar";
+import api from "../../../Utility/api";
 import "./layout.css";
 
 export default function Layout({ children }) {
@@ -14,6 +16,7 @@ export default function Layout({ children }) {
   const [editableData, setEditableData] = useState([]);
 
   const { workspace } = useWorkspace();
+  const { openRecipeInWorkspace } = useRecipes();
 
   const closeModal = () => {
     setActiveModal(null);
@@ -74,21 +77,36 @@ export default function Layout({ children }) {
     return false;
   };
 
-  const handleEditToggle = () => {
+  const handleEditToggle = async () => {
     if (isEditing) {
-      const changed = hasChanges();
+  const changed = hasChanges();
 
-      if (changed) {
-        const confirmed = window.confirm(
-          "Are you sure you want to apply these changes?",
-        );
+  if (changed) {
+    const confirmed = window.confirm(
+      "Are you sure you want to apply these changes?",
+    );
 
-        if (!confirmed) return;
-      }
+    if (!confirmed) return;
 
-      setIsEditing(false);
+    try {
+      await api.put(`/recipes/${workspace.data.id}/values`, {
+        devices: editableData,
+      });
+
+      alert("Changes saved successfully");
+
+      await openRecipeInWorkspace(workspace.data);
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to save changes");
       return;
     }
+  }
+
+  setIsEditing(false);
+  return;
+}
 
     setIsEditing(true);
   };

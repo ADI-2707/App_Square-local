@@ -15,7 +15,8 @@ from app.commands.recipe_commands import (
     create_recipe_group,
     create_recipe,
     delete_recipe_command,
-    delete_recipe_group_command
+    delete_recipe_group_command,
+    update_recipe_values
 )
 
 from app.queries.recipe_queries import (
@@ -135,6 +136,23 @@ def delete_recipe_group_route(
     return delete_recipe_group_command(
         db=db,
         recipe_group_id=recipe_group_id,
+        current_user=current_user,
+        request=request
+    )
+
+
+@router.put("/{recipe_id}/values")
+def update_recipe_values_route(
+    recipe_id: int,
+    request: Request,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return update_recipe_values(
+        db=db,
+        recipe_id=recipe_id,
+        devices=data["devices"],
         current_user=current_user,
         request=request
     )
