@@ -31,7 +31,7 @@ export default function WorkspaceToolbar({
               src={isEditing ? "/icons/check.svg" : "/icons/edit.svg"}
               className="btn-icon"
             />
-            {isEditing ? "Apply" : "Edit"}
+            {isEditing ? "Save" : "Edit"}
           </button>
         )}
 
