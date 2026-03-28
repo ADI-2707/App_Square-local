@@ -51,7 +51,7 @@ def get_full_recipe(db: Session, recipe_id: int):
     ).first()
 
     if not template_group:
-        return None
+        return Exception("Template group not found")
 
     template_devices = db.query(DeviceInstance).filter(
         and_(
@@ -82,6 +82,7 @@ def get_full_recipe(db: Session, recipe_id: int):
     response = {
         "id": recipe.id,
         "name": recipe.name,
+        "template_group_id": template_group.id,
 
         "devices": [
             {

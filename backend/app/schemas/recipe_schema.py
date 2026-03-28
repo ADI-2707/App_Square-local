@@ -58,7 +58,9 @@ class ChangeLog(BaseModel):
 class FullRecipeResponse(BaseModel):
     id: int
     name: str
+    template_group_id: int
     devices: List[RecipeDeviceResponse]
     removed_devices: Optional[List[str]] = []
     changes: Optional[List[ChangeLog]] = []
+    
     model_config = ConfigDict(from_attributes=True)

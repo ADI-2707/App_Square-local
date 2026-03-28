@@ -32,6 +32,7 @@ export default function Sidebar({ onOpenModal }) {
     getFullRecipe,
     deleteRecipe,
     deleteRecipeGroup,
+    activeRecipe,
   } = useRecipes();
 
   const { openWorkspace } = useWorkspace();
@@ -234,6 +235,20 @@ export default function Sidebar({ onOpenModal }) {
             lockUI("Deleting equipment...");
 
             await deleteDevice(contextMenu.deviceId, contextMenu.templateId);
+
+            if (
+              activeRecipe &&
+              activeRecipe.id === activeRecipeId &&
+              activeRecipe.template_group_id === contextMenu.templateId
+            ) {
+              try {
+                const fullRecipe = await openRecipeInWorkspace(activeRecipe);
+
+                openWorkspace("recipe", fullRecipe);
+              } catch (err) {
+                console.error("Failed to refresh active recipe", err);
+              }
+            }
           } finally {
             unlockUI();
           }
