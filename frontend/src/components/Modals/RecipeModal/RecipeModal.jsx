@@ -12,16 +12,11 @@ export default function RecipeModal({
   initialTemplateId = null,
 }) {
   const { groups } = useEntities();
-  const { addRecipeGroupLocal, addRecipeLocal } = useRecipes();
+  const { addRecipeGroupLocal } = useRecipes();
   const { lockUI, unlockUI, isLocked } = useUiLock();
 
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [recipeGroupName, setRecipeGroupName] = useState("");
-  const [recipeName, setRecipeName] = useState("");
-  const [createdGroupId, setCreatedGroupId] = useState(null);
-
-  const [templateDevices, setTemplateDevices] = useState([]);
-  const [selectedDevices, setSelectedDevices] = useState([]);
 
   useEffect(() => {
     if (isOpen) {
@@ -32,33 +27,8 @@ export default function RecipeModal({
       }
 
       setRecipeGroupName("");
-      setRecipeName("");
-      setCreatedGroupId(null);
-      setTemplateDevices([]);
-      setSelectedDevices([]);
     }
   }, [isOpen, initialTemplateId]);
-
-  useEffect(() => {
-    if (!selectedTemplate) {
-      setTemplateDevices([]);
-      setSelectedDevices([]);
-      return;
-    }
-
-    const fetchDevices = async () => {
-      try {
-        const res = await api.get(`/templates/groups/${selectedTemplate}/devices`);
-        setTemplateDevices(res.data);
-        setSelectedDevices([]);
-      } catch (err) {
-        console.error("Failed to fetch template equipments:", err);
-        setTemplateDevices([]);
-      }
-    };
-
-    fetchDevices();
-  }, [selectedTemplate]);
 
   const handleCreateRecipeGroup = async () => {
     if (!selectedTemplate || !recipeGroupName.trim()) {
