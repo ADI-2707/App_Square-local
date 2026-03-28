@@ -79,34 +79,33 @@ export default function Layout({ children }) {
 
   const handleEditToggle = async () => {
     if (isEditing) {
-  const changed = hasChanges();
+      const changed = hasChanges();
 
-  if (changed) {
-    const confirmed = window.confirm(
-      "Are you sure you want to apply these changes?",
-    );
+      if (changed) {
+        const confirmed = window.confirm(
+          "Are you sure you want to apply these changes?",
+        );
 
-    if (!confirmed) return;
+        if (!confirmed) return;
 
-    try {
-      await api.put(`/recipes/${workspace.data.id}/values`, {
-        devices: editableData,
-      });
+        try {
+          await api.put(`/recipes/${workspace.data.id}/values`, {
+            devices: editableData,
+          });
 
-      alert("Changes saved successfully");
+          alert("Changes saved successfully");
 
-      await openRecipeInWorkspace(workspace.data);
+          await openRecipeInWorkspace(workspace.data);
+        } catch (err) {
+          console.error(err);
+          alert("Failed to save changes");
+          return;
+        }
+      }
 
-    } catch (err) {
-      console.error(err);
-      alert("Failed to save changes");
+      setIsEditing(false);
       return;
     }
-  }
-
-  setIsEditing(false);
-  return;
-}
 
     setIsEditing(true);
   };
@@ -187,7 +186,8 @@ export default function Layout({ children }) {
               {workspace.type === "template" &&
                 `Template: ${workspace.data.name}`}
 
-              {workspace.type === "device" && `Equipment: ${workspace.data.name}`}
+              {workspace.type === "device" &&
+                `Equipment: ${workspace.data.name}`}
             </h2>
 
             <WorkspaceToolbar
@@ -261,15 +261,19 @@ export default function Layout({ children }) {
                               >
                                 {isEditing ? (
                                   <input
+                                    type="number"
+                                    step="any"
                                     className="value-input"
                                     value={currentValue ?? ""}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      if (val === "" || isNaN(val)) return;
                                       handleValueChange(
                                         colIndex,
                                         rowIndex,
-                                        e.target.value,
-                                      )
-                                    }
+                                        val,
+                                      );
+                                    }}
                                   />
                                 ) : (
                                   currentValue
@@ -290,10 +294,7 @@ export default function Layout({ children }) {
 
       <GroupModal isOpen={activeModal === "createGroup"} onClose={closeModal} />
 
-      <RecipeModal
-        isOpen={activeModal === "createArea"}
-        onClose={closeModal}
-      />
+      <RecipeModal isOpen={activeModal === "createArea"} onClose={closeModal} />
     </div>
   );
 }

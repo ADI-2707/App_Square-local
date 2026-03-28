@@ -6,7 +6,8 @@ from sqlalchemy import (
     ForeignKey,
     Boolean,
     Text,
-    UniqueConstraint
+    UniqueConstraint,
+    Float
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -155,9 +156,9 @@ class RecipeTagValue(Base):
     data_type = Column(String(20), nullable=False)
 
     value = Column(
-        String,
+        Float,
         nullable=False,
-        default="0"
+        default=0.0
     )
 
     updated_at = Column(

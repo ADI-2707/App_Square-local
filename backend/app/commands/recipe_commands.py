@@ -185,11 +185,28 @@ def update_recipe_values(
         raise HTTPException(status_code=404, detail="Recipe not found")
 
     for device in devices:
-        for tag in device["tag_values"]:
+        for tag in device.get("tag_values", []):
+
+            raw_value = tag.get("value")
+
+            if raw_value is None or raw_value == "":
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Value cannot be empty for tag '{tag.get('tag_name', '')}'"
+                )
+
+            try:
+                value = float(raw_value)
+            except (ValueError, TypeError):
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Invalid numeric value for tag '{tag.get('tag_name', '')}'"
+                )
+
             db.query(RecipeTagValue).filter(
                 RecipeTagValue.id == tag["id"]
             ).update({
-                "value": tag["value"]
+                "value": value
             })
 
     return {"message": "Recipe updated successfully"}
