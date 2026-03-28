@@ -116,7 +116,8 @@ def delete_device_from_template(
     log = TemplateChangeLog(
         template_group_id=template_group_id,
         change_type="EQUIPMENT_DELETED",
-        entity_name=device_name
+        entity_name=device_name,
+        entity_id=device.id
     )
     db.add(log)
 
