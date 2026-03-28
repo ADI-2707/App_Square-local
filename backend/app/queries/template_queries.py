@@ -26,7 +26,6 @@ def get_template_group_by_name(db: Session, name: str):
     return db.query(TemplateGroup).filter(
         and_(
             TemplateGroup.name == name,
-            TemplateGroup.is_deleted == False
         )
     ).first()
 
@@ -63,7 +62,6 @@ def create_tag(db: Session, name: str, device_id: int):
 
     existing = db.query(Tag).filter(
         Tag.name == normalized_name,
-        Tag.is_deleted == False
     ).first()
 
     if existing:
@@ -83,30 +81,20 @@ def count_active_recipes_by_template(db: Session, template_group_id: int):
         RecipeGroup,
         Recipe.recipe_group_id == RecipeGroup.id
     ).filter(
-        and_(
-            RecipeGroup.template_group_id == template_group_id,
-            Recipe.is_deleted == False,
-            RecipeGroup.is_deleted == False
-        )
+        RecipeGroup.template_group_id == template_group_id
     ).count()
 
 
 def get_full_template(db: Session, template_group_id: int):
     group = db.query(TemplateGroup).filter(
-        and_(
-            TemplateGroup.id == template_group_id,
-            TemplateGroup.is_deleted == False
-        )
+        TemplateGroup.id == template_group_id
     ).first()
 
     if not group:
         return None
 
     devices = db.query(DeviceInstance).filter(
-        and_(
-            DeviceInstance.template_group_id == template_group_id,
-            DeviceInstance.is_deleted == False
-        )
+        DeviceInstance.template_group_id == template_group_id
     ).all()
 
     device_list = []
@@ -114,10 +102,7 @@ def get_full_template(db: Session, template_group_id: int):
     for device in devices:
 
         tags = db.query(Tag).filter(
-            and_(
-                Tag.device_instance_id == device.id,
-                Tag.is_deleted == False
-            )
+            Tag.device_instance_id == device.id
         ).all()
 
         device_list.append({
@@ -141,20 +126,14 @@ def get_full_template(db: Session, template_group_id: int):
 
 def get_device_with_tags(db: Session, device_id: int):
     device = db.query(DeviceInstance).filter(
-        and_(
             DeviceInstance.id == device_id,
-            DeviceInstance.is_deleted == False
-        )
     ).first()
 
     if not device:
         return None
 
     tags = db.query(Tag).filter(
-        and_(
             Tag.device_instance_id == device_id,
-            Tag.is_deleted == False
-        )
     ).all()
 
     return {

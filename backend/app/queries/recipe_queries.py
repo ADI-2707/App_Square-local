@@ -37,10 +37,7 @@ def get_full_recipe(db: Session, recipe_id: int):
     recipe = db.query(Recipe).options(
         selectinload(Recipe.devices).selectinload(RecipeDevice.tag_values)
     ).filter(
-        and_(
             Recipe.id == recipe_id,
-            Recipe.is_deleted == False
-        )
     ).first()
 
     if not recipe:
@@ -121,10 +118,7 @@ def get_full_recipe(db: Session, recipe_id: int):
 
 def get_recipe_group_by_id(db: Session, group_id: int):
     return db.query(RecipeGroup).filter(
-        and_(
             RecipeGroup.id == group_id,
-            RecipeGroup.is_deleted == False
-        )
     ).first()
 
 
@@ -137,7 +131,6 @@ def get_recipe_group_by_name(
         and_(
             RecipeGroup.template_group_id == template_group_id,
             RecipeGroup.name == name,
-            RecipeGroup.is_deleted == False
         )
     ).first()
 
@@ -159,10 +152,7 @@ def create_recipe_group(
 
 def get_recipe_by_id(db: Session, recipe_id: int):
     return db.query(Recipe).filter(
-        and_(
             Recipe.id == recipe_id,
-            Recipe.is_deleted == False
-        )
     ).first()
 
 
@@ -175,7 +165,6 @@ def get_recipe_by_name(
         and_(
             Recipe.recipe_group_id == recipe_group_id,
             Recipe.name == name,
-            Recipe.is_deleted == False
         )
     ).first()
 
@@ -201,10 +190,7 @@ def get_template_group_for_recipe(
     recipe_group: RecipeGroup
 ):
     return db.query(TemplateGroup).filter(
-        and_(
             TemplateGroup.id == recipe_group.template_group_id,
-            TemplateGroup.is_deleted == False
-        )
     ).first()
 
 
@@ -266,6 +252,5 @@ def get_devices_by_ids_for_template(
         and_(
             DeviceInstance.id.in_(device_ids),
             DeviceInstance.template_group_id == template_group_id,
-            DeviceInstance.is_deleted == False
         )
     ).all()
