@@ -35,7 +35,7 @@ export default function Sidebar({ onOpenModal }) {
     activeRecipe,
   } = useRecipes();
 
-  const { openWorkspace } = useWorkspace();
+  const { workspace, openWorkspace } = useWorkspace();
   const { lockUI, unlockUI } = useUiLock();
   const { role } = useAuth();
 
@@ -200,6 +200,7 @@ export default function Sidebar({ onOpenModal }) {
             `Delete recipe "${contextMenu.recipe.name}"?`,
           );
           if (!confirmed) return;
+
           await deleteRecipe(contextMenu.recipe.id, contextMenu.recipeGroupId);
           break;
         }
@@ -209,6 +210,7 @@ export default function Sidebar({ onOpenModal }) {
             `Delete area "${contextMenu.recipeGroup.name}"?`,
           );
           if (!confirmed) return;
+
           await deleteRecipeGroup(
             contextMenu.recipeGroup.id,
             contextMenu.templateId,
@@ -237,8 +239,8 @@ export default function Sidebar({ onOpenModal }) {
             await deleteDevice(contextMenu.deviceId, contextMenu.templateId);
 
             if (
+              workspace?.type === "recipe" &&
               activeRecipe &&
-              activeRecipe.id === activeRecipeId &&
               activeRecipe.template_group_id === contextMenu.templateId
             ) {
               try {
