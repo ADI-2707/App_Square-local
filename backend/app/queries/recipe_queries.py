@@ -227,12 +227,10 @@ def create_recipe_tag_value(
 def delete_recipe(db: Session, recipe: Recipe):
     db.delete(recipe)
     
+
 def count_active_recipes_by_group(db: Session, recipe_group_id: int):
     return db.query(Recipe).filter(
-        and_(
-            Recipe.recipe_group_id == recipe_group_id,
-            Recipe.is_deleted == False
-        )
+        Recipe.recipe_group_id == recipe_group_id
     ).count()
 
 

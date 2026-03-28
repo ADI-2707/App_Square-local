@@ -28,7 +28,7 @@ export default function AddRecipeModal({
 
     const fetchDevices = async () => {
       try {
-        const res = await api.get(`/templates/${templateGroupId}/devices`);
+        const res = await api.get(`/templates/groups/${templateGroupId}/devices`);
         setTemplateDevices(res.data);
       } catch (err) {
         console.error("Equipment load failed:", err);

@@ -109,9 +109,6 @@ def create_recipe(
         )
 
         for tag in device.tags:
-            if tag.is_deleted:
-                continue
-
             recipe_queries.create_recipe_tag_value(
                 db,
                 recipe_device.id,
