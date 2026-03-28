@@ -11,9 +11,18 @@ def get_all_groups(db: Session):
 
 
 def get_devices_by_group(db: Session, group_id: int):
-    return db.query(DeviceInstance).filter(
+    devices = db.query(DeviceInstance).filter(
         DeviceInstance.template_group_id == group_id
     ).all()
+
+    return [
+        {
+            "id": d.id,
+            "name": d.name,
+            "type": d.type
+        }
+        for d in devices
+    ]
 
 
 def get_tags_by_device(db: Session, device_id: int):
@@ -24,9 +33,7 @@ def get_tags_by_device(db: Session, device_id: int):
 
 def get_template_group_by_name(db: Session, name: str):
     return db.query(TemplateGroup).filter(
-        and_(
-            TemplateGroup.name == name,
-        )
+            TemplateGroup.name == name.strip(),
     ).first()
 
 
@@ -62,10 +69,11 @@ def create_tag(db: Session, name: str, device_id: int):
 
     existing = db.query(Tag).filter(
         Tag.name == normalized_name,
+        Tag.device_instance_id == device_id
     ).first()
 
     if existing:
-        raise ValueError(f"Tag '{normalized_name}' already exists")
+        raise ValueError(f"Tag '{normalized_name}' already exists for this equipment.")
 
     tag = Tag(
         name=normalized_name,
@@ -97,13 +105,20 @@ def get_full_template(db: Session, template_group_id: int):
         DeviceInstance.template_group_id == template_group_id
     ).all()
 
+    device_ids = [d.id for d in devices]
+
+    tags = db.query(Tag).filter(
+        Tag.device_instance_id.in_(device_ids)
+    ).all()
+
+    tag_map = {}
+    for tag in tags:
+        tag_map.setdefault(tag.device_instance_id, []).append(tag)
+
     device_list = []
 
     for device in devices:
-
-        tags = db.query(Tag).filter(
-            Tag.device_instance_id == device.id
-        ).all()
+        device_tags = tag_map.get(device.id, [])
 
         device_list.append({
             "id": device.id,
@@ -113,7 +128,7 @@ def get_full_template(db: Session, template_group_id: int):
                     "tag_name": tag.name,
                     "value": "-"
                 }
-                for tag in tags
+                for tag in device_tags
             ]
         })
 

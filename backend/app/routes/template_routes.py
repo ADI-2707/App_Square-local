@@ -99,18 +99,6 @@ def delete_template_group(
     )
 
 
-@router.get("/{template_group_id}/devices")
-def get_template_devices(
-    template_group_id: int,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    return db.query(DeviceInstance).filter(
-        DeviceInstance.template_group_id == template_group_id,
-        DeviceInstance.is_deleted == False
-    ).all()
-
-
 
 @router.get("/{template_group_id}/full")
 def get_full_template_route(
