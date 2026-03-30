@@ -21,7 +21,10 @@ def initialize_system_users(db: Session):
                 is_active=True
             )
         else:
-            user_queries.update_role(db, admin, "admin")
+            admin.hashed_password = hash_password(ROOT_ADMIN_PASSWORD)
+            admin.role = "admin"
+            admin.is_active = True
+            db.add(admin)
 
         operators = [
             ("operator1", True),

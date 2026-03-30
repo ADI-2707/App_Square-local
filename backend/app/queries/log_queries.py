@@ -10,19 +10,25 @@ def create_log(
     actor: str,
     action: str,
     status: str,
+    level: str = "INFO",
     endpoint: str = None,
     method: str = None,
     error_type: str = None,
-    error_message: str = None
+    error_message: str = None,
+    traceback: str = None,
+    request_id: str = None
 ):
     log = Log(
         actor=actor,
         action=action,
         status=status,
+        level=level,
         endpoint=endpoint,
         method=method,
         error_type=error_type,
         error_message=error_message,
+        traceback=traceback,
+        request_id=request_id,
         timestamp=datetime.utcnow()
     )
     db.add(log)

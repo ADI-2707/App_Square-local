@@ -25,6 +25,9 @@ def login_command(
 
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="User is inactive")
 
     if user.blocked_until and datetime.utcnow() < user.blocked_until:
         raise HTTPException(

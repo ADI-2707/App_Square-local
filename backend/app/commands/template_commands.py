@@ -22,7 +22,6 @@ def create_full_template_group(
     current_user: User,
     request: Request = None
 ):
-    print("Incoming payload:", data.dict())
 
     if current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Admin required")
@@ -137,8 +136,6 @@ def delete_template_group(
     ).filter(
         RecipeGroup.template_group_id == group_id
     ).count()
-
-    print(f"Deleting template '{group.name}' with {recipe_count} recipes")
 
     db.delete(group)
 

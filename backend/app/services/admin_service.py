@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from app.models.user import User
 from app.utils.security import hash_password
 from app.queries import user_queries, log_queries
+from app.services.log_service import convert_utc_to_ist
 
 
 def change_user_password(
@@ -74,7 +75,7 @@ def get_logs(
                 "method": log.method,
                 "error_type": log.error_type,
                 "error_message": log.error_message,
-                "timestamp": log.timestamp
+                "timestamp": convert_utc_to_ist(log.timestamp).strftime("%d %b %Y, %I:%M %p")
             }
             for log in logs
         ]

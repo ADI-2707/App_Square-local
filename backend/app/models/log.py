@@ -15,6 +15,8 @@ class Log(Base):
 
     status = Column(String(20), nullable=False)
 
+    level = Column(String(10), nullable=False, default="INFO")
+
     endpoint = Column(String(200), nullable=True)
 
     method = Column(String(10), nullable=True)
@@ -22,5 +24,9 @@ class Log(Base):
     error_type = Column(String(100), nullable=True)
 
     error_message = Column(Text, nullable=True)
+
+    traceback = Column(Text, nullable=True)
+
+    request_id = Column(String(50), nullable=True)
 
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)

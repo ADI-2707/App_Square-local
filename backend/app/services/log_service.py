@@ -1,12 +1,14 @@
 from sqlalchemy.orm import Session
 from app.models.user import User
 from app.queries import log_queries
+from datetime import timezone
+import pytz
 
 RETENTION_DAYS = 90
+IST = pytz.timezone("Asia/Kolkata")
 
 
 def _resolve_actor(user: User | None) -> str:
-
     if not user:
         return "SYS"
 
@@ -14,11 +16,16 @@ def _resolve_actor(user: User | None) -> str:
 
     if username == "admin":
         return "A"
-
     if username == "guest":
         return "G"
 
     return "USER"
+
+
+def convert_utc_to_ist(dt):
+    if not dt:
+        return None
+    return dt.replace(tzinfo=timezone.utc).astimezone(IST)
 
 
 def add_log(
@@ -29,21 +36,29 @@ def add_log(
     endpoint: str = None,
     method: str = None,
     error_type: str = None,
-    error_message: str = None
+    error_message: str = None,
+    level: str = "INFO",
+    traceback_str: str = None,
+    request_id: str = None
 ):
     actor = _resolve_actor(user)
 
-    log_queries.create_log(
-        db=db,
-        actor=actor,
-        action=action,
-        status=status,
-        endpoint=endpoint,
-        method=method,
-        error_type=error_type,
-        error_message=error_message
-    )
-
+    try:
+        log_queries.create_log(
+            db=db,
+            actor=actor,
+            action=action,
+            status=status,
+            level=level,
+            endpoint=endpoint,
+            method=method,
+            error_type=error_type,
+            error_message=error_message,
+            traceback=traceback_str,
+            request_id=request_id
+        )
+    except Exception as e:
+        print("⚠️ Logging failed:", e)
 
 def cleanup_old_logs(db: Session):
     log_queries.delete_older_than(db, RETENTION_DAYS)

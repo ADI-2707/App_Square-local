@@ -34,7 +34,8 @@ export default function Login() {
 
     } catch (error) {
 
-      alert(error.response?.data?.detail || "Login failed");
+      console.log(error);
+      alert(error.response?.data?.detail || error.message);
 
     } finally {
 
