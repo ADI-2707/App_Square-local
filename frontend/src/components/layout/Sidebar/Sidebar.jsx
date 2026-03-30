@@ -11,7 +11,7 @@ import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
 
 import "./sidebar.css";
 
-export default function Sidebar({ onOpenModal }) {
+export default function Sidebar({ onOpenModal, disabled = false }) {
   const {
     groups,
     devices,
@@ -101,6 +101,8 @@ export default function Sidebar({ onOpenModal }) {
   }, []);
 
   const toggleSection = (section) => {
+    if (disabled) return;
+
     if (section === "recipes" && !hasTemplates) return;
 
     setOpenSections((prev) => ({
@@ -110,6 +112,8 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const toggleGroup = async (groupId) => {
+    if (disabled) return;
+
     if (!expandedGroups[groupId]) {
       await loadDevices(groupId);
     }
@@ -121,6 +125,8 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const toggleRecipeGroup = async (group) => {
+    if (disabled) return;
+
     if (!expandedRecipeGroups[group.id]) {
       await loadRecipesPaginated(group.id, 1);
     }
@@ -132,6 +138,8 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const handleOpenRecipe = async (recipe) => {
+    if (disabled) return;
+
     try {
       const fullRecipe = await openRecipeInWorkspace(recipe);
 
@@ -146,6 +154,8 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const handleViewTemplate = async () => {
+    if (disabled) return;
+
     try {
       const template = await getFullTemplate(contextMenu.templateId);
       openWorkspace("template", template);
@@ -157,6 +167,8 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const handleViewDevice = async () => {
+    if (disabled) return;
+
     try {
       const device = await getDeviceWithTags(contextMenu.deviceId);
 
@@ -181,6 +193,8 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const handleRightClick = (e, payload) => {
+    if (disabled) return;
+
     e.preventDefault();
 
     setContextMenu({
@@ -191,7 +205,7 @@ export default function Sidebar({ onOpenModal }) {
   };
 
   const handleDelete = async () => {
-    if (!contextMenu) return;
+    if (disabled || !contextMenu) return;
 
     try {
       switch (contextMenu.type) {
@@ -298,7 +312,7 @@ export default function Sidebar({ onOpenModal }) {
 
   return (
     <>
-      <div className="sidebar">
+      <div className={`sidebar ${disabled ? "sidebar-disabled" : ""}`}>
         <div className="sidebar-header">
           <img src="/app.svg" alt="App Logo" className="sidebar-logo" />
           <div className="sidebar-appname">APP SQUARE</div>
@@ -316,7 +330,7 @@ export default function Sidebar({ onOpenModal }) {
             <div className="sidebar-submenu">
               <button
                 className={`sidebar-action-btn ${
-                  role !== "admin" ? "disabled-btn" : ""
+                  role !== "admin" || disabled ? "disabled-btn" : ""
                 }`}
                 onClick={() => role === "admin" && onOpenModal("createGroup")}
               >

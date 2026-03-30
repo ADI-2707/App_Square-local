@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, Fragment } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import Sidebar from "../Sidebar/Sidebar";
 import GroupModal from "../../Modals/GroupModal/GroupModal";
@@ -17,6 +18,9 @@ export default function Layout({ children }) {
 
   const { workspace } = useWorkspace();
   const { openRecipeInWorkspace } = useRecipes();
+  const location = useLocation();
+
+  const isAdminView = location.pathname.startsWith("/admin");
 
   const closeModal = () => {
     setActiveModal(null);
@@ -167,7 +171,7 @@ export default function Layout({ children }) {
   return (
     <div className="layout-container">
       <Navbar />
-      <Sidebar onOpenModal={setActiveModal} />
+      <Sidebar onOpenModal={setActiveModal} disabled={isAdminView} />
 
       <div className="layout-content">
         {children ? (

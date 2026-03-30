@@ -26,6 +26,15 @@
   background: rgba(255, 255, 255, 0.35);
 }
 
+.sidebar-disabled {
+  pointer-events: none;
+  opacity: 1;
+  filter: grayscale(0.75);
+  position: fixed;
+  width: var(--sidebar-width);
+  cursor: not-allowed !important;
+}
+
 .sidebar-header {
   display: flex;
   align-items: center;

@@ -21,10 +21,7 @@ export default function Navbar() {
   const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
-    <div className="navbar">
-      <div className="navbar-title">
-        <Link to="/">{import.meta.env.VITE_APP_NAME}</Link>
-      </div>
+    <div className="navbar no-left">
 
       <div className="navbar-right">
         {role === "admin" ? (
