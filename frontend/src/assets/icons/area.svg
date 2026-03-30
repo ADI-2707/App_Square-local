@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#F59E0B">
+  <!-- Outer plant boundary -->
+  <rect x="3" y="4" width="18" height="16" rx="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Internal zones (like plant sections) -->
+  <rect x="6" y="7" width="4" height="4" rx="0.5"/>
+  <rect x="14" y="7" width="4" height="4" rx="0.5"/>
+  <rect x="10" y="13" width="4" height="4" rx="0.5"/>
+
+  <!-- Conveyor / connection line -->
+  <path stroke-linecap="round" stroke-linejoin="round"
+    d="M10 9h4M8 11v2M16 11v2"/>
+</svg>

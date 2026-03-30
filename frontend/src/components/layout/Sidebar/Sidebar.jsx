@@ -1,14 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
-
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import { useAuth } from "../../../context/AuthContext/AuthContext";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
 import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
-
+import { getIcon } from "../../../Utility/iconMapper";
 import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
-
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal, disabled = false }) {
@@ -354,7 +352,18 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                         })
                       }
                     >
-                      {expandedGroups[groupId] ? "▾" : "▸"} {group.name}
+                      <div className="tree-item-content">
+                        <span className="arrow">
+                          {expandedGroups[groupId] ? "▾" : "▸"}
+                        </span>
+
+                        <img
+                          src={getIcon("template")}
+                          className="sidebar-icon"
+                        />
+
+                        <span>{group.name}</span>
+                      </div>
                     </div>
 
                     {expandedGroups[groupId] && (
@@ -379,7 +388,14 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                                   })
                                 }
                               >
-                                {device.name}
+                                <div className="tree-item-content">
+                                  <img
+                                    src={getIcon("device")}
+                                    className="sidebar-icon"
+                                  />
+
+                                  <span>{device.name}</span>
+                                </div>
                               </div>
                             </div>
                           );
@@ -428,11 +444,20 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                         })
                       }
                     >
-                      {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}{" "}
-                      {rGroup.name}{" "}
-                      <span className="template-label">
-                        ({rGroup.templateName})
-                      </span>
+                      <div className="tree-item-content">
+                        <span className="arrow">
+                          {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}
+                        </span>
+
+                        <img src={getIcon("area")} className="sidebar-icon" />
+
+                        <span>
+                          {rGroup.name}
+                          <span className="template-label">
+                            ({rGroup.templateName})
+                          </span>
+                        </span>
+                      </div>
                     </div>
 
                     {expandedRecipeGroups[rGroup.id] && (
@@ -455,7 +480,10 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                                   })
                                 }
                               >
-                                {recipe.name}
+                                <div className="tree-item-content">
+                                  <img src={getIcon("recipe")} className="sidebar-icon" />
+                                  <span>{recipe.name}</span>
+                                </div>  
                               </div>
                             </div>
                           ))
