@@ -176,6 +176,13 @@
   transform: rotate(90deg) scale(0.95);
 }
 
+.view-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(40%);
+}
+
 .view-btn.pulse {
   animation: pulseToggle 0.25s ease;
 }

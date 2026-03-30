@@ -10,6 +10,14 @@ export default function WorkspaceToolbar({
   viewMode,
   setViewMode,
 }) {
+  const isToggleDisabled = isEditing;
+
+  const handleToggle = () => {
+    if (isToggleDisabled) return;
+
+    setViewMode((prev) => (prev === "device" ? "tag" : "device"));
+  };
+
   return (
     <div className="workspace-toolbar">
       <div className="toolbar-left">
@@ -20,14 +28,16 @@ export default function WorkspaceToolbar({
         {showEdit && (
           <div className="view-toggle">
             <button
-              className={`view-btn ${viewMode === "device" ? "device" : "tag"}`}
-              onClick={() => {
-                setViewMode((prev) => (prev === "device" ? "tag" : "device"))
-              }}
+              className={`view-btn ${isToggleDisabled ? "disabled" : ""}`}
+              onClick={handleToggle}
+              disabled={isToggleDisabled}
+              aria-disabled={isToggleDisabled}
               title={
-                viewMode === "device"
-                  ? "Switch to Tag View"
-                  : "Switch to Device View"
+                isToggleDisabled
+                  ? "Cannot change view while editing"
+                  : viewMode === "device"
+                    ? "Switch to Tag View"
+                    : "Switch to Device View"
               }
             >
               <img
@@ -36,6 +46,7 @@ export default function WorkspaceToolbar({
                     ? "/icons/tag-view.svg"
                     : "/icons/device-view.svg"
                 }
+                alt="toggle-view"
               />
             </button>
           </div>
@@ -43,7 +54,7 @@ export default function WorkspaceToolbar({
 
         {showEdit && isEditing && (
           <button className="hmi-btn cancel-btn" onClick={onCancel}>
-            <img src="/icons/close.svg" className="btn-icon" />
+            <img src="/icons/close.svg" className="btn-icon" alt="cancel" />
             Cancel
           </button>
         )}
@@ -56,18 +67,19 @@ export default function WorkspaceToolbar({
             <img
               src={isEditing ? "/icons/check.svg" : "/icons/edit.svg"}
               className="btn-icon"
+              alt="edit-toggle"
             />
             {isEditing ? "Save" : "Edit"}
           </button>
         )}
 
         <button className="hmi-btn" onClick={onUpload}>
-          <img src="/icons/upload.svg" className="btn-icon" />
+          <img src="/icons/upload.svg" className="btn-icon" alt="upload" />
           Upload
         </button>
 
         <button className="hmi-btn" onClick={onDownload}>
-          <img src="/icons/download.svg" className="btn-icon" />
+          <img src="/icons/download.svg" className="btn-icon" alt="download" />
           Download
         </button>
       </div>
