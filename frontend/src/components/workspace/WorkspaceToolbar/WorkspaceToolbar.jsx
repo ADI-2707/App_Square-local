@@ -7,6 +7,8 @@ export default function WorkspaceToolbar({
   onEditToggle,
   onCancel,
   showEdit,
+  viewMode,
+  setViewMode,
 }) {
   return (
     <div className="workspace-toolbar">
@@ -15,6 +17,30 @@ export default function WorkspaceToolbar({
       </div>
 
       <div className="toolbar-actions">
+        {showEdit && (
+          <div className="view-toggle">
+            <button
+              className={`view-btn ${viewMode === "device" ? "device" : "tag"}`}
+              onClick={() => {
+                setViewMode((prev) => (prev === "device" ? "tag" : "device"))
+              }}
+              title={
+                viewMode === "device"
+                  ? "Switch to Tag View"
+                  : "Switch to Device View"
+              }
+            >
+              <img
+                src={
+                  viewMode === "device"
+                    ? "/icons/tag-view.svg"
+                    : "/icons/device-view.svg"
+                }
+              />
+            </button>
+          </div>
+        )}
+
         {showEdit && isEditing && (
           <button className="hmi-btn cancel-btn" onClick={onCancel}>
             <img src="/icons/close.svg" className="btn-icon" />

@@ -15,6 +15,7 @@ export default function Layout({ children }) {
   const [animateIntro, setAnimateIntro] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editableData, setEditableData] = useState([]);
+  const [viewMode, setViewMode] = useState("device");
 
   const { workspace } = useWorkspace();
   const { openRecipeInWorkspace } = useRecipes();
@@ -168,6 +169,27 @@ export default function Layout({ children }) {
     setIsEditing(false);
   };
 
+  const tagMatrix = useMemo(() => {
+    if (!devices.length) return [];
+
+    const tagMap = {};
+
+    devices.forEach((device) => {
+      device.tag_values?.forEach((tag) => {
+        if (!tagMap[tag.tag_name]) {
+          tagMap[tag.tag_name] = {};
+        }
+
+        tagMap[tag.tag_name][device.device_name] = tag.value;
+      });
+    });
+
+    return Object.entries(tagMap).map(([tagName, deviceValues]) => ({
+      tagName,
+      values: deviceValues,
+    }));
+  }, [devices]);
+
   return (
     <div className="layout-container">
       <Navbar />
@@ -208,109 +230,126 @@ export default function Layout({ children }) {
               onEditToggle={handleEditToggle}
               onCancel={handleCancelEdit}
               showEdit={workspace?.type === "recipe"}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
             />
 
-            <div className="recipe-matrix-container">
-              <table
-                className={`recipe-matrix-table ${
-                  showValues ? "recipe-mode" : "template-mode"
-                }`}
-              >
-                <thead>
-                  <tr>
-                    {devices.map((device) => (
-                      <th
-                        key={`device-header-${device.id}`}
-                        colSpan={showValues ? 2 : 1}
-                        className="device-header"
-                      >
-                        {device.device_name}
-                      </th>
-                    ))}
-                  </tr>
-
-                  <tr>
-                    {devices.map((device) => (
-                      <Fragment key={`subheader-${device.id}`}>
-                        <th className="sub-header">Tag</th>
-                        {showValues && <th className="sub-header">Value</th>}
-                      </Fragment>
-                    ))}
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {tableRows.map((row, rowIndex) => (
-                    <tr key={`row-${rowIndex}`}>
-                      {row.map((cell, colIndex) => {
-                        const originalValue =
-                          workspace?.data?.devices?.[colIndex]?.tag_values?.[
-                            rowIndex
-                          ]?.value;
-
-                        const currentValue =
-                          devices[colIndex]?.tag_values?.[rowIndex]?.value;
-
-                        const isChanged =
-                          String(originalValue ?? "") !==
-                          String(currentValue ?? "");
-
-                        return (
-                          <Fragment key={`cell-${rowIndex}-${colIndex}`}>
-                            <td
-                              className="tag-cell"
-                              style={{ textAlign: "center" }}
-                            >
-                              {cell.tagName}
-                            </td>
-
-                            {showValues && (
-                              <td
-                                className={`value-cell ${
-                                  isChanged ? "changed-cell" : ""
-                                }`}
-                              >
-                                {isEditing ? (
-                                  <input
-                                    type="number"
-                                    step="any"
-                                    className="value-input"
-                                    value={currentValue ?? ""}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-
-                                      if (val === "") {
-                                        handleValueChange(
-                                          colIndex,
-                                          rowIndex,
-                                          "",
-                                        );
-                                        return;
-                                      }
-
-                                      const num = Number(val);
-
-                                      if (Number.isNaN(num)) return;
-
-                                      handleValueChange(
-                                        colIndex,
-                                        rowIndex,
-                                        num,
-                                      );
-                                    }}
-                                  />
-                                ) : (
-                                  currentValue
-                                )}
-                              </td>
-                            )}
-                          </Fragment>
-                        );
-                      })}
+            <div key={viewMode} className="recipe-matrix-container view-transition">
+              {viewMode === "device" ? (
+                <table
+                  className={`recipe-matrix-table ${showValues ? "recipe-mode" : "template-mode"}`}
+                >
+                  <thead>
+                    <tr>
+                      {devices.map((device) => (
+                        <th
+                          key={device.id}
+                          colSpan={showValues ? 2 : 1}
+                          className="device-header"
+                        >
+                          {device.device_name}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+
+                    <tr>
+                      {devices.map((device) => (
+                        <Fragment key={device.id}>
+                          <th className="sub-header">Tag</th>
+                          {showValues && <th className="sub-header">Value</th>}
+                        </Fragment>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {tableRows.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {row.map((cell, colIndex) => {
+                          const originalValue =
+                            workspace?.data?.devices?.[colIndex]?.tag_values?.[
+                              rowIndex
+                            ]?.value;
+
+                          const currentValue =
+                            devices[colIndex]?.tag_values?.[rowIndex]?.value;
+
+                          const isChanged =
+                            String(originalValue ?? "") !==
+                            String(currentValue ?? "");
+
+                          return (
+                            <Fragment key={`${rowIndex}-${colIndex}`}>
+                              <td className="tag-cell">{cell.tagName}</td>
+
+                              {showValues && (
+                                <td
+                                  className={`value-cell ${isChanged ? "changed-cell" : ""}`}
+                                >
+                                  {isEditing ? (
+                                    <input
+                                      type="number"
+                                      className="value-input"
+                                      value={currentValue ?? ""}
+                                      onChange={(e) => {
+                                        const val = e.target.value;
+                                        if (val === "")
+                                          return handleValueChange(
+                                            colIndex,
+                                            rowIndex,
+                                            "",
+                                          );
+                                        const num = Number(val);
+                                        if (!Number.isNaN(num)) {
+                                          handleValueChange(
+                                            colIndex,
+                                            rowIndex,
+                                            num,
+                                          );
+                                        }
+                                      }}
+                                    />
+                                  ) : (
+                                    currentValue
+                                  )}
+                                </td>
+                              )}
+                            </Fragment>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+
+                <table className="recipe-matrix-table">
+                  <thead>
+                    <tr>
+                      <th className="tag-header">Tag</th>
+                      {devices.map((device) => (
+                        <th key={device.id} className="device-header">
+                          {device.device_name}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {tagMatrix.map((row, index) => (
+                      <tr key={index}>
+                        <td className="tag-cell">{row.tagName}</td>
+
+                        {devices.map((device) => (
+                          <td key={device.id} className="value-cell">
+                            {row.values[device.device_name] ?? "-"}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         )}
