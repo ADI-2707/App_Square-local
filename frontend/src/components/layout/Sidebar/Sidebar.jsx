@@ -223,7 +223,23 @@ export default function Sidebar({ onOpenModal }) {
             `Delete template "${contextMenu.templateName}"?`,
           );
           if (!confirmed) return;
+
           await deleteTemplate(contextMenu.templateId);
+
+          if (
+            workspace?.type === "template" &&
+            workspace?.data?.id === contextMenu.templateId
+          ) {
+            openWorkspace(null, null);
+          }
+
+          if (
+            workspace?.type === "device" &&
+            contextMenu.templateId === contextMenu.templateId
+          ) {
+            openWorkspace(null, null);
+          }
+
           break;
         }
 
@@ -239,17 +255,29 @@ export default function Sidebar({ onOpenModal }) {
             await deleteDevice(contextMenu.deviceId, contextMenu.templateId);
 
             if (
+              workspace?.type === "template" &&
+              workspace?.data?.id === contextMenu.templateId
+            ) {
+              const updatedTemplate = await getFullTemplate(
+                contextMenu.templateId,
+              );
+              openWorkspace("template", updatedTemplate);
+            }
+
+            if (
+              workspace?.type === "device" &&
+              workspace?.data?.id === contextMenu.deviceId
+            ) {
+              openWorkspace(null, null); // clear workspace
+            }
+
+            if (
               workspace?.type === "recipe" &&
               activeRecipe &&
               activeRecipe.template_group_id === contextMenu.templateId
             ) {
-              try {
-                const fullRecipe = await openRecipeInWorkspace(activeRecipe);
-
-                openWorkspace("recipe", fullRecipe);
-              } catch (err) {
-                console.error("Failed to refresh active recipe", err);
-              }
+              const fullRecipe = await openRecipeInWorkspace(activeRecipe);
+              openWorkspace("recipe", fullRecipe);
             }
           } finally {
             unlockUI();

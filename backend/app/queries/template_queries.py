@@ -65,6 +65,9 @@ def create_device_instance(db: Session, name: str, type: str, group_id: int):
 
 
 def create_tag(db: Session, name: str, device_id: int):
+    if not name or not str(name).strip():
+        raise ValueError("Tag name cannot be empty")
+    
     normalized_name = name.strip().lower()
 
     existing = db.query(Tag).filter(

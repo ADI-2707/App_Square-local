@@ -69,12 +69,17 @@ export default function GroupModal({ isOpen, onClose }) {
 
     const payload = {
       name: groupName.trim(),
+      description: description?.trim() || "",
       devices: devices.map((device) => ({
         name: device.device_name,
         type: "generic",
-        tags: device.tags.map((tag) => ({
-          name: tag.name,
-        })),
+        tags: Array.from(
+          new Set(
+            device.tags
+              .map((tag) => tag.name?.trim().toLowerCase())
+              .filter(Boolean),
+          ),
+        ).map((name) => ({ name })),
       })),
     };
 
@@ -93,7 +98,9 @@ export default function GroupModal({ isOpen, onClose }) {
 
       onClose();
     } catch (error) {
-      console.error(error);
+      console.error("ERROR:", error);
+      console.error("RESPONSE:", error?.response);
+      console.error("DATA:", error?.response?.data);
       alert("Failed to save group");
     } finally {
       unlockUI();

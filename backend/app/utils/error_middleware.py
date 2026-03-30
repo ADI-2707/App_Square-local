@@ -2,6 +2,7 @@ from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 from sqlalchemy.orm import Session
+import traceback
 
 from app.database import SessionLocal
 from app.services.log_service import add_log
@@ -66,5 +67,5 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
 
             return JSONResponse(
                 status_code=500,
-                content={"detail": "Internal server error"}
+                content={"detail": str(e)}
             )

@@ -32,8 +32,25 @@ class DeviceResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TagResponse(BaseModel):
+    id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DeviceFullResponse(BaseModel):
+    id: int
+    name: str
+    type: str
+    tags: List[TagResponse]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class TemplateGroupResponse(BaseModel):
     id: int
     name: str
+    devices: List[DeviceFullResponse] = []
 
     model_config = ConfigDict(from_attributes=True)

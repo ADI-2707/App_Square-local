@@ -32,7 +32,7 @@ class Tag(Base):
     )
 
     __table_args__ = (
-        UniqueConstraint("name", name="uq_tag_name"),
+        UniqueConstraint("name", "device_instance_id", name="uq_tag_per_device"),
     )
 
     device = relationship("DeviceInstance", back_populates="tags")
