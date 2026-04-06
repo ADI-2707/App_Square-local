@@ -53,3 +53,9 @@ class User(Base):
         default=True,
         nullable=False
     )
+
+    actor_code = Column(
+        String(5),
+        nullable=False,
+        index=True
+    )

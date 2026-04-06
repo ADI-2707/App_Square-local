@@ -12,14 +12,10 @@ def _resolve_actor(user: User | None) -> str:
     if not user:
         return "SYS"
 
-    username = getattr(user, "username", None)
+    if user.actor_code:
+        return user.actor_code
 
-    if username == "admin":
-        return "A"
-    if username == "guest":
-        return "G"
-
-    return "USER"
+    raise ValueError(f"User {user.username} has no actor_code assigned")
 
 
 def convert_utc_to_ist(dt):
