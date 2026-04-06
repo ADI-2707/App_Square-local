@@ -7,6 +7,14 @@ import "./login.css";
 
 export default function Login() {
 
+  const USERS = [
+    { username: "admin", label: "Admin", active: true },
+    { username: "operator1", label: "Operator 1 (O1)", active: true },
+    { username: "operator2", label: "Operator 2 (O2)", active: false },
+    { username: "operator3", label: "Operator 3 (O3)", active: false },
+    { username: "operator4", label: "Operator 4 (O4)", active: false },
+  ];
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -15,34 +23,27 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
-    if (isLoading) return;
+    if (isLoading || !username) return;
+
     setIsLoading(true);
 
     try {
-
       const response = await api.post("/auth/login", {
         username,
         password
       });
 
       await login(response.data.access_token);
-
       navigate("/home");
 
     } catch (error) {
-
       console.log(error);
       alert(error.response?.data?.detail || error.message);
-
     } finally {
-
       setIsLoading(false);
-
     }
-
   };
 
   return (
@@ -50,8 +51,8 @@ export default function Login() {
       className="login-container"
       style={{ backgroundImage: `url(${loginBg})` }}
     >
-
       <div className="login-box">
+
         <div className="login-left">
           <h1 className="welcome-title">
             Welcome to {import.meta.env.VITE_APP_NAME}
@@ -75,15 +76,29 @@ export default function Login() {
 
         <div className="login-right">
           <h2 className="login-heading">Login</h2>
+
           <form onSubmit={handleSubmit}>
 
-            <input
-              type="text"
-              placeholder="Username"
+            {/* 🔥 DROPDOWN */}
+            <select
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-            />
+              className="login-select"
+            >
+              <option value="">Select User</option>
+
+              {USERS.map((user) => (
+                <option
+                  key={user.username}
+                  value={user.username}
+                  disabled={!user.active}
+                  className={!user.active ? "inactive-option" : ""}
+                >
+                  {user.label}
+                </option>
+              ))}
+            </select>
 
             <input
               type="password"
@@ -93,7 +108,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <button type="submit" disabled={isLoading}>
+            <button type="submit" disabled={isLoading || !username}>
               {isLoading ? "Logging in..." : "LOGIN"}
             </button>
 
