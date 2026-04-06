@@ -37,6 +37,9 @@ def add_log(
     traceback_str: str = None,
     request_id: str = None
 ):
+    if not user and endpoint in ["/auth/profile", "/auth/logout"]:
+        return
+    
     actor = _resolve_actor(user)
 
     try:
