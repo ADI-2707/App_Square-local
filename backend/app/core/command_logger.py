@@ -24,19 +24,16 @@ def command_logger(action: str):
             try:
                 result = func(*args, **kwargs)
 
-                try:
-                    add_log(
-                        db=db,
-                        user=current_user,
-                        action=action,
-                        status="SUCCESS",
-                        endpoint=endpoint,
-                        method=method,
-                        level="INFO",
-                        request_id=request_id
-                    )
-                except Exception as log_error:
-                    print("⚠️ Command logging failed:", log_error)
+                add_log(
+                    db=db,
+                    user=current_user,
+                    action=action,
+                    status="SUCCESS",
+                    endpoint=endpoint,
+                    method=method,
+                    level="INFO",
+                    request_id=request_id
+                )
 
                 if request:
                     request.state.already_logged = True
@@ -45,21 +42,18 @@ def command_logger(action: str):
 
             except HTTPException as e:
 
-                try:
-                    add_log(
-                        db=db,
-                        user=current_user,
-                        action=action,
-                        status="FAILURE",
-                        endpoint=endpoint,
-                        method=method,
-                        error_type=str(e.status_code),
-                        error_message=e.detail,
-                        level="WARNING",
-                        request_id=request_id
-                    )
-                except Exception as log_error:
-                    print("⚠️ Command logging failed:", log_error)
+                add_log(
+                    db=db,
+                    user=current_user,
+                    action=action,
+                    status="FAILURE",
+                    endpoint=endpoint,
+                    method=method,
+                    error_type=str(e.status_code),
+                    error_message=e.detail,
+                    level="WARNING",
+                    request_id=request_id
+                )
 
                 if request:
                     request.state.already_logged = True
@@ -68,22 +62,19 @@ def command_logger(action: str):
 
             except Exception as e:
 
-                try:
-                    add_log(
-                        db=db,
-                        user=current_user,
-                        action=action,
-                        status="FAILURE",
-                        endpoint=endpoint,
-                        method=method,
-                        error_type="INTERNAL_ERROR",
-                        error_message=str(e),
-                        traceback_str=traceback.format_exc(),
-                        level="ERROR",
-                        request_id=request_id
-                    )
-                except Exception as log_error:
-                    print("⚠️ Command logging failed:", log_error)
+                add_log(
+                    db=db,
+                    user=current_user,
+                    action=action,
+                    status="FAILURE",
+                    endpoint=endpoint,
+                    method=method,
+                    error_type="INTERNAL_ERROR",
+                    error_message=str(e),
+                    traceback_str=traceback.format_exc(),
+                    level="ERROR",
+                    request_id=request_id
+                )
 
                 if request:
                     request.state.already_logged = True

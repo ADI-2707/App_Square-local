@@ -43,8 +43,8 @@ export default function Logs() {
 
       setLogs(filtered);
       setTotal(res.data.total);
-    } catch {
-      alert("Failed to load logs");
+    } catch (error) {
+      alert(error.response?.data?.detail || "Failed to load logs");
     }
   };
 
@@ -75,8 +75,8 @@ export default function Logs() {
           <option value="">All Actions</option>
           <option value="RECIPE_CREATE">RECIPE_CREATE</option>
           <option value="RECIPE_DELETE">RECIPE_DELETE</option>
+          <option value="TEMPLATE_CREATE">TEMPLATE_CREATE</option>
           <option value="TEMPLATE_DEVICE_DELETE">TEMPLATE_DEVICE_DELETE</option>
-          <option value="PASSWORD_CHANGE">PASSWORD_CHANGE</option>
         </select>
 
         <button onClick={fetchLogs}>Apply</button>
@@ -88,6 +88,7 @@ export default function Logs() {
           <span>Action</span>
           <span>Status</span>
           <span>Endpoint</span>
+          <span>Error</span>
           <span>Time</span>
         </div>
 
@@ -95,14 +96,24 @@ export default function Logs() {
           <div key={log.id} className="logs-row">
             <span>{log.actor}</span>
             <span>{log.action}</span>
+
             <span
               className={
-                log.status === "SUCCESS" ? "status-success" : "status-failure"
+                log.status === "SUCCESS"
+                  ? "status-success"
+                  : "status-failure"
               }
             >
               {log.status}
             </span>
+
             <span>{log.endpoint}</span>
+
+            {/* ✅ SHOW ERROR */}
+            <span className="log-error">
+              {log.error_message || "-"}
+            </span>
+
             <span>
               {new Date(log.timestamp).toLocaleString()}
             </span>

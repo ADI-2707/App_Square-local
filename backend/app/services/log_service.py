@@ -15,7 +15,7 @@ def _resolve_actor(user: User | None) -> str:
     if user.actor_code:
         return user.actor_code
 
-    raise ValueError(f"User {user.username} has no actor_code assigned")
+    return "SYS"
 
 
 def convert_utc_to_ist(dt):
@@ -39,25 +39,29 @@ def add_log(
 ):
     if not user and endpoint in ["/auth/profile", "/auth/logout"]:
         return
-    
+
     actor = _resolve_actor(user)
 
+    log = log_queries.create_log(
+        db=db,
+        actor=actor,
+        action=action,
+        status=status,
+        level=level,
+        endpoint=endpoint,
+        method=method,
+        error_type=error_type,
+        error_message=error_message,
+        traceback=traceback_str,
+        request_id=request_id
+    )
+
+    db.add(log)
+
     try:
-        log_queries.create_log(
-            db=db,
-            actor=actor,
-            action=action,
-            status=status,
-            level=level,
-            endpoint=endpoint,
-            method=method,
-            error_type=error_type,
-            error_message=error_message,
-            traceback=traceback_str,
-            request_id=request_id
-        )
-    except Exception as e:
-        print("⚠️ Logging failed:", e)
+        db.commit()
+    except Exception:
+        db.rollback()
 
 def cleanup_old_logs(db: Session):
     log_queries.delete_older_than(db, RETENTION_DAYS)

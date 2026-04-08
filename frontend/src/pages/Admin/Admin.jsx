@@ -99,8 +99,8 @@ export default function Admin() {
       setLoadingOps(true);
       const res = await api.get("/admin/operators");
       setOperators(res.data);
-    } catch {
-      alert("Failed to load operators");
+    } catch (error) {
+      alert(error.response?.data?.detail || "Failed to load operators");
     } finally {
       setLoadingOps(false);
     }
@@ -117,8 +117,8 @@ export default function Admin() {
     try {
       await api.patch(`/admin/operators/${id}/toggle`);
       fetchOperators();
-    } catch {
-      alert("Failed to update operator");
+    } catch (error) {
+      alert(error.response?.data?.detail || "Failed to update operator");
     }
   };
 
@@ -145,8 +145,8 @@ export default function Admin() {
         ...prev,
         [id]: "",
       }));
-    } catch {
-      alert("Failed to update password");
+    } catch (error) {
+      alert(error.response?.data?.detail || "Failed to update password");
     }
   };
 
