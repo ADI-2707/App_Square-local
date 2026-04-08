@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import FormLabel from "../../common/FormLabel/FormLabel";
 import BaseModal from "../BaseModal/BaseModal";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import api from "../../../Utility/api";
@@ -28,7 +29,9 @@ export default function AddRecipeModal({
 
     const fetchDevices = async () => {
       try {
-        const res = await api.get(`/templates/groups/${templateGroupId}/devices`);
+        const res = await api.get(
+          `/templates/groups/${templateGroupId}/devices`,
+        );
         setTemplateDevices(res.data);
       } catch (err) {
         console.error("Equipment load failed:", err);
@@ -91,7 +94,12 @@ export default function AddRecipeModal({
       setErrors({});
       onClose();
     } catch (err) {
-      alert(err.response?.data?.detail || "Failed to create recipe");
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        "Failed to create recipe";
+
+      alert(msg);
     } finally {
       unlockUI();
     }
@@ -107,7 +115,7 @@ export default function AddRecipeModal({
       title="Add Recipe"
     >
       <div className="group-form">
-        <label>Recipe Name</label>
+        <FormLabel required>Recipe Name</FormLabel>
         <input
           type="text"
           value={recipeName}
@@ -123,7 +131,7 @@ export default function AddRecipeModal({
           }}
         />
 
-        <label>Select Equipments</label>
+        <FormLabel required>Select Equipments</FormLabel>
 
         <div
           className={`device-selection ${errors.devices ? "error-field" : ""}`}

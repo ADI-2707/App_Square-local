@@ -9,33 +9,52 @@ export function RecipeProvider({ children }) {
   const [activeRecipe, setActiveRecipe] = useState(null);
 
   const loadRecipeGroups = async (templateGroupId, search = "") => {
-    const res = await api.get(`/recipes/groups/${templateGroupId}`, {
-      params: { search },
-    });
+    try {
+      const res = await api.get(`/recipes/groups/${templateGroupId}`, {
+        params: { search },
+      });
 
-    setRecipeGroups((prev) => ({
-      ...prev,
-      [templateGroupId]: res.data,
-    }));
+      setRecipeGroups((prev) => ({
+        ...prev,
+        [templateGroupId]: res.data,
+      }));
+
+    } catch (err) {
+      console.error("Failed to load recipe groups:", err);
+      alert(err?.response?.data?.detail || "Failed to load recipe groups");
+    }
   };
 
   const loadRecipesPaginated = async (recipeGroupId, page = 1) => {
-    const res = await api.get(`/recipes/group/${recipeGroupId}`, {
-      params: { page, limit: 10 },
-    });
+    try {
+      const res = await api.get(`/recipes/group/${recipeGroupId}`, {
+        params: { page, limit: 10 },
+      });
 
-    setRecipes((prev) => ({
-      ...prev,
-      [recipeGroupId]: {
-        ...(prev[recipeGroupId] || {}),
-        [page]: res.data,
-      },
-    }));
+      setRecipes((prev) => ({
+        ...prev,
+        [recipeGroupId]: {
+          ...(prev[recipeGroupId] || {}),
+          [page]: res.data,
+        },
+      }));
+
+    } catch (err) {
+      console.error("Failed to load recipes:", err);
+      alert(err?.response?.data?.detail || "Failed to load recipes");
+    }
   };
 
   const getFullRecipe = async (recipeId) => {
-    const res = await api.get(`/recipes/${recipeId}/full`);
-    return res.data;
+    try {
+      const res = await api.get(`/recipes/${recipeId}/full`);
+      return res.data;
+
+    } catch (err) {
+      console.error("Failed to load full recipe:", err);
+      alert(err?.response?.data?.detail || "Failed to load recipe");
+      throw err;
+    }
   };
 
   const openRecipeInWorkspace = async (recipe) => {
@@ -44,7 +63,7 @@ export function RecipeProvider({ children }) {
 
       if (fullRecipe.removed_devices?.length > 0) {
         alert(
-          `Template updated:\nRemoved devices: ${fullRecipe.removed_devices.join(", ")}`,
+          `Template updated:\nRemoved devices: ${fullRecipe.removed_devices.join(", ")}`
         );
       }
 
@@ -52,7 +71,7 @@ export function RecipeProvider({ children }) {
       return fullRecipe;
 
     } catch (error) {
-      console.error("Failed to load full recipe:", error);
+      console.error("Failed to open recipe:", error);
       throw error;
     }
   };
@@ -79,44 +98,56 @@ export function RecipeProvider({ children }) {
   };
 
   const deleteRecipe = async (recipeId, recipeGroupId) => {
-    await api.delete(`/recipes/${recipeId}`);
+    try {
+      await api.delete(`/recipes/${recipeId}`);
 
-    setRecipes((prev) => {
-      const groupData = prev[recipeGroupId] || {};
-      const updatedPages = {};
+      setRecipes((prev) => {
+        const groupData = prev[recipeGroupId] || {};
+        const updatedPages = {};
 
-      Object.keys(groupData).forEach((page) => {
-        updatedPages[page] = groupData[page].filter(
-          (recipe) => recipe.id !== recipeId,
-        );
+        Object.keys(groupData).forEach((page) => {
+          updatedPages[page] = groupData[page].filter(
+            (recipe) => recipe.id !== recipeId
+          );
+        });
+
+        return {
+          ...prev,
+          [recipeGroupId]: updatedPages,
+        };
       });
 
-      return {
-        ...prev,
-        [recipeGroupId]: updatedPages,
-      };
-    });
+      if (activeRecipe?.id === recipeId) {
+        setActiveRecipe(null);
+      }
 
-    if (activeRecipe?.id === recipeId) {
-      setActiveRecipe(null);
+    } catch (err) {
+      console.error("Failed to delete recipe:", err);
+      alert(err?.response?.data?.detail || "Failed to delete recipe");
     }
   };
 
   const deleteRecipeGroup = async (recipeGroupId, templateGroupId) => {
-    await api.delete(`/recipes/groups/${recipeGroupId}`);
+    try {
+      await api.delete(`/recipes/groups/${recipeGroupId}`);
 
-    setRecipeGroups((prev) => ({
-      ...prev,
-      [templateGroupId]: (prev[templateGroupId] || []).filter(
-        (group) => group.id !== recipeGroupId,
-      ),
-    }));
+      setRecipeGroups((prev) => ({
+        ...prev,
+        [templateGroupId]: (prev[templateGroupId] || []).filter(
+          (group) => group.id !== recipeGroupId
+        ),
+      }));
 
-    setRecipes((prev) => {
-      const updated = { ...prev };
-      delete updated[recipeGroupId];
-      return updated;
-    });
+      setRecipes((prev) => {
+        const updated = { ...prev };
+        delete updated[recipeGroupId];
+        return updated;
+      });
+
+    } catch (err) {
+      console.error("Failed to delete recipe group:", err);
+      alert(err?.response?.data?.detail || "Failed to delete recipe group");
+    }
   };
 
   return (

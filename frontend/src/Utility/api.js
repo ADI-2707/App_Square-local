@@ -4,23 +4,46 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-},
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
   (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const newToken =
+      response.headers["x-refreshed-token"] ||
+      response.headers["X-Refreshed-Token"];
+    if (newToken) {
+      localStorage.setItem("token", newToken);
+    }
+
+    return response;
+  },
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("access_token");
+    const status = error.response?.status;
+    const detail = error.response?.data?.detail;
+
+    if (
+      status === 401 &&
+      (
+        detail === "Invalid or expired token" ||
+        detail === "Token invalidated" ||
+        detail === "Invalid token payload"
+      )
+    ) {
+      localStorage.removeItem("token");
       window.location.href = "/";
     }
+
     return Promise.reject(error);
   }
 );

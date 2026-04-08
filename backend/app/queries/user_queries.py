@@ -41,13 +41,15 @@ def create_user(
     username: str,
     hashed_password: str,
     role: str,
-    is_active: bool = True
+    actor_code: str,
+    is_active: bool = True,
 ):
     user = User(
         username=username,
         hashed_password=hashed_password,
         role=role,
-        is_active=is_active
+        is_active=is_active,
+        actor_code=actor_code
     )
     db.add(user)
     return user

@@ -75,6 +75,7 @@ def get_logs(
                 "method": log.method,
                 "error_type": log.error_type,
                 "error_message": log.error_message,
+                "extra_data": log.extra_data,
                 "timestamp": convert_utc_to_ist(log.timestamp).strftime("%d %b %Y, %I:%M %p")
             }
             for log in logs

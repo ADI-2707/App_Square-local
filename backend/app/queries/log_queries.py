@@ -16,7 +16,8 @@ def create_log(
     error_type: str = None,
     error_message: str = None,
     traceback: str = None,
-    request_id: str = None
+    request_id: str = None,
+    extra_data: dict = None
 ):
     log = Log(
         actor=actor,
@@ -29,7 +30,8 @@ def create_log(
         error_message=error_message,
         traceback=traceback,
         request_id=request_id,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
+        extra_data=extra_data
     )
     db.add(log)
     return log

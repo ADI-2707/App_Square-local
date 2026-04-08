@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 from app.queries import log_queries
 from datetime import timezone
+from app.database import SessionLocal
 import pytz
 
 RETENTION_DAYS = 90
@@ -12,20 +13,20 @@ def _resolve_actor(user: User | None) -> str:
     if not user:
         return "SYS"
 
-    username = getattr(user, "username", None)
+    if getattr(user, "actor_code", None):
+        return user.actor_code
 
-    if username == "admin":
-        return "A"
-    if username == "guest":
-        return "G"
-
-    return "USER"
+    return "SYS"
 
 
 def convert_utc_to_ist(dt):
     if not dt:
         return None
-    return dt.replace(tzinfo=timezone.utc).astimezone(IST)
+
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+
+    return dt.astimezone(IST)
 
 
 def add_log(
@@ -39,13 +40,20 @@ def add_log(
     error_message: str = None,
     level: str = "INFO",
     traceback_str: str = None,
-    request_id: str = None
+    request_id: str = None,
+    metadata: dict = None,
 ):
+    
+    if not user and endpoint in ["/auth/profile", "/auth/logout"]:
+        return
+
     actor = _resolve_actor(user)
+
+    log_db = SessionLocal()
 
     try:
         log_queries.create_log(
-            db=db,
+            db=log_db,
             actor=actor,
             action=action,
             status=status,
@@ -55,10 +63,22 @@ def add_log(
             error_type=error_type,
             error_message=error_message,
             traceback=traceback_str,
-            request_id=request_id
+            request_id=request_id,
+            extra_data=metadata,
         )
+
+        log_db.commit()
+
     except Exception as e:
-        print("⚠️ Logging failed:", e)
+        log_db.rollback()
+        print("⚠️ Logging failed:", str(e))
+
+    finally:
+        log_db.close()
+
 
 def cleanup_old_logs(db: Session):
-    log_queries.delete_older_than(db, RETENTION_DAYS)
+    try:
+        log_queries.delete_older_than(db, RETENTION_DAYS)
+    except Exception as e:
+        print("⚠️ Log cleanup failed:", str(e))

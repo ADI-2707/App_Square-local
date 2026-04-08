@@ -36,22 +36,29 @@ export const AuthProvider = ({ children }) => {
     delete api.defaults.headers.common["Authorization"];
   };
 
-  
+  const clearSession = () => {
+    localStorage.removeItem("token");
+    clearAxiosAuthHeader();
+
+    setAuthState({
+      token: null,
+      username: null,
+      role: null,
+      isAuthenticated: false,
+    });
+  };
+
   const logout = async () => {
+    const token = localStorage.getItem("token");
+
     try {
-      await api.post("/auth/logout");
+      if (token) {
+        await api.post("/auth/logout");
+      }
     } catch (error) {
       console.error("Backend logout failed:", error);
     } finally {
-      localStorage.removeItem("token");
-      clearAxiosAuthHeader();
-
-      setAuthState({
-        token: null,
-        username: null,
-        role: null,
-        isAuthenticated: false,
-      });
+      clearSession();
     }
   };
 
@@ -59,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     const decoded = decodeToken(jwtToken);
 
     if (!decoded || isTokenExpired(decoded)) {
-      await logout();
+      clearSession(); // ❌ no API call
       return false;
     }
 
@@ -79,7 +86,7 @@ export const AuthProvider = ({ children }) => {
       return true;
     } catch (error) {
       console.error("Login profile fetch failed:", error);
-      await logout();
+      clearSession();
       return false;
     }
   };
@@ -96,7 +103,7 @@ export const AuthProvider = ({ children }) => {
       const decoded = decodeToken(storedToken);
 
       if (!decoded || isTokenExpired(decoded)) {
-        await logout();
+        clearSession();
         setLoading(false);
         return;
       }
@@ -114,7 +121,7 @@ export const AuthProvider = ({ children }) => {
         });
       } catch (error) {
         console.error("Session restore failed:", error);
-        await logout();
+        clearSession();
       } finally {
         setLoading(false);
       }

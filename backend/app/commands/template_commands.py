@@ -12,6 +12,7 @@ from app.models.template_change_log import TemplateChangeLog
 from app.models.tag import Tag
 from app.models.recipe import RecipeDevice, RecipeGroup, Recipe
 from app.models.template_group import TemplateGroup
+from app.services.log_service import add_log
 
 
 @transactional
@@ -20,7 +21,7 @@ def create_full_template_group(
     db: Session,
     data,
     current_user: User,
-    request: Request = None
+    request: Request
 ):
 
     if current_user.role != "admin":
@@ -29,6 +30,21 @@ def create_full_template_group(
     existing = template_queries.get_template_group_by_name(db, data.name)
 
     if existing:
+
+        add_log(
+            db=db,
+            user=current_user,
+            action="TEMPLATE_CREATE",
+            status="FAILURE",
+            endpoint=request.url.path,
+            method=request.method,
+            error_type="400",
+            error_message="Template group already exists",
+            metadata={
+                "template_name": data.name
+            }
+        )
+
         raise HTTPException(status_code=400, detail="Template group already exists")
 
     group = template_queries.create_template_group(
@@ -120,8 +136,8 @@ def create_full_template_group(
 def delete_template_group(
     db: Session,
     group_id: int,
-    current_user,
-    request=None
+    current_user: User,
+    request: Request = None
 ):
     group = db.query(TemplateGroup).filter(
         TemplateGroup.id == group_id
@@ -129,6 +145,8 @@ def delete_template_group(
 
     if not group:
         raise HTTPException(404, "Template not found")
+
+        group_name = group.name
 
     recipe_count = db.query(Recipe).join(
         RecipeGroup,
@@ -150,8 +168,8 @@ def delete_template_group(
 def delete_device_from_template(
     db: Session,
     device_id: int,
-    current_user,
-    request=None
+    current_user: User,
+    request: Request = None
 ):
 
     device = db.query(DeviceInstance).filter(

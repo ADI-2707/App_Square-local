@@ -11,7 +11,6 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 ROOT_ADMIN_USERNAME = os.getenv("ROOT_ADMIN_USERNAME")
 ROOT_ADMIN_PASSWORD = os.getenv("ROOT_ADMIN_PASSWORD")
-GUEST_PASSWORD = os.getenv("GUEST_PASSWORD")
 
 ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "")
 
@@ -21,7 +20,7 @@ required_settings = [
     ACCESS_TOKEN_EXPIRE_MINUTES,
     DATABASE_URL,
     ROOT_ADMIN_PASSWORD,
-    GUEST_PASSWORD
+    ROOT_ADMIN_PASSWORD
 ]
 
 if not all(required_settings):
