@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import FormLabel from "../../common/FormLabel/FormLabel";
 import BaseModal from "../BaseModal/BaseModal";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
@@ -69,7 +70,7 @@ export default function RecipeModal({
       title="Create Area"
     >
       <div className="group-form">
-        <label>Select Template</label>
+        <FormLabel required>Select Template</FormLabel>
         <select
           value={selectedTemplate}
           onChange={(e) => setSelectedTemplate(e.target.value)}
@@ -83,7 +84,7 @@ export default function RecipeModal({
           ))}
         </select>
 
-        <label>Area Name</label>
+        <FormLabel required>Area Name</FormLabel>
         <input
           type="text"
           value={recipeGroupName}

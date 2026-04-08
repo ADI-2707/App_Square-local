@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import FormLabel from "../../common/FormLabel/FormLabel";
 import BaseModal from "../BaseModal/BaseModal";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import api from "../../../Utility/api";
@@ -107,7 +108,7 @@ export default function AddRecipeModal({
       title="Add Recipe"
     >
       <div className="group-form">
-        <label>Recipe Name</label>
+        <FormLabel required>Recipe Name</FormLabel>
         <input
           type="text"
           value={recipeName}
@@ -123,7 +124,7 @@ export default function AddRecipeModal({
           }}
         />
 
-        <label>Select Equipments</label>
+        <FormLabel required>Select Equipments</FormLabel>
 
         <div
           className={`device-selection ${errors.devices ? "error-field" : ""}`}

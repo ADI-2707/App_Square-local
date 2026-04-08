@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import FormLabel from "../../common/FormLabel/FormLabel";
 import BaseModal from "../BaseModal/BaseModal.jsx";
 import EditIcon from "../../../assets/icons/EditIcon";
 import DeleteIcon from "../../../assets/icons/DeleteIcon";
@@ -6,7 +7,12 @@ import CheckIcon from "../../../assets/icons/CheckIcon";
 import CloseIcon from "../../../assets/icons/CloseIcon";
 import "./deviceModal.css";
 
-export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) {
+export default function DeviceModal({
+  isOpen,
+  onClose,
+  onSave,
+  initialDevice,
+}) {
   const [deviceName, setDeviceName] = useState("");
   const [tags, setTags] = useState([]);
   const [tagName, setTagName] = useState("");
@@ -16,21 +22,20 @@ export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) 
   const [editValue, setEditValue] = useState("");
 
   useEffect(() => {
-  if (initialDevice) {
-    setDeviceName(initialDevice.device_name);
-    setTags(initialDevice.tags);
-  } else {
-    setDeviceName("");
-    setTags([]);
-  }
-}, [initialDevice, isOpen]);
+    if (initialDevice) {
+      setDeviceName(initialDevice.device_name);
+      setTags(initialDevice.tags);
+    } else {
+      setDeviceName("");
+      setTags([]);
+    }
+  }, [initialDevice, isOpen]);
 
   const tagExists = (name, excludeIndex = null) => {
     const normalized = name.trim().toLowerCase();
     return tags.some(
       (t, i) =>
-        i !== excludeIndex &&
-        t.name.trim().toLowerCase() === normalized
+        i !== excludeIndex && t.name.trim().toLowerCase() === normalized,
     );
   };
 
@@ -115,10 +120,14 @@ export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) 
   };
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title={initialDevice ? "Edit Equipment" : "Create Equipment"}>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={initialDevice ? "Edit Equipment" : "Create Equipment"}
+    >
       <div className="device-form">
         <div className="form-field">
-          <label>Equipment Name</label>
+          <FormLabel required>Equipment Name</FormLabel>
           <input
             type="text"
             value={deviceName}
@@ -135,13 +144,11 @@ export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) 
           />
         </div>
 
-        <div
-          className={`tag-section ${
-            errors.tags ? "error-field" : ""
-          }`}
-        >
+        <div className={`tag-section ${errors.tags ? "error-field" : ""}`}>
           <div className="tag-panel-header">
-            <h4>Tags</h4>
+            <h4>
+              Tags <span className="required-star">*</span>
+            </h4>
           </div>
 
           <div className="tag-input-row">
@@ -165,50 +172,37 @@ export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) 
                     <input
                       className="edit-input"
                       value={editValue}
-                      onChange={(e) =>
-                        setEditValue(e.target.value)
-                      }
+                      onChange={(e) => setEditValue(e.target.value)}
                     />
 
                     <div className="tag-actions">
                       <button
                         className="icon-btn confirm"
-                        onClick={() =>
-                          confirmEdit(index)
-                        }
+                        onClick={() => confirmEdit(index)}
                       >
                         <CheckIcon />
                       </button>
 
-                      <button
-                        className="icon-btn cancel"
-                        onClick={cancelEdit}
-                      >
+                      <button className="icon-btn cancel" onClick={cancelEdit}>
                         <CloseIcon />
                       </button>
                     </div>
                   </>
                 ) : (
                   <>
-                    <span className="tag-name">
-                      {tag.name}
-                    </span>
+                    <span className="tag-name">{tag.name}</span>
 
                     <div className="tag-actions">
                       <button
                         className="icon-btn edit"
-                        onClick={() =>
-                          startEdit(index)
-                        }
+                        onClick={() => startEdit(index)}
                       >
                         <EditIcon />
                       </button>
 
                       <button
                         className="icon-btn delete"
-                        onClick={() =>
-                          deleteTag(index)
-                        }
+                        onClick={() => deleteTag(index)}
                       >
                         <DeleteIcon />
                       </button>
@@ -221,9 +215,7 @@ export default function DeviceModal({ isOpen, onClose, onSave, initialDevice }) 
         </div>
 
         <div className="modal-actions">
-          <button onClick={handleSave}>
-            Save Equipment
-          </button>
+          <button onClick={handleSave}>Save Equipment</button>
         </div>
       </div>
     </BaseModal>

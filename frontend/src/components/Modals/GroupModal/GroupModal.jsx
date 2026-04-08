@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
+import FormLabel from "../../common/FormLabel/FormLabel";
 import BaseModal from "../BaseModal/BaseModal";
 import DeviceModal from "../DeviceModal/DeviceModal";
 import EditIcon from "../../../assets/icons/EditIcon";
@@ -119,7 +120,7 @@ export default function GroupModal({ isOpen, onClose }) {
       >
         <div className="group-form">
           <div className="form-field">
-            <label>Recipe Template Name</label>
+            <FormLabel required>Recipe Template Name</FormLabel>
             <input
               type="text"
               value={groupName}
@@ -134,7 +135,7 @@ export default function GroupModal({ isOpen, onClose }) {
           </div>
 
           <div className="form-field">
-            <label>Description</label>
+            <FormLabel optional>Description</FormLabel>
             <input
               type="text"
               value={description}
@@ -146,7 +147,9 @@ export default function GroupModal({ isOpen, onClose }) {
             className={`device-section ${errors.devices ? "error-field" : ""}`}
           >
             <div className="group-device-header">
-              <h4>Equipments</h4>
+              <h4>
+                Equipments<span className="required-star">*</span>
+              </h4>
 
               <button onClick={openAddDevice} disabled={isLocked}>
                 + Add Equipment
