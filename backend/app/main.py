@@ -1,12 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+
 from app.database import Base, engine, SessionLocal
 from app.models import user, log
 from app.services.auth_service import initialize_system_users
-from app.routes import auth_routes, admin_routes, template_routes, recipe_routes
 from app.services.log_service import cleanup_old_logs
+from app.routes import auth_routes, admin_routes, template_routes, recipe_routes
 from app.utils.error_middleware import ExceptionLoggingMiddleware
-from contextlib import asynccontextmanager
 from app.config import ALLOWED_ORIGINS
 
 @asynccontextmanager
@@ -27,7 +28,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-origins = [origin.strip() for origin in ALLOWED_ORIGINS.split(",") if origin]
+origins = [
+    origin.strip() for origin in ALLOWED_ORIGINS.split(",") if origin
+]
+
 
 app.add_middleware(
     CORSMiddleware,

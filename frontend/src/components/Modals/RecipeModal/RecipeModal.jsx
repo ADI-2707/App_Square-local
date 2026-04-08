@@ -54,7 +54,13 @@ export default function RecipeModal({
       onClose();
     } catch (err) {
       console.error("Recipe Group Error:", err);
-      alert(err.response?.data?.detail || "Failed to create area");
+
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        "Failed to create area";
+
+      alert(msg);
     } finally {
       unlockUI();
     }

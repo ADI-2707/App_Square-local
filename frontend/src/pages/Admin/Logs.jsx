@@ -106,7 +106,9 @@ export default function Logs() {
               {log.status}
             </span>
 
-            <span className="col-endpoint">{log.endpoint}</span>
+            <span className="col-endpoint">
+              {log.extra_data?.template_name || log.endpoint}
+            </span>
 
             <span className="col-error">{log.error_message || "-"}</span>
 

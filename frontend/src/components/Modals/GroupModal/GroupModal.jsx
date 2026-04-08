@@ -100,9 +100,13 @@ export default function GroupModal({ isOpen, onClose }) {
       onClose();
     } catch (error) {
       console.error("ERROR:", error);
-      console.error("RESPONSE:", error?.response);
-      console.error("DATA:", error?.response?.data);
-      alert("Failed to save group");
+
+      const backendMessage =
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        "Failed to create template";
+
+      alert(backendMessage);
     } finally {
       unlockUI();
     }

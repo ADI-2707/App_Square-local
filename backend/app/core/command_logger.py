@@ -15,7 +15,7 @@ def command_logger(action: str):
 
             db: Session = kwargs.get("db")
             current_user = kwargs.get("current_user")
-            request: Request = kwargs.get("request")
+            request: Request = kwargs.get("request") or kwargs.get("request_obj")
 
             endpoint = request.url.path if request else None
             method = request.method if request else None
@@ -31,7 +31,6 @@ def command_logger(action: str):
                     status="SUCCESS",
                     endpoint=endpoint,
                     method=method,
-                    level="INFO",
                     request_id=request_id
                 )
 

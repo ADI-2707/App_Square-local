@@ -29,7 +29,9 @@ export default function AddRecipeModal({
 
     const fetchDevices = async () => {
       try {
-        const res = await api.get(`/templates/groups/${templateGroupId}/devices`);
+        const res = await api.get(
+          `/templates/groups/${templateGroupId}/devices`,
+        );
         setTemplateDevices(res.data);
       } catch (err) {
         console.error("Equipment load failed:", err);
@@ -92,7 +94,12 @@ export default function AddRecipeModal({
       setErrors({});
       onClose();
     } catch (err) {
-      alert(err.response?.data?.detail || "Failed to create recipe");
+      const msg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        "Failed to create recipe";
+
+      alert(msg);
     } finally {
       unlockUI();
     }

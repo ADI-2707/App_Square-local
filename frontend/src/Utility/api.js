@@ -6,7 +6,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token"); // ✅ unified
+    const token = localStorage.getItem("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -19,7 +19,9 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    const newToken = response.headers["x-refreshed-token"];
+    const newToken =
+      response.headers["x-refreshed-token"] ||
+      response.headers["X-Refreshed-Token"];
     if (newToken) {
       localStorage.setItem("token", newToken);
     }

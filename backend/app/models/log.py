@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, JSON
 from datetime import datetime
 from app.database import Base
 
@@ -30,3 +30,5 @@ class Log(Base):
     request_id = Column(String(50), nullable=True)
 
     timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    extra_data = Column(JSON, nullable=True)
