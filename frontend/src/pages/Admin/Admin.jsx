@@ -285,7 +285,7 @@ export default function Admin() {
       <div className="admin-panel">
         <div className="admin-panel-header">System Logs</div>
 
-        <div className="admin-panel-body">
+        <div className="admin-panel-body center">
           <button className="admin-btn" onClick={() => navigate("/admin/logs")}>
             View Logs →
           </button>

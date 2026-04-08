@@ -51,6 +51,12 @@
   padding: 20px;
 }
 
+.admin-panel-body.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .admin-form {
   display: flex;
   flex-direction: column;
@@ -77,7 +83,7 @@
 
 .admin-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   margin-top: 10px;
 }
 
