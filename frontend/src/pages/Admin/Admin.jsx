@@ -10,6 +10,7 @@ export default function Admin() {
   const [opPasswords, setOpPasswords] = useState({});
   const [loadingOps, setLoadingOps] = useState(false);
   const [blinking, setBlinking] = useState({});
+  const [recentLogs, setRecentLogs] = useState([]);
 
   const navigate = useNavigate();
 
@@ -106,6 +107,15 @@ export default function Admin() {
     }
   };
 
+  const fetchRecentLogs = async () => {
+    try {
+      const res = await api.get("/admin/logs?page=1&page_size=3");
+      setRecentLogs(res.data.logs);
+    } catch (err) {
+      console.error("Failed to fetch logs");
+    }
+  };
+
   const handleToggle = async (id, currentState) => {
     if (currentState) {
       const confirmDeactivate = window.confirm(
@@ -152,6 +162,7 @@ export default function Admin() {
 
   useEffect(() => {
     fetchOperators();
+    fetchRecentLogs();
   }, []);
 
   return (
@@ -285,9 +296,50 @@ export default function Admin() {
       <div className="admin-panel">
         <div className="admin-panel-header">System Logs</div>
 
-        <div className="admin-panel-body center">
-          <button className="admin-btn" onClick={() => navigate("/admin/logs")}>
-            View Logs →
+        <div className="admin-panel-body logs-panel">
+          {recentLogs.length === 0 ? (
+            <p className="logs-empty">No recent activity</p>
+          ) : (
+            <div className="logs-preview">
+              {recentLogs.map((log) => {
+                const getActorLabel = (actor) => {
+                  if (!actor) return "SYS";
+
+                  if (actor === "admin") return "A";
+
+                  if (actor.startsWith("operator")) {
+                    const num = actor.replace("operator", "");
+                    return `O${num}`;
+                  }
+
+                  return actor;
+                };
+
+                return (
+                  <div
+                    key={log.id}
+                    className={`log-item ${log.status.toLowerCase()}`}
+                  >
+                    <span className="log-dot"></span>
+
+                    <span className="log-action">{log.action}</span>
+
+                    <span className="log-actor">
+                      {getActorLabel(log.actor)}
+                    </span>
+
+                    <span className="log-time">{log.timestamp}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <button
+            className="admin-btn logs-btn"
+            onClick={() => navigate("/admin/logs")}
+          >
+            View All Logs <span className="arrow">→</span>
           </button>
         </div>
       </div>
