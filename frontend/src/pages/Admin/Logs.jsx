@@ -121,7 +121,7 @@ export default function Logs() {
 
       <div className="logs-pagination">
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Prev
+          Next
         </button>
 
         <span>
@@ -132,7 +132,7 @@ export default function Logs() {
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
         >
-          Next
+          Prev
         </button>
       </div>
     </div>
