@@ -29,7 +29,7 @@ export default function Logs() {
         filtered = filtered.filter(
           (log) =>
             log.action.toLowerCase().includes(search.toLowerCase()) ||
-            log.endpoint?.toLowerCase().includes(search.toLowerCase())
+            log.endpoint?.toLowerCase().includes(search.toLowerCase()),
         );
       }
 
@@ -94,27 +94,23 @@ export default function Logs() {
 
         {logs.map((log) => (
           <div key={log.id} className="logs-row">
-            <span>{log.actor}</span>
-            <span>{log.action}</span>
+            <span className="col-actor">{log.actor}</span>
+
+            <span className="col-action">{log.action}</span>
 
             <span
               className={
-                log.status === "SUCCESS"
-                  ? "status-success"
-                  : "status-failure"
+                log.status === "SUCCESS" ? "status-success" : "status-failure"
               }
             >
               {log.status}
             </span>
 
-            <span>{log.endpoint}</span>
+            <span className="col-endpoint">{log.endpoint}</span>
 
-            {/* ✅ SHOW ERROR */}
-            <span className="log-error">
-              {log.error_message || "-"}
-            </span>
+            <span className="col-error">{log.error_message || "-"}</span>
 
-            <span>
+            <span className="col-time">
               {new Date(log.timestamp).toLocaleString()}
             </span>
           </div>
