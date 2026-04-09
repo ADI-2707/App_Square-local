@@ -16,13 +16,10 @@ export default function Layout({ children }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editableData, setEditableData] = useState([]);
 
-  const VIEW_MODE_KEY = "app_square_view_mode";
+  const getViewModeKey = (type) => `app_square_view_mode_${type}`;
   const VALID_VIEW_MODES = ["device", "tag"];
 
-  const [viewMode, setViewMode] = useState(() => {
-    const saved = localStorage.getItem(VIEW_MODE_KEY);
-    return VALID_VIEW_MODES.includes(saved) ? saved : "device";
-  });
+  const [viewMode, setViewMode] = useState("device");
 
   const { workspace } = useWorkspace();
   const { openRecipeInWorkspace } = useRecipes();
@@ -43,6 +40,23 @@ export default function Layout({ children }) {
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!workspace?.type) return;
+
+    if (workspace.type !== "recipe") {
+      setViewMode("device");
+      return;
+    }
+
+    const saved = localStorage.getItem(getViewModeKey("recipe"));
+
+    if (VALID_VIEW_MODES.includes(saved)) {
+      setViewMode(saved);
+    } else {
+      setViewMode("device");
+    }
+  }, [workspace?.type]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -83,8 +97,10 @@ export default function Layout({ children }) {
   }, [workspace]);
 
   useEffect(() => {
-    localStorage.setItem(VIEW_MODE_KEY, viewMode);
-  }, [viewMode]);
+    if (workspace?.type === "recipe") {
+      localStorage.setItem(getViewModeKey("recipe"), viewMode);
+    }
+  }, [viewMode, workspace?.type]);
 
   const devices = editableData.length
     ? editableData
