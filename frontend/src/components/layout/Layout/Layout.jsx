@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, Fragment } from "react";
+import { useState, useMemo, useEffect, useRef, Fragment } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "../Navbar/Navbar";
 import Sidebar from "../Sidebar/Sidebar";
@@ -28,6 +28,8 @@ export default function Layout({ children }) {
   const { openRecipeInWorkspace } = useRecipes();
   const location = useLocation();
 
+  const scrollRef = useRef(null);
+
   const isAdminView = location.pathname.startsWith("/admin");
 
   const closeModal = () => {
@@ -40,6 +42,25 @@ export default function Layout({ children }) {
     }, 100);
 
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const handleWheel = (e) => {
+      if (el.scrollWidth <= el.clientWidth) return;
+
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        el.scrollLeft += e.deltaY;
+      }
+    };
+
+    el.addEventListener("wheel", handleWheel);
+
+    return () => {
+      el.removeEventListener("wheel", handleWheel);
+    };
   }, []);
 
   useEffect(() => {
@@ -235,7 +256,7 @@ export default function Layout({ children }) {
         ) : (
           <div
             key={`${workspace.type}-${workspace.data.id}`}
-            className="recipe-workspace"
+            className={`recipe-workspace ${animateIntro ? "view-enter" : ""}`}
           >
             <h2 className="workspace-title">
               {workspace.type === "recipe" &&
@@ -263,7 +284,7 @@ export default function Layout({ children }) {
               key={viewMode}
               className="recipe-matrix-container view-transition"
             >
-              <div className="matrix-scroll">
+              <div className="matrix-scroll" ref={scrollRef}>
                 {viewMode === "device" ? (
                   <table
                     className={`recipe-matrix-table ${showValues ? "recipe-mode" : "template-mode"}`}

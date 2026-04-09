@@ -16,6 +16,11 @@
 
 .recipe-workspace {
   padding: var(--space-lg);
+  background: var(--color-surface);
+  border-radius: 10px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--color-border);
+  animation: workspaceEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .recipe-matrix-container {
@@ -30,15 +35,14 @@
 
 .matrix-scroll {
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden;
   max-width: 100%;
 }
 
 .recipe-matrix-table {
   border-collapse: collapse;
   table-layout: fixed;
-  min-width: max-content;
-  width: max-content; /* Enables horizontal scroll */
+  min-width: 100%;
 }
 
 .device-header {
@@ -95,15 +99,6 @@
   border-right: 3px solid var(--color-border-strong);
 }
 
-.tag-cell {
-  position: sticky;
-  left: 0;
-  z-index: 8;
-  background: var(--color-bg-light);
-  font-weight: 500;
-  border-right: 3px solid var(--color-border-strong);
-}
-
 .value-cell {
   color: var(--color-primary-dark);
   font-weight: 600;
@@ -132,6 +127,14 @@
 
 .recipe-matrix-table tbody tr:nth-child(even) {
   background: var(--color-bg-soft);
+}
+
+.recipe-matrix-table.recipe-mode {
+  width: max-content;
+}
+
+.recipe-matrix-table:not(.recipe-mode) {
+  width: 100%;
 }
 
 .value-input {
@@ -163,12 +166,45 @@
   border-radius: 5px;
 }
 
+.recipe-matrix-table:not(.recipe-mode) .tag-cell {
+  position: sticky;
+  left: 0;
+  z-index: 8;
+  background: var(--color-bg-light);
+  font-weight: 500;
+  border-right: 3px solid var(--color-border-strong);
+}
+
+.recipe-matrix-table.recipe-mode .tag-cell {
+  position: relative;
+  left: auto;
+}
+
+.workspace-placeholder {
+  padding: var(--space-xl);
+  background: var(--color-surface);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-soft);
+}
+
+.workspace-placeholder,
+.recipe-workspace {
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+.intro-active,
+.recipe-workspace.view-enter {
+  animation: workspaceEnter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 .recipe-workspace {
   animation: fadeWorkspace 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .view-transition {
-  animation: viewSwitch 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: viewSwitch 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes viewSwitch {
@@ -195,5 +231,34 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes workspaceEnter {
+  0% {
+    opacity: 0;
+    transform: translateX(40px) scale(0.995);
+    filter: blur(2px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(0) scale(1.01);
+    filter: blur(0.3px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes viewSwitchSmooth {
+  0% {
+    opacity: 0.6;
+    transform: translateX(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
