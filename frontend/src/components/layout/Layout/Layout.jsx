@@ -81,7 +81,7 @@ export default function Layout({ children }) {
     });
 
     return map;
-  }, [devices]);  
+  }, [devices]);
 
   const showValues = workspace?.type === "recipe";
 
@@ -263,170 +263,174 @@ export default function Layout({ children }) {
               key={viewMode}
               className="recipe-matrix-container view-transition"
             >
-              {viewMode === "device" ? (
-                <table
-                  className={`recipe-matrix-table ${showValues ? "recipe-mode" : "template-mode"}`}
-                >
-                  <thead>
-                    <tr>
-                      {devices.map((device) => (
-                        <th
-                          key={device.id}
-                          colSpan={showValues ? 2 : 1}
-                          className="device-header"
-                        >
-                          {device.device_name}
-                        </th>
-                      ))}
-                    </tr>
-
-                    <tr>
-                      {devices.map((device) => (
-                        <Fragment key={device.id}>
-                          <th className="sub-header">Tag</th>
-                          {showValues && <th className="sub-header">Value</th>}
-                        </Fragment>
-                      ))}
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {tableRows.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        {row.map((cell, colIndex) => {
-                          const originalValue =
-                            workspace?.data?.devices?.[colIndex]?.tag_values?.[
-                              rowIndex
-                            ]?.value;
-
-                          const currentValue =
-                            devices[colIndex]?.tag_values?.[rowIndex]?.value;
-
-                          const isChanged =
-                            String(originalValue ?? "") !==
-                            String(currentValue ?? "");
-
-                          return (
-                            <Fragment key={`${rowIndex}-${colIndex}`}>
-                              <td className="tag-cell">{cell.tagName}</td>
-
-                              {showValues && (
-                                <td
-                                  className={`value-cell ${isChanged ? "changed-cell" : ""}`}
-                                >
-                                  {isEditing ? (
-                                    <input
-                                      type="number"
-                                      className="value-input"
-                                      value={currentValue ?? ""}
-                                      onChange={(e) => {
-                                        const val = e.target.value;
-                                        if (val === "")
-                                          return handleValueChange(
-                                            colIndex,
-                                            rowIndex,
-                                            "",
-                                          );
-                                        const num = Number(val);
-                                        if (!Number.isNaN(num)) {
-                                          handleValueChange(
-                                            colIndex,
-                                            rowIndex,
-                                            num,
-                                          );
-                                        }
-                                      }}
-                                    />
-                                  ) : (
-                                    currentValue
-                                  )}
-                                </td>
-                              )}
-                            </Fragment>
-                          );
-                        })}
+              <div className="matrix-scroll">
+                {viewMode === "device" ? (
+                  <table
+                    className={`recipe-matrix-table ${showValues ? "recipe-mode" : "template-mode"}`}
+                  >
+                    <thead>
+                      <tr>
+                        {devices.map((device) => (
+                          <th
+                            key={device.id}
+                            colSpan={showValues ? 2 : 1}
+                            className="device-header"
+                          >
+                            {device.device_name}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <table className="recipe-matrix-table">
-                  <thead>
-                    <tr>
-                      <th className="tag-header">Tag</th>
-                      {devices.map((device) => (
-                        <th key={device.id} className="device-header">
-                          {device.device_name}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
 
-                  <tbody>
-                    {tagMatrix.map((row, rowIndex) => (
-                      <tr key={rowIndex}>
-                        <td className="tag-cell">{row.tagName}</td>
-
-                        {devices.map((device, deviceIndex) => {
-                          const tagIndex = tagIndexMap[deviceIndex]?.[row.tagName];
-
-                          const originalValue =
-                            workspace?.data?.devices?.[deviceIndex]
-                              ?.tag_values?.[tagIndex]?.value;
-
-                          const currentValue =
-                            tagIndex !== -1
-                              ? devices?.[deviceIndex]?.tag_values?.[tagIndex]
-                                  ?.value
-                              : "";
-
-                          const isChanged =
-                            String(originalValue ?? "") !==
-                            String(currentValue ?? "");
-
-                          return (
-                            <td
-                              key={device.id}
-                              className={`value-cell ${isChanged ? "changed-cell" : ""}`}
-                            >
-                              {isEditing && tagIndex !== -1 ? (
-                                <input
-                                  type="number"
-                                  className="value-input"
-                                  value={currentValue ?? ""}
-                                  onChange={(e) => {
-                                    const val = e.target.value;
-
-                                    if (val === "") {
-                                      handleValueChange(
-                                        deviceIndex,
-                                        tagIndex,
-                                        "",
-                                      );
-                                      return;
-                                    }
-
-                                    const num = Number(val);
-                                    if (!Number.isNaN(num)) {
-                                      handleValueChange(
-                                        deviceIndex,
-                                        tagIndex,
-                                        num,
-                                      );
-                                    }
-                                  }}
-                                />
-                              ) : (
-                                (currentValue ?? "-")
-                              )}
-                            </td>
-                          );
-                        })}
+                      <tr>
+                        {devices.map((device) => (
+                          <Fragment key={device.id}>
+                            <th className="sub-header">Tag</th>
+                            {showValues && (
+                              <th className="sub-header">Value</th>
+                            )}
+                          </Fragment>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+                    </thead>
+
+                    <tbody>
+                      {tableRows.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {row.map((cell, colIndex) => {
+                            const originalValue =
+                              workspace?.data?.devices?.[colIndex]
+                                ?.tag_values?.[rowIndex]?.value;
+
+                            const currentValue =
+                              devices[colIndex]?.tag_values?.[rowIndex]?.value;
+
+                            const isChanged =
+                              String(originalValue ?? "") !==
+                              String(currentValue ?? "");
+
+                            return (
+                              <Fragment key={`${rowIndex}-${colIndex}`}>
+                                <td className="tag-cell">{cell.tagName}</td>
+
+                                {showValues && (
+                                  <td
+                                    className={`value-cell ${isChanged ? "changed-cell" : ""}`}
+                                  >
+                                    {isEditing ? (
+                                      <input
+                                        type="number"
+                                        className="value-input"
+                                        value={currentValue ?? ""}
+                                        onChange={(e) => {
+                                          const val = e.target.value;
+                                          if (val === "")
+                                            return handleValueChange(
+                                              colIndex,
+                                              rowIndex,
+                                              "",
+                                            );
+                                          const num = Number(val);
+                                          if (!Number.isNaN(num)) {
+                                            handleValueChange(
+                                              colIndex,
+                                              rowIndex,
+                                              num,
+                                            );
+                                          }
+                                        }}
+                                      />
+                                    ) : (
+                                      currentValue
+                                    )}
+                                  </td>
+                                )}
+                              </Fragment>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <table className="recipe-matrix-table">
+                    <thead>
+                      <tr>
+                        <th className="tag-header">Tag</th>
+                        {devices.map((device) => (
+                          <th key={device.id} className="device-header">
+                            {device.device_name}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {tagMatrix.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          <td className="tag-cell">{row.tagName}</td>
+
+                          {devices.map((device, deviceIndex) => {
+                            const tagIndex =
+                              tagIndexMap[deviceIndex]?.[row.tagName];
+
+                            const originalValue =
+                              workspace?.data?.devices?.[deviceIndex]
+                                ?.tag_values?.[tagIndex]?.value;
+
+                            const currentValue =
+                              tagIndex !== -1
+                                ? devices?.[deviceIndex]?.tag_values?.[tagIndex]
+                                    ?.value
+                                : "";
+
+                            const isChanged =
+                              String(originalValue ?? "") !==
+                              String(currentValue ?? "");
+
+                            return (
+                              <td
+                                key={device.id}
+                                className={`value-cell ${isChanged ? "changed-cell" : ""}`}
+                              >
+                                {isEditing && tagIndex !== -1 ? (
+                                  <input
+                                    type="number"
+                                    className="value-input"
+                                    value={currentValue ?? ""}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+
+                                      if (val === "") {
+                                        handleValueChange(
+                                          deviceIndex,
+                                          tagIndex,
+                                          "",
+                                        );
+                                        return;
+                                      }
+
+                                      const num = Number(val);
+                                      if (!Number.isNaN(num)) {
+                                        handleValueChange(
+                                          deviceIndex,
+                                          tagIndex,
+                                          num,
+                                        );
+                                      }
+                                    }}
+                                  />
+                                ) : (
+                                  (currentValue ?? "-")
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           </div>
         )}
