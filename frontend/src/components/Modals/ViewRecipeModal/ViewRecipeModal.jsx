@@ -124,7 +124,9 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
                   <div
                     key={`placeholder-${index}`}
                     className="view-item placeholder"
-                  />
+                  >
+                    <div className="skeleton-line" />
+                  </div>
                 );
               }
 

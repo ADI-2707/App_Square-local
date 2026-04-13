@@ -43,8 +43,36 @@
 }
 
 .view-item.placeholder {
-  background: rgba(0,0,0,0.02);
-  border: none;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #f0f2f5;
+}
+
+.view-item.placeholder::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  height: 100%;
+  width: 150%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.6),
+    transparent
+  );
+
+  animation: shimmer 1.2s infinite;
+}
+
+.skeleton-line {
+  height: 12px;
+  width: 60%;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.08);
+  margin-top: 6px;
 }
 
 .tooltip {
@@ -99,4 +127,13 @@
 
 .modal-actions button {
   min-width: 120px;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -150%;
+  }
+  100% {
+    left: 100%;
+  }
 }
