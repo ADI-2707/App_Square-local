@@ -13,12 +13,28 @@
   background: var(--color-white);
 }
 
+.view-list-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+
 .view-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(4, 1fr);
   gap: 10px;
   height: 280px;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.view-list-wrapper.slide-next .view-list {
+  transform: translateX(-40px);
+  opacity: 0;
+}
+
+.view-list-wrapper.slide-prev .view-list {
+  transform: translateX(40px);
+  opacity: 0;
 }
 
 .view-item {

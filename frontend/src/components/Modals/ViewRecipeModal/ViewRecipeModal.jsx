@@ -12,6 +12,8 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [direction, setDirection] = useState("next");
+  const [animating, setAnimating] = useState(false);
 
   const ITEMS_PER_PAGE = 8;
 
@@ -112,41 +114,49 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
           />
         </div>
 
-        <div className="view-list">
-          {paginatedTemplates.length === 0 ? (
-            <div className="empty">No templates found</div>
-          ) : (
-            Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => {
-              const template = paginatedTemplates[index];
+        <div
+          className={`view-list-wrapper ${
+            animating ? `slide-${direction}` : ""
+          }`}
+        >
+          <div className="view-list">
+            {paginatedTemplates.length === 0 ? (
+              <div className="empty">No templates found</div>
+            ) : (
+              Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => {
+                const template = paginatedTemplates[index];
 
-              if (!template) {
+                if (!template) {
+                  return (
+                    <div
+                      key={`placeholder-${index}`}
+                      className="view-item placeholder"
+                    >
+                      <div className="skeleton-line" />
+                    </div>
+                  );
+                }
+
                 return (
                   <div
-                    key={`placeholder-${index}`}
-                    className="view-item placeholder"
+                    key={template.id}
+                    className={`view-item ${
+                      selectedIndex === index ? "selected" : ""
+                    }`}
+                    onClick={() => handleOpenTemplate(template)}
                   >
-                    <div className="skeleton-line" />
+                    <span>
+                      {highlightMatch(template.name, debouncedSearch)}
+                    </span>
+
+                    <div className="tooltip">
+                      {getDeviceCount(template.id)} devices
+                    </div>
                   </div>
                 );
-              }
-
-              return (
-                <div
-                  key={template.id}
-                  className={`view-item ${
-                    selectedIndex === index ? "selected" : ""
-                  }`}
-                  onClick={() => handleOpenTemplate(template)}
-                >
-                  <span>{highlightMatch(template.name, debouncedSearch)}</span>
-
-                  <div className="tooltip">
-                    {getDeviceCount(template.id)} devices
-                  </div>
-                </div>
-              );
-            })
-          )}
+              })
+            )}
+          </div>
         </div>
 
         {totalPages > 1 && (
@@ -154,8 +164,14 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
             <button
               disabled={currentPage === 1}
               onClick={() => {
-                setCurrentPage((p) => p - 1);
-                setSelectedIndex(0);
+                setDirection("prev");
+                setAnimating(true);
+
+                setTimeout(() => {
+                  setCurrentPage((p) => p - 1);
+                  setSelectedIndex(0);
+                  setAnimating(false);
+                }, 180);
               }}
             >
               Prev
@@ -168,8 +184,14 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
             <button
               disabled={currentPage === totalPages}
               onClick={() => {
-                setCurrentPage((p) => p + 1);
-                setSelectedIndex(0);
+                setDirection("next");
+                setAnimating(true);
+
+                setTimeout(() => {
+                  setCurrentPage((p) => p + 1);
+                  setSelectedIndex(0);
+                  setAnimating(false);
+                }, 180);
               }}
             >
               Next
