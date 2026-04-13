@@ -9,7 +9,6 @@
   flex-direction: column;
   z-index: 1001;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
-  overflow-y: auto;
   overflow-x: hidden;
 }
 
@@ -82,6 +81,7 @@
 .sidebar-section {
   display: flex;
   flex-direction: column;
+  flex: none;
 }
 
 .sidebar-title {
@@ -105,7 +105,8 @@
   display: flex;
   flex-direction: column;
   background: var(--color-sidebar-submenu);
-  flex-grow: 1;
+  padding: 0;
+  margin: 0;
 }
 
 .sidebar-submenu button {
@@ -124,7 +125,7 @@
 }
 
 .sidebar-submenu .sidebar-action-btn {
-  margin: 8px 16px;
+  margin: 6px 12px 4px 12px;
   padding: 10px 12px;
   border-radius: 3px;
   border: 1px solid rgba(255,255,255,0.25);
@@ -279,6 +280,32 @@
   margin-left: 4px;
 }
 
+.template-tree-scroll {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: none;
+  height: auto;
+  display: flex;
+  flex-direction: column; 
+}
+
+.template-tree-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.template-tree-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+}
+
+.template-tree-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.template-tree-scroll.limit-scroll {
+  max-height: 420px;
+}
+
 .context-item {
   padding: 6px 12px;
   cursor: pointer;
@@ -311,7 +338,7 @@
 }
 
 .view-all-btn {
-  margin: 8px 20px 12px 35px;
+  margin: 4px 20px 6px 35px;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.65);
   cursor: pointer;
