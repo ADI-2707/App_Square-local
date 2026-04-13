@@ -27,7 +27,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .vrm-header h2 {
@@ -58,29 +58,43 @@
 .vrm-item {
   position: relative;
   padding: 10px 12px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   color: #ddd;
   cursor: pointer;
   transition: all 0.15s ease;
+  overflow: visible;
 }
 
 .vrm-item:hover {
-  background: rgba(255,255,255,0.12);
+  background: rgba(255, 255, 255, 0.12);
   color: #fff;
 }
 
 .vrm-tooltip {
   position: absolute;
-  top: 0;
-  left: 105%;
+  top: 50%;
+  transform: translateY(-50%) scale(0.95);
+  left: calc(100% + 10px);
   width: 160px;
   background: #111827;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 8px;
   border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.15s ease;
   z-index: 3000;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+}
+
+.vrm-item:hover .vrm-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.vrm-body .vrm-item:nth-child(2n) .vrm-tooltip {
+  left: auto;
+  right: calc(100% + 10px);
 }
 
 .vrm-tooltip-title {
@@ -99,11 +113,11 @@
   justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .vrm-footer button {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border: none;
   padding: 6px 12px;
   color: #fff;
@@ -112,7 +126,7 @@
 }
 
 .vrm-footer button:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .vrm-footer button:disabled {
@@ -122,7 +136,7 @@
 
 .vrm-search {
   padding: 10px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .vrm-search input {
@@ -131,7 +145,7 @@
   border-radius: 4px;
   border: none;
   outline: none;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
   color: white;
 }
 
@@ -141,7 +155,7 @@
     rgba(0, 150, 255, 0.25),
     rgba(0, 150, 255, 0.1)
   );
-  
+
   border-left: 3px solid #0096ff;
   color: #fff;
 }
@@ -155,8 +169,27 @@
   grid-column: span 2;
   text-align: center;
   padding: 20px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 13px;
+}
+
+.view-all-btn {
+  margin: 10px 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #00d4ff;
+  cursor: pointer;
+  border-radius: 4px;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: rgba(0, 212, 255, 0.18);
+  color: #ffffff;
+  transform: translateX(2px);
 }
 
 .vrm-modal {

@@ -8,7 +8,6 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   const { openWorkspace } = useWorkspace();
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [hoveredTemplate, setHoveredTemplate] = useState(null);
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [recentlyOpened, setRecentlyOpened] = useState([]);
@@ -37,7 +36,9 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   }, [templateList, currentPage]);
 
   const getDeviceCount = (templateId) => {
-    return devices.byGroupId[templateId]?.length || 0;
+    const list = devices.byGroupId[templateId];
+    if (!list) return "...";
+    return list.length;
   };
 
   const handleOpenTemplate = async (template) => {
@@ -135,19 +136,17 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
                   selectedIndex === index ? "selected" : ""
                 }`}
                 onClick={() => handleOpenTemplate(template)}
-                onMouseEnter={() => setHoveredTemplate(template.id)}
-                onMouseLeave={() => setHoveredTemplate(null)}
               >
-                {highlightMatch(template.name, search)}
+                <div className="vrm-item-content">
+                  {highlightMatch(template.name, search)}
+                </div>
 
-                {hoveredTemplate === template.id && (
-                  <div className="vrm-tooltip">
-                    <div className="vrm-tooltip-title">Devices</div>
-                    <div className="vrm-tooltip-item">
-                      {getDeviceCount(template.id)} devices
-                    </div>
+                <div className="vrm-tooltip">
+                  <div className="vrm-tooltip-title">Devices</div>
+                  <div className="vrm-tooltip-item">
+                    {getDeviceCount(template.id)} devices
                   </div>
-                )}
+                </div>
               </div>
             ))
           )}
