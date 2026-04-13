@@ -411,7 +411,6 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                 );
               })}
 
-              {/* 🔥 VIEW ALL BUTTON */}
               {groups.allIds.length > 10 && (
                 <div
                   className="view-all-btn"

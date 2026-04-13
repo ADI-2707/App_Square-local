@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import BaseModal from "../BaseModal/BaseModal";
 import "./viewRecipeModal.css";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
@@ -10,23 +11,16 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [recentlyOpened, setRecentlyOpened] = useState([]);
 
   const ITEMS_PER_PAGE = 8;
 
   const templateList = useMemo(() => {
-    const filtered = groups.allIds
+    return groups.allIds
       .map((id) => groups.byId[id])
-      .filter((t) => t.name.toLowerCase().includes(search.toLowerCase()));
-
-    if (!search && recentlyOpened.length > 0) {
-      const recentIds = new Set(recentlyOpened.map((t) => t.id));
-      const rest = filtered.filter((t) => !recentIds.has(t.id));
-      return [...recentlyOpened, ...rest];
-    }
-
-    return filtered;
-  }, [groups, search, recentlyOpened]);
+      .filter((t) =>
+        t.name.toLowerCase().includes(search.toLowerCase())
+      );
+  }, [groups, search]);
 
   const totalPages = Math.ceil(templateList.length / ITEMS_PER_PAGE);
 
@@ -44,14 +38,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   const handleOpenTemplate = async (template) => {
     try {
       const full = await getFullTemplate(template.id);
-
       openWorkspace("template", full);
-
-      setRecentlyOpened((prev) => {
-        const filtered = prev.filter((t) => t.id !== template.id);
-        return [template, ...filtered].slice(0, 5);
-      });
-
       onClose();
     } catch {
       alert("Failed to open template");
@@ -65,12 +52,10 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
 
     return parts.map((part, i) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <span key={i} className="vrm-highlight">
-          {part}
-        </span>
+        <span key={i} className="highlight">{part}</span>
       ) : (
         part
-      ),
+      )
     );
   };
 
@@ -82,7 +67,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
 
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
-          Math.min(prev + 1, paginatedTemplates.length - 1),
+          Math.min(prev + 1, paginatedTemplates.length - 1)
         );
       }
 
@@ -100,19 +85,15 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, paginatedTemplates, selectedIndex]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="vrm-overlay">
-      <div className="vrm-modal">
-        <div className="vrm-header">
-          <h2>All Templates</h2>
-          <button className="vrm-close" onClick={onClose}>
-            ✕
-          </button>
-        </div>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="All Templates"
+    >
+      <div className="view-modal">
 
-        <div className="vrm-search">
+        <div className="view-search">
           <input
             type="text"
             placeholder="Search templates..."
@@ -125,27 +106,24 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
           />
         </div>
 
-        <div className="vrm-body">
+        <div className="view-list">
           {paginatedTemplates.length === 0 ? (
-            <div className="vrm-empty">No templates found</div>
+            <div className="empty">No templates found</div>
           ) : (
             paginatedTemplates.map((template, index) => (
               <div
                 key={template.id}
-                className={`vrm-item ${
+                className={`view-item ${
                   selectedIndex === index ? "selected" : ""
                 }`}
                 onClick={() => handleOpenTemplate(template)}
               >
-                <div className="vrm-item-content">
+                <span>
                   {highlightMatch(template.name, search)}
-                </div>
+                </span>
 
-                <div className="vrm-tooltip">
-                  <div className="vrm-tooltip-title">Devices</div>
-                  <div className="vrm-tooltip-item">
-                    {getDeviceCount(template.id)} devices
-                  </div>
+                <div className="tooltip">
+                  {getDeviceCount(template.id)} devices
                 </div>
               </div>
             ))
@@ -153,7 +131,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
         </div>
 
         {totalPages > 1 && (
-          <div className="vrm-footer">
+          <div className="modal-actions">
             <button
               disabled={currentPage === 1}
               onClick={() => {
@@ -161,7 +139,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
                 setSelectedIndex(0);
               }}
             >
-              ← Prev
+              Prev
             </button>
 
             <span>
@@ -175,11 +153,11 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
                 setSelectedIndex(0);
               }}
             >
-              Next →
+              Next
             </button>
           </div>
         )}
       </div>
-    </div>
+    </BaseModal>
   );
 }

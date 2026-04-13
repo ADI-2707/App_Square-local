@@ -309,3 +309,22 @@
 .disabled-item:hover {
   background: none;
 }
+
+.view-all-btn {
+  margin: 10px 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #00d4ff;
+  cursor: pointer;
+  border-radius: 6px;
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background: rgba(0, 212, 255, 0.25);
+  color: #ffffff;
+  transform: translateX(2px);
+}
