@@ -7,6 +7,7 @@ import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext
 import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 import { getIcon } from "../../../Utility/iconMapper";
 import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
+import ViewRecipeModal from "../../Modals/ViewRecipeModal/ViewRecipeModal";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal, disabled = false }) {
@@ -47,11 +48,15 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
 
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
-
+  const [viewAllTemplatesModal, setViewAllTemplatesModal] = useState(false);
   const [activeRecipeId, setActiveRecipeId] = useState(null);
   const [activeDeviceId, setActiveDeviceId] = useState(null);
 
   const hasTemplates = groups.allIds.length > 0;
+
+  const recentTemplateIds = useMemo(() => {
+    return groups.allIds.slice(0, 10);
+  }, [groups.allIds]);
 
   const flattenedRecipeGroups = useMemo(() => {
     const result = [];
@@ -335,7 +340,7 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                 + Create Recipe Template
               </button>
 
-              {groups.allIds.map((groupId) => {
+              {recentTemplateIds.map((groupId) => {
                 const group = groups.byId[groupId];
                 const deviceIds = devices.byGroupId[groupId] || [];
 
@@ -405,6 +410,16 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                   </div>
                 );
               })}
+
+              {/* 🔥 VIEW ALL BUTTON */}
+              {groups.allIds.length > 10 && (
+                <div
+                  className="view-all-btn"
+                  onClick={() => setViewAllTemplatesModal(true)}
+                >
+                  View All Templates →
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -481,9 +496,12 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                                 }
                               >
                                 <div className="tree-item-content">
-                                  <img src={getIcon("recipe")} className="sidebar-icon" />
+                                  <img
+                                    src={getIcon("recipe")}
+                                    className="sidebar-icon"
+                                  />
                                   <span>{recipe.name}</span>
-                                </div>  
+                                </div>
                               </div>
                             </div>
                           ))
@@ -586,6 +604,13 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
           recipeGroupId={addRecipeModal.recipeGroupId}
           templateGroupId={addRecipeModal.templateGroupId}
           onClose={() => setAddRecipeModal(null)}
+        />
+      )}
+
+      {viewAllTemplatesModal && (
+        <ViewRecipeModal
+          isOpen={true}
+          onClose={() => setViewAllTemplatesModal(false)}
         />
       )}
     </>
