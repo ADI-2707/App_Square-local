@@ -76,27 +76,32 @@ export default function RecipeModal({
       title="Create Area"
     >
       <div className="group-form">
-        <FormLabel required>Select Template</FormLabel>
-        <select
-          value={selectedTemplate}
-          onChange={(e) => setSelectedTemplate(e.target.value)}
-          disabled={!!initialTemplateId || isLocked}
-        >
-          <option value="">Select Template</option>
-          {groups.allIds.map((id) => (
-            <option key={id} value={id}>
-              {groups.byId[id].name}
-            </option>
-          ))}
-        </select>
+        <div className="form-field">
+          <FormLabel required>Select Template</FormLabel>
+          <select
+            value={selectedTemplate}
+            onChange={(e) => setSelectedTemplate(e.target.value)}
+            disabled={!!initialTemplateId || isLocked}
+          >
+            <option value="">Select Template</option>
+            {groups.allIds.map((id) => (
+              <option key={id} value={id}>
+                {groups.byId[id].name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <FormLabel required>Area Name</FormLabel>
-        <input
-          type="text"
-          value={recipeGroupName}
-          onChange={(e) => setRecipeGroupName(e.target.value)}
-          disabled={isLocked}
-        />
+        <div className="form-field">
+          <FormLabel required>Area Name</FormLabel>
+          <input
+            type="text"
+            placeholder="Enter area name..."
+            value={recipeGroupName}
+            onChange={(e) => setRecipeGroupName(e.target.value)}
+            disabled={isLocked}
+          />
+        </div>
 
         <button onClick={handleCreateRecipeGroup} disabled={isLocked}>
           {isLocked ? "Creating..." : "Create Area"}
