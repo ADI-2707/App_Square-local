@@ -68,8 +68,6 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     if (!isOpen) return;
 
     const handleKey = (e) => {
-      if (e.key === "Escape") onClose();
-
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
           Math.min(prev + 1, paginatedTemplates.length - 1),

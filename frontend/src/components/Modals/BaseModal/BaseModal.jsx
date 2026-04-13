@@ -17,6 +17,24 @@ export default function BaseModal({ isOpen, onClose, title, children }) {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+
+        setShake(true);
+        setHighlightClose(true);
+
+        setTimeout(() => setShake(false), 300);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleOutsideClick = () => {
