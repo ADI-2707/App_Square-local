@@ -6,7 +6,7 @@ import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext
 
 export default function ViewTemplateModal({ isOpen, onClose }) {
   const { groups, devices, getFullTemplate } = useEntities();
-  const { openWorkspace } = useWorkspace();
+  const { openWorkspace, workspace } = useWorkspace();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -97,6 +97,24 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
 
     return () => clearTimeout(handler);
   }, [search]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (workspace?.type === "template") {
+      const index = paginatedTemplates.findIndex(
+        (t) => t.id === workspace.data?.id,
+      );
+
+      if (index !== -1) {
+        setSelectedIndex(index);
+      } else {
+        setSelectedIndex(0);
+      }
+    } else {
+      setSelectedIndex(0);
+    }
+  }, [isOpen, paginatedTemplates, workspace]);
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="All Templates">
