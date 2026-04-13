@@ -16,14 +16,15 @@
 .view-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   gap: 10px;
-  flex: 1;
-  overflow-y: auto;
+  height: 280px;
 }
 
 .view-item {
   position: relative;
   z-index: 1;
+  height: 100%;
   padding: 10px 12px;
   border-radius: 6px;
   background: var(--color-bg-soft);
@@ -39,6 +40,11 @@
 .view-item.selected {
   border-left: 3px solid var(--color-primary);
   background: rgba(92, 107, 192, 0.12);
+}
+
+.view-item.placeholder {
+  background: rgba(0,0,0,0.02);
+  border: none;
 }
 
 .tooltip {

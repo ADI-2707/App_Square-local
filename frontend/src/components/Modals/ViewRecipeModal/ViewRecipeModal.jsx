@@ -11,6 +11,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const ITEMS_PER_PAGE = 8;
 
@@ -18,9 +19,9 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
     return groups.allIds
       .map((id) => groups.byId[id])
       .filter((t) =>
-        t.name.toLowerCase().includes(search.toLowerCase())
+        t.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
       );
-  }, [groups, search]);
+  }, [groups, debouncedSearch]);
 
   const totalPages = Math.ceil(templateList.length / ITEMS_PER_PAGE);
 
@@ -52,10 +53,12 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
 
     return parts.map((part, i) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <span key={i} className="highlight">{part}</span>
+        <span key={i} className="highlight">
+          {part}
+        </span>
       ) : (
         part
-      )
+      ),
     );
   };
 
@@ -67,7 +70,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
 
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
-          Math.min(prev + 1, paginatedTemplates.length - 1)
+          Math.min(prev + 1, paginatedTemplates.length - 1),
         );
       }
 
@@ -85,14 +88,17 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, paginatedTemplates, selectedIndex]);
 
-  return (
-    <BaseModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="All Templates"
-    >
-      <div className="view-modal">
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
 
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  return (
+    <BaseModal isOpen={isOpen} onClose={onClose} title="All Templates">
+      <div className="view-modal">
         <div className="view-search">
           <input
             type="text"
@@ -110,23 +116,34 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
           {paginatedTemplates.length === 0 ? (
             <div className="empty">No templates found</div>
           ) : (
-            paginatedTemplates.map((template, index) => (
-              <div
-                key={template.id}
-                className={`view-item ${
-                  selectedIndex === index ? "selected" : ""
-                }`}
-                onClick={() => handleOpenTemplate(template)}
-              >
-                <span>
-                  {highlightMatch(template.name, search)}
-                </span>
+            Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => {
+              const template = paginatedTemplates[index];
 
-                <div className="tooltip">
-                  {getDeviceCount(template.id)} devices
+              if (!template) {
+                return (
+                  <div
+                    key={`placeholder-${index}`}
+                    className="view-item placeholder"
+                  />
+                );
+              }
+
+              return (
+                <div
+                  key={template.id}
+                  className={`view-item ${
+                    selectedIndex === index ? "selected" : ""
+                  }`}
+                  onClick={() => handleOpenTemplate(template)}
+                >
+                  <span>{highlightMatch(template.name, debouncedSearch)}</span>
+
+                  <div className="tooltip">
+                    {getDeviceCount(template.id)} devices
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
