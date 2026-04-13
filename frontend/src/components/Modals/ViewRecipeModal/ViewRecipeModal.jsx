@@ -11,16 +11,23 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   const [hoveredTemplate, setHoveredTemplate] = useState(null);
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [recentlyOpened, setRecentlyOpened] = useState([]);
 
   const ITEMS_PER_PAGE = 8;
 
   const templateList = useMemo(() => {
-    return groups.allIds
+    const filtered = groups.allIds
       .map((id) => groups.byId[id])
-      .filter((t) =>
-        t.name.toLowerCase().includes(search.toLowerCase())
-      );
-  }, [groups, search]);
+      .filter((t) => t.name.toLowerCase().includes(search.toLowerCase()));
+
+    if (!search && recentlyOpened.length > 0) {
+      const recentIds = new Set(recentlyOpened.map((t) => t.id));
+      const rest = filtered.filter((t) => !recentIds.has(t.id));
+      return [...recentlyOpened, ...rest];
+    }
+
+    return filtered;
+  }, [groups, search, recentlyOpened]);
 
   const totalPages = Math.ceil(templateList.length / ITEMS_PER_PAGE);
 
@@ -36,11 +43,34 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   const handleOpenTemplate = async (template) => {
     try {
       const full = await getFullTemplate(template.id);
+
       openWorkspace("template", full);
+
+      setRecentlyOpened((prev) => {
+        const filtered = prev.filter((t) => t.id !== template.id);
+        return [template, ...filtered].slice(0, 5);
+      });
+
       onClose();
     } catch {
       alert("Failed to open template");
     }
+  };
+
+  const highlightMatch = (text, query) => {
+    if (!query) return text;
+
+    const parts = text.split(new RegExp(`(${query})`, "gi"));
+
+    return parts.map((part, i) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <span key={i} className="vrm-highlight">
+          {part}
+        </span>
+      ) : (
+        part
+      ),
+    );
   };
 
   useEffect(() => {
@@ -51,7 +81,7 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
 
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
-          Math.min(prev + 1, paginatedTemplates.length - 1)
+          Math.min(prev + 1, paginatedTemplates.length - 1),
         );
       }
 
@@ -74,7 +104,6 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
   return (
     <div className="vrm-overlay">
       <div className="vrm-modal">
-
         <div className="vrm-header">
           <h2>All Templates</h2>
           <button className="vrm-close" onClick={onClose}>
@@ -94,30 +123,34 @@ export default function ViewRecipeModal({ isOpen, onClose }) {
             }}
           />
         </div>
-        
-        <div className="vrm-body">
-          {paginatedTemplates.map((template, index) => (
-            <div
-              key={template.id}
-              className={`vrm-item ${
-                selectedIndex === index ? "selected" : ""
-              }`}
-              onClick={() => handleOpenTemplate(template)}
-              onMouseEnter={() => setHoveredTemplate(template.id)}
-              onMouseLeave={() => setHoveredTemplate(null)}
-            >
-              {template.name}
 
-              {hoveredTemplate === template.id && (
-                <div className="vrm-tooltip">
-                  <div className="vrm-tooltip-title">Devices</div>
-                  <div className="vrm-tooltip-item">
-                    {getDeviceCount(template.id)} devices
+        <div className="vrm-body">
+          {paginatedTemplates.length === 0 ? (
+            <div className="vrm-empty">No templates found</div>
+          ) : (
+            paginatedTemplates.map((template, index) => (
+              <div
+                key={template.id}
+                className={`vrm-item ${
+                  selectedIndex === index ? "selected" : ""
+                }`}
+                onClick={() => handleOpenTemplate(template)}
+                onMouseEnter={() => setHoveredTemplate(template.id)}
+                onMouseLeave={() => setHoveredTemplate(null)}
+              >
+                {highlightMatch(template.name, search)}
+
+                {hoveredTemplate === template.id && (
+                  <div className="vrm-tooltip">
+                    <div className="vrm-tooltip-title">Devices</div>
+                    <div className="vrm-tooltip-item">
+                      {getDeviceCount(template.id)} devices
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          ))}
+                )}
+              </div>
+            ))
+          )}
         </div>
 
         {totalPages > 1 && (

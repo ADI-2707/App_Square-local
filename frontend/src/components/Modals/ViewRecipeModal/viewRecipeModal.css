@@ -146,6 +146,19 @@
   color: #fff;
 }
 
+.vrm-highlight {
+  color: #00d4ff;
+  font-weight: 600;
+}
+
+.vrm-empty {
+  grid-column: span 2;
+  text-align: center;
+  padding: 20px;
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+}
+
 .vrm-modal {
   animation: vrmFadeIn 0.2s ease;
 }
