@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import BaseModal from "../BaseModal/BaseModal";
-import "./viewRecipeModal.css";
+import "./viewTemplateModal.css";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
 
-export default function ViewRecipeModal({ isOpen, onClose }) {
+export default function ViewTemplateModal({ isOpen, onClose }) {
   const { groups, devices, getFullTemplate } = useEntities();
   const { openWorkspace } = useWorkspace();
 

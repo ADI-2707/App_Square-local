@@ -7,7 +7,7 @@ import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext
 import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 import { getIcon } from "../../../Utility/iconMapper";
 import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
-import ViewRecipeModal from "../../Modals/ViewRecipeModal/ViewRecipeModal";
+import ViewTemplateModal from "../../Modals/ViewTemplateModal/ViewTemplateModal";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal, disabled = false }) {
@@ -607,7 +607,7 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
       )}
 
       {viewAllTemplatesModal && (
-        <ViewRecipeModal
+        <ViewTemplateModal
           isOpen={true}
           onClose={() => setViewAllTemplatesModal(false)}
         />
