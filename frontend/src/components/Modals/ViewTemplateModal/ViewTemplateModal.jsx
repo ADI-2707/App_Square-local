@@ -5,7 +5,7 @@ import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
 
 export default function ViewTemplateModal({ isOpen, onClose }) {
-  const { groups, devices, getFullTemplate } = useEntities();
+  const { getFullTemplate } = useEntities();
   const { openWorkspace, workspace } = useWorkspace();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,12 +21,6 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
 
   const ITEMS_PER_PAGE = 8;
-
-  const getDeviceCount = (templateId) => {
-    const list = devices.byGroupId[templateId];
-    if (!list) return "...";
-    return list.length;
-  };
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
@@ -225,7 +219,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
                     </span>
 
                     <div className="tooltip">
-                      {getDeviceCount(template.id)} devices
+                      {template.device_count ?? "..."} devices
                     </div>
                   </div>
                 );
