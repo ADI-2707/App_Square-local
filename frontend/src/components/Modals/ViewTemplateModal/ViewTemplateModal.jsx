@@ -18,6 +18,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
   const [dateFilter, setDateFilter] = useState("all");
   const [templates, setTemplates] = useState([]);
   const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const ITEMS_PER_PAGE = 8;
 
@@ -92,9 +93,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     if (!isOpen) return;
 
     if (workspace?.type === "template") {
-      const index = templates.findIndex(
-        (t) => t.id === workspace.data?.id,
-      );
+      const index = templates.findIndex((t) => t.id === workspace.data?.id);
 
       setSelectedIndex(index !== -1 ? index : -1);
     } else {
@@ -108,6 +107,8 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     if (!isOpen) return;
 
     const handler = setTimeout(async () => {
+      setLoading(true);
+
       try {
         const res = await fetchTemplates({
           search,
@@ -121,11 +122,19 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
         setTotal(res.total);
       } catch {
         alert("Failed to load templates");
+      } finally {
+        setLoading(false);
       }
     }, 300);
 
     return () => clearTimeout(handler);
   }, [search, sortBy, dateFilter, currentPage, isOpen]);
+
+  useEffect(() => {
+    if (!loading && animating) {
+      setAnimating(false);
+    }
+  }, [loading]);
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="All Templates">
@@ -177,7 +186,13 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
           }`}
         >
           <div className="view-list">
-            {templates.length === 0 ? (
+            {loading ? (
+              Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+                <div key={`loading-${index}`} className="view-item placeholder">
+                  <div className="skeleton-line" />
+                </div>
+              ))
+            ) : templates.length === 0 ? (
               <div className="empty">No templates found</div>
             ) : (
               Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => {
@@ -226,12 +241,8 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
               onClick={() => {
                 setDirection("prev");
                 setAnimating(true);
-
-                setTimeout(() => {
-                  setCurrentPage((p) => p - 1);
-                  setSelectedIndex(-1);
-                  setAnimating(false);
-                }, 180);
+                setCurrentPage((p) => p - 1);
+                setSelectedIndex(-1);
               }}
             >
               Prev
@@ -246,12 +257,8 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
               onClick={() => {
                 setDirection("next");
                 setAnimating(true);
-
-                setTimeout(() => {
-                  setCurrentPage((p) => p + 1);
-                  setSelectedIndex(-1);
-                  setAnimating(false);
-                }, 180);
+                setCurrentPage((p) => p + 1);
+                setSelectedIndex(-1);
               }}
             >
               Next
