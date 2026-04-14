@@ -28,7 +28,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
   };
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
-  
+
   const handleOpenTemplate = async (template) => {
     try {
       const full = await getFullTemplate(template.id);
@@ -61,7 +61,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     const handleKey = (e) => {
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
-          prev === -1 ? 0 : Math.min(prev + 1, paginatedTemplates.length - 1),
+          prev === -1 ? 0 : Math.min(prev + 1, templates.length - 1),
         );
       }
 
@@ -71,14 +71,14 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
 
       if (e.key === "Enter") {
         if (selectedIndex === -1) return;
-        const selected = paginatedTemplates[selectedIndex];
+        const selected = templates[selectedIndex];
         if (selected) handleOpenTemplate(selected);
       }
     };
 
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [isOpen, paginatedTemplates, selectedIndex]);
+  }, [isOpen, templates, selectedIndex]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -92,7 +92,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     if (!isOpen) return;
 
     if (workspace?.type === "template") {
-      const index = paginatedTemplates.findIndex(
+      const index = templates.findIndex(
         (t) => t.id === workspace.data?.id,
       );
 
@@ -100,7 +100,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     } else {
       setSelectedIndex(-1);
     }
-  }, [isOpen, paginatedTemplates, workspace]);
+  }, [isOpen, templates, workspace]);
 
   const { fetchTemplates } = useEntities();
 
@@ -177,11 +177,11 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
           }`}
         >
           <div className="view-list">
-            {paginatedTemplates.length === 0 ? (
+            {templates.length === 0 ? (
               <div className="empty">No templates found</div>
             ) : (
               Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => {
-                const template = paginatedTemplates[index];
+                const template = templates[index];
 
                 if (!template) {
                   return (
