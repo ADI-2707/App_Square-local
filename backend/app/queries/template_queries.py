@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, desc, asc
+from sqlalchemy import and_, desc, asc, func
 from datetime import datetime, timedelta
 
 from app.models.template_group import TemplateGroup
@@ -177,7 +177,13 @@ def get_templates_filtered(
     skip: int = 0,
     limit: int = 10
 ):
-    query = db.query(TemplateGroup)
+    query = db.query(
+        TemplateGroup,
+        func.count(DeviceInstance.id).label("device_count")
+    ).outerjoin(
+        DeviceInstance,
+        DeviceInstance.template_group_id == TemplateGroup.id
+    ).group_by(TemplateGroup.id)
 
     if search:
         query = query.filter(
@@ -217,4 +223,14 @@ def get_templates_filtered(
 
     results = query.offset(skip).limit(limit).all()
 
-    return results, total
+    formatted = [
+        {
+            "id": t.id,
+            "name": t.name,
+            "created_at": t.created_at,
+            "device_count": count
+        }
+        for t, count in results
+    ]
+
+    return formatted, total
