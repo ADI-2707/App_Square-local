@@ -79,14 +79,13 @@ export default function Login() {
 
           <form onSubmit={handleSubmit}>
 
-            {/* 🔥 DROPDOWN */}
             <select
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="login-select"
             >
-              <option value="">Select User</option>
+              <option value="" disabled hidden>Select User</option>
 
               {USERS.map((user) => (
                 <option
