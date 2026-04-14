@@ -16,66 +16,10 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
   const [animating, setAnimating] = useState(false);
   const [sortBy, setSortBy] = useState("newest");
   const [dateFilter, setDateFilter] = useState("all");
+  const [templates, setTemplates] = useState([]);
+  const [total, setTotal] = useState(0);
 
   const ITEMS_PER_PAGE = 8;
-
-  const templateList = useMemo(() => {
-    let list = groups.allIds.map((id) => groups.byId[id]);
-
-    list = list.filter((t) =>
-      t.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
-    );
-
-    const now = new Date();
-
-    list = list.filter((t) => {
-      if (!t.created_at) return true;
-
-      const created = new Date(t.created_at);
-
-      switch (dateFilter) {
-        case "7d":
-          return now - created <= 7 * 24 * 60 * 60 * 1000;
-
-        case "30d":
-          return now - created <= 30 * 24 * 60 * 60 * 1000;
-
-        case "year":
-          return created.getFullYear() === now.getFullYear();
-
-        default:
-          return true;
-      }
-    });
-
-    list.sort((a, b) => {
-      switch (sortBy) {
-        case "newest":
-          return new Date(b.created_at) - new Date(a.created_at);
-
-        case "oldest":
-          return new Date(a.created_at) - new Date(b.created_at);
-
-        case "az":
-          return a.name.localeCompare(b.name);
-
-        case "za":
-          return b.name.localeCompare(a.name);
-
-        default:
-          return 0;
-      }
-    });
-
-    return list;
-  }, [groups, debouncedSearch, sortBy, dateFilter]);
-
-  const totalPages = Math.ceil(templateList.length / ITEMS_PER_PAGE);
-
-  const paginatedTemplates = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return templateList.slice(start, start + ITEMS_PER_PAGE);
-  }, [templateList, currentPage]);
 
   const getDeviceCount = (templateId) => {
     const list = devices.byGroupId[templateId];
@@ -83,6 +27,8 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     return list.length;
   };
 
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
+  
   const handleOpenTemplate = async (template) => {
     try {
       const full = await getFullTemplate(template.id);
@@ -155,6 +101,31 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
       setSelectedIndex(-1);
     }
   }, [isOpen, paginatedTemplates, workspace]);
+
+  const { fetchTemplates } = useEntities();
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handler = setTimeout(async () => {
+      try {
+        const res = await fetchTemplates({
+          search,
+          sort: sortBy,
+          dateFilter,
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+        });
+
+        setTemplates(res.data);
+        setTotal(res.total);
+      } catch {
+        alert("Failed to load templates");
+      }
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [search, sortBy, dateFilter, currentPage, isOpen]);
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="All Templates">
