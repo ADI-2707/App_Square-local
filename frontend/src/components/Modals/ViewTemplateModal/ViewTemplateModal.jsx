@@ -10,7 +10,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [direction, setDirection] = useState("next");
   const [animating, setAnimating] = useState(false);
@@ -70,15 +70,16 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     const handleKey = (e) => {
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
-          Math.min(prev + 1, paginatedTemplates.length - 1),
+          prev === -1 ? 0 : Math.min(prev + 1, paginatedTemplates.length - 1),
         );
       }
 
       if (e.key === "ArrowUp") {
-        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+        setSelectedIndex((prev) => (prev === -1 ? -1 : Math.max(prev - 1, 0)));
       }
 
       if (e.key === "Enter") {
+        if (selectedIndex === -1) return;
         const selected = paginatedTemplates[selectedIndex];
         if (selected) handleOpenTemplate(selected);
       }
@@ -104,13 +105,9 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
         (t) => t.id === workspace.data?.id,
       );
 
-      if (index !== -1) {
-        setSelectedIndex(index);
-      } else {
-        setSelectedIndex(0);
-      }
+      setSelectedIndex(index !== -1 ? index : -1);
     } else {
-      setSelectedIndex(0);
+      setSelectedIndex(-1);
     }
   }, [isOpen, paginatedTemplates, workspace]);
 
@@ -125,7 +122,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
             onChange={(e) => {
               setSearch(e.target.value);
               setCurrentPage(1);
-              setSelectedIndex(0);
+              setSelectedIndex(-1);
             }}
           />
         </div>
@@ -159,7 +156,10 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
                     className={`view-item ${
                       selectedIndex === index ? "selected" : ""
                     }`}
-                    onClick={() => handleOpenTemplate(template)}
+                    onClick={() => {
+                      setSelectedIndex(index);
+                      handleOpenTemplate(template);
+                    }}
                   >
                     <span>
                       {highlightMatch(template.name, debouncedSearch)}
@@ -185,7 +185,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
 
                 setTimeout(() => {
                   setCurrentPage((p) => p - 1);
-                  setSelectedIndex(0);
+                  setSelectedIndex(-1);
                   setAnimating(false);
                 }, 180);
               }}
@@ -205,7 +205,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
 
                 setTimeout(() => {
                   setCurrentPage((p) => p + 1);
-                  setSelectedIndex(0);
+                  setSelectedIndex(-1);
                   setAnimating(false);
                 }, 180);
               }}
