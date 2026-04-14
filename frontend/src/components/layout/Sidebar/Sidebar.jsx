@@ -51,12 +51,26 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
   const [viewAllTemplatesModal, setViewAllTemplatesModal] = useState(false);
   const [activeRecipeId, setActiveRecipeId] = useState(null);
   const [activeDeviceId, setActiveDeviceId] = useState(null);
+  const [recentTemplates, setRecentTemplates] = useState([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const hasTemplates = groups.allIds.length > 0;
 
   const recentTemplateIds = useMemo(() => {
-    return groups.allIds.slice(0, 10);
-  }, [groups.allIds]);
+    const all = groups.allIds;
+
+    const uniqueRecent = recentTemplates.filter((id) => all.includes(id));
+    const remaining = all.filter((id) => !uniqueRecent.includes(id));
+
+    return [...uniqueRecent, ...remaining].slice(0, 10);
+  }, [recentTemplates, groups.allIds]);
+
+  const updateRecentTemplates = (templateId) => {
+    setRecentTemplates((prev) => {
+      const filtered = prev.filter((id) => id !== templateId);
+      return [templateId, ...filtered].slice(0, 10);
+    });
+  };
 
   const flattenedRecipeGroups = useMemo(() => {
     const result = [];
@@ -83,6 +97,48 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
   }, []);
 
   useEffect(() => {
+    if (!groups.allIds.length) return;
+
+    const saved = localStorage.getItem("recentTemplates");
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+
+        const valid = parsed.filter((id) => groups.allIds.includes(id));
+
+        setRecentTemplates(valid);
+      } catch {
+        setRecentTemplates([]);
+      }
+    }
+  }, [groups.allIds]);
+
+  useEffect(() => {
+    if (!groups.allIds.length) return;
+
+    const saved = localStorage.getItem("recentTemplates");
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const valid = parsed.filter((id) => groups.allIds.includes(id));
+        setRecentTemplates(valid);
+      } catch {
+        setRecentTemplates([]);
+      }
+    }
+
+    setHasLoaded(true);
+  }, [groups.allIds]);
+
+  useEffect(() => {
+    if (!hasLoaded) return;
+
+    localStorage.setItem("recentTemplates", JSON.stringify(recentTemplates));
+  }, [recentTemplates, hasLoaded]);
+
+  useEffect(() => {
     if (!openSections.recipes) return;
 
     groups.allIds.forEach((templateId) => {
@@ -102,6 +158,15 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
     window.addEventListener("click", handleGlobalClick);
     return () => window.removeEventListener("click", handleGlobalClick);
   }, []);
+
+  useEffect(() => {
+    if (workspace?.type === "template" && workspace?.data?.id) {
+      updateRecentTemplates(workspace.data.id);
+
+      setActiveDeviceId(null);
+      setActiveRecipeId(null);
+    }
+  }, [workspace]);
 
   const toggleSection = (section) => {
     if (disabled) return;
@@ -162,6 +227,10 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
     try {
       const template = await getFullTemplate(contextMenu.templateId);
       openWorkspace("template", template);
+
+      updateRecentTemplates(contextMenu.templateId);
+      setActiveDeviceId(null);
+      setActiveRecipeId(null);
     } catch {
       alert("Failed to load template");
     }
@@ -352,7 +421,12 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                   return (
                     <div key={groupId} className="tree-node">
                       <div
-                        className="tree-item expandable"
+                        className={`tree-item expandable ${
+                          workspace?.type === "template" &&
+                          workspace?.data?.id === groupId
+                            ? "active-item"
+                            : ""
+                        }`}
                         onClick={() => toggleGroup(groupId)}
                         onContextMenu={(e) =>
                           handleRightClick(e, {
