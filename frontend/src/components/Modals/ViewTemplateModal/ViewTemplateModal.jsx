@@ -14,16 +14,61 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [direction, setDirection] = useState("next");
   const [animating, setAnimating] = useState(false);
+  const [sortBy, setSortBy] = useState("newest");
+  const [dateFilter, setDateFilter] = useState("all");
 
   const ITEMS_PER_PAGE = 8;
 
   const templateList = useMemo(() => {
-    return groups.allIds
-      .map((id) => groups.byId[id])
-      .filter((t) =>
-        t.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
-      );
-  }, [groups, debouncedSearch]);
+    let list = groups.allIds.map((id) => groups.byId[id]);
+
+    list = list.filter((t) =>
+      t.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
+    );
+
+    const now = new Date();
+
+    list = list.filter((t) => {
+      if (!t.created_at) return true;
+
+      const created = new Date(t.created_at);
+
+      switch (dateFilter) {
+        case "7d":
+          return now - created <= 7 * 24 * 60 * 60 * 1000;
+
+        case "30d":
+          return now - created <= 30 * 24 * 60 * 60 * 1000;
+
+        case "year":
+          return created.getFullYear() === now.getFullYear();
+
+        default:
+          return true;
+      }
+    });
+
+    list.sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return new Date(b.created_at) - new Date(a.created_at);
+
+        case "oldest":
+          return new Date(a.created_at) - new Date(b.created_at);
+
+        case "az":
+          return a.name.localeCompare(b.name);
+
+        case "za":
+          return b.name.localeCompare(a.name);
+
+        default:
+          return 0;
+      }
+    });
+
+    return list;
+  }, [groups, debouncedSearch, sortBy, dateFilter]);
 
   const totalPages = Math.ceil(templateList.length / ITEMS_PER_PAGE);
 
@@ -125,6 +170,34 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
               setSelectedIndex(-1);
             }}
           />
+
+          <select
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value);
+              setCurrentPage(1);
+              setSelectedIndex(-1);
+            }}
+          >
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+          </select>
+
+          <select
+            value={dateFilter}
+            onChange={(e) => {
+              setDateFilter(e.target.value);
+              setCurrentPage(1);
+              setSelectedIndex(-1);
+            }}
+          >
+            <option value="all">All Time</option>
+            <option value="7d">Last 7 Days</option>
+            <option value="30d">Last 30 Days</option>
+            <option value="year">This Year</option>
+          </select>
         </div>
 
         <div

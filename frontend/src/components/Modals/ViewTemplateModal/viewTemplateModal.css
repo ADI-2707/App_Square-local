@@ -5,12 +5,27 @@
   height: 100%;
 }
 
+.view-search {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 .view-search input {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
   background: var(--color-white);
+  flex: 1;
+}
+
+.view-search select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  background: var(--color-white);
+  cursor: pointer;
 }
 
 .view-list-wrapper {
