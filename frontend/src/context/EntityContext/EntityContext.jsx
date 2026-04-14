@@ -208,6 +208,31 @@ export function EntityProvider({ children }) {
     }
   };
 
+  const fetchTemplates = async ({
+    search = "",
+    sort = "newest",
+    dateFilter = "all",
+    page = 1,
+    limit = 8,
+  }) => {
+    try {
+      const res = await api.get("/templates", {
+        params: {
+          search,
+          sort,
+          date_filter: dateFilter,
+          page,
+          limit,
+        },
+      });
+
+      return res.data;
+    } catch (err) {
+      console.error("Failed to fetch templates:", err);
+      throw err;
+    }
+  };
+
   return (
     <EntityContext.Provider
       value={{
@@ -225,6 +250,7 @@ export function EntityProvider({ children }) {
         addFullTemplateGroup,
         deleteTemplate,
         deleteDevice,
+        fetchTemplates,
       }}
     >
       {children}
