@@ -7,6 +7,7 @@ import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext
 import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 import { getIcon } from "../../../Utility/iconMapper";
 import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
+import ViewTemplateModal from "../../Modals/ViewTemplateModal/ViewTemplateModal";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal, disabled = false }) {
@@ -47,11 +48,29 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
 
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
-
+  const [viewAllTemplatesModal, setViewAllTemplatesModal] = useState(false);
   const [activeRecipeId, setActiveRecipeId] = useState(null);
   const [activeDeviceId, setActiveDeviceId] = useState(null);
+  const [recentTemplates, setRecentTemplates] = useState([]);
+  const [hasLoaded, setHasLoaded] = useState(false);
 
   const hasTemplates = groups.allIds.length > 0;
+
+  const recentTemplateIds = useMemo(() => {
+    const all = groups.allIds;
+
+    const uniqueRecent = recentTemplates.filter((id) => all.includes(id));
+    const remaining = all.filter((id) => !uniqueRecent.includes(id));
+
+    return [...uniqueRecent, ...remaining].slice(0, 10);
+  }, [recentTemplates, groups.allIds]);
+
+  const updateRecentTemplates = (templateId) => {
+    setRecentTemplates((prev) => {
+      const filtered = prev.filter((id) => id !== templateId);
+      return [templateId, ...filtered].slice(0, 10);
+    });
+  };
 
   const flattenedRecipeGroups = useMemo(() => {
     const result = [];
@@ -78,6 +97,48 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
   }, []);
 
   useEffect(() => {
+    if (!groups.allIds.length) return;
+
+    const saved = localStorage.getItem("recentTemplates");
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+
+        const valid = parsed.filter((id) => groups.allIds.includes(id));
+
+        setRecentTemplates(valid);
+      } catch {
+        setRecentTemplates([]);
+      }
+    }
+  }, [groups.allIds]);
+
+  useEffect(() => {
+    if (!groups.allIds.length) return;
+
+    const saved = localStorage.getItem("recentTemplates");
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const valid = parsed.filter((id) => groups.allIds.includes(id));
+        setRecentTemplates(valid);
+      } catch {
+        setRecentTemplates([]);
+      }
+    }
+
+    setHasLoaded(true);
+  }, [groups.allIds]);
+
+  useEffect(() => {
+    if (!hasLoaded) return;
+
+    localStorage.setItem("recentTemplates", JSON.stringify(recentTemplates));
+  }, [recentTemplates, hasLoaded]);
+
+  useEffect(() => {
     if (!openSections.recipes) return;
 
     groups.allIds.forEach((templateId) => {
@@ -97,6 +158,15 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
     window.addEventListener("click", handleGlobalClick);
     return () => window.removeEventListener("click", handleGlobalClick);
   }, []);
+
+  useEffect(() => {
+    if (workspace?.type === "template" && workspace?.data?.id) {
+      updateRecentTemplates(workspace.data.id);
+
+      setActiveDeviceId(null);
+      setActiveRecipeId(null);
+    }
+  }, [workspace]);
 
   const toggleSection = (section) => {
     if (disabled) return;
@@ -157,6 +227,10 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
     try {
       const template = await getFullTemplate(contextMenu.templateId);
       openWorkspace("template", template);
+
+      updateRecentTemplates(contextMenu.templateId);
+      setActiveDeviceId(null);
+      setActiveRecipeId(null);
     } catch {
       alert("Failed to load template");
     }
@@ -335,76 +409,96 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                 + Create Recipe Template
               </button>
 
-              {groups.allIds.map((groupId) => {
-                const group = groups.byId[groupId];
-                const deviceIds = devices.byGroupId[groupId] || [];
+              <div
+                className={`template-tree-scroll ${
+                  recentTemplateIds.length >= 10 ? "limit-scroll" : ""
+                }`}
+              >
+                {recentTemplateIds.map((groupId) => {
+                  const group = groups.byId[groupId];
+                  const deviceIds = devices.byGroupId[groupId] || [];
 
-                return (
-                  <div key={groupId} className="tree-node">
-                    <div
-                      className="tree-item expandable"
-                      onClick={() => toggleGroup(groupId)}
-                      onContextMenu={(e) =>
-                        handleRightClick(e, {
-                          type: "template",
-                          templateId: groupId,
-                          templateName: group.name,
-                        })
-                      }
-                    >
-                      <div className="tree-item-content">
-                        <span className="arrow">
-                          {expandedGroups[groupId] ? "▾" : "▸"}
-                        </span>
+                  return (
+                    <div key={groupId} className="tree-node">
+                      <div
+                        className={`tree-item expandable ${
+                          workspace?.type === "template" &&
+                          workspace?.data?.id === groupId
+                            ? "active-item"
+                            : ""
+                        }`}
+                        onClick={() => toggleGroup(groupId)}
+                        onContextMenu={(e) =>
+                          handleRightClick(e, {
+                            type: "template",
+                            templateId: groupId,
+                            templateName: group.name,
+                          })
+                        }
+                      >
+                        <div className="tree-item-content">
+                          <span className="arrow">
+                            {expandedGroups[groupId] ? "▾" : "▸"}
+                          </span>
 
-                        <img
-                          src={getIcon("template")}
-                          className="sidebar-icon"
-                        />
+                          <img
+                            src={getIcon("template")}
+                            className="sidebar-icon"
+                          />
 
-                        <span>{group.name}</span>
+                          <span>{group.name}</span>
+                        </div>
                       </div>
-                    </div>
 
-                    {expandedGroups[groupId] && (
-                      <div className="tree-children">
-                        {deviceIds.map((deviceId) => {
-                          const device = devices.byId[deviceId];
+                      {expandedGroups[groupId] && (
+                        <div className="tree-children">
+                          {deviceIds.map((deviceId) => {
+                            const device = devices.byId[deviceId];
 
-                          return (
-                            <div key={deviceId} className="tree-node">
-                              <div
-                                className={`tree-item leaf ${
-                                  activeDeviceId === device.id
-                                    ? "active-item"
-                                    : ""
-                                }`}
-                                onContextMenu={(e) =>
-                                  handleRightClick(e, {
-                                    type: "device",
-                                    deviceId: device.id,
-                                    deviceName: device.name,
-                                    templateId: groupId,
-                                  })
-                                }
-                              >
-                                <div className="tree-item-content">
-                                  <img
-                                    src={getIcon("device")}
-                                    className="sidebar-icon"
-                                  />
+                            return (
+                              <div key={deviceId} className="tree-node">
+                                <div
+                                  className={`tree-item leaf ${
+                                    activeDeviceId === device.id
+                                      ? "active-item"
+                                      : ""
+                                  }`}
+                                  onContextMenu={(e) =>
+                                    handleRightClick(e, {
+                                      type: "device",
+                                      deviceId: device.id,
+                                      deviceName: device.name,
+                                      templateId: groupId,
+                                    })
+                                  }
+                                >
+                                  <div className="tree-item-content">
+                                    <img
+                                      src={getIcon("device")}
+                                      className="sidebar-icon"
+                                    />
 
-                                  <span>{device.name}</span>
+                                    <span>{device.name}</span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {groups.allIds.length > 10 && (
+                <div
+                  className="view-all-btn"
+                  onClick={() => setViewAllTemplatesModal(true)}
+                >
+                  View All Templates →
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -481,9 +575,12 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                                 }
                               >
                                 <div className="tree-item-content">
-                                  <img src={getIcon("recipe")} className="sidebar-icon" />
+                                  <img
+                                    src={getIcon("recipe")}
+                                    className="sidebar-icon"
+                                  />
                                   <span>{recipe.name}</span>
-                                </div>  
+                                </div>
                               </div>
                             </div>
                           ))
@@ -586,6 +683,13 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
           recipeGroupId={addRecipeModal.recipeGroupId}
           templateGroupId={addRecipeModal.templateGroupId}
           onClose={() => setAddRecipeModal(null)}
+        />
+      )}
+
+      {viewAllTemplatesModal && (
+        <ViewTemplateModal
+          isOpen={true}
+          onClose={() => setViewAllTemplatesModal(false)}
         />
       )}
     </>

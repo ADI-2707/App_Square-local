@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import api from "../../Utility/api";
 import { AuthContext } from "../../context/AuthContext/AuthContext";
 import loginBg from "../../assets/login-bg.png";
+import appLogo from "/app.svg";
 import "./login.css";
 
 export default function Login() {
-
   const USERS = [
     { username: "admin", label: "Admin", active: true },
     { username: "operator1", label: "Operator 1 (O1)", active: true },
@@ -32,12 +32,11 @@ export default function Login() {
     try {
       const response = await api.post("/auth/login", {
         username,
-        password
+        password,
       });
 
       await login(response.data.access_token);
       navigate("/home");
-
     } catch (error) {
       console.log(error);
       alert(error.response?.data?.detail || error.message);
@@ -52,11 +51,16 @@ export default function Login() {
       style={{ backgroundImage: `url(${loginBg})` }}
     >
       <div className="login-box">
-
         <div className="login-left">
-          <h1 className="welcome-title">
-            Welcome to {import.meta.env.VITE_APP_NAME}
-          </h1>
+
+          <div className="welcome-header">
+            <div className="welcome-subtitle">Welcome to</div>
+            
+            <h1 className="welcome-title">
+              <img src={appLogo} alt="" className="inline-logo" />
+              {import.meta.env.VITE_APP_NAME}
+            </h1>
+          </div>
 
           <p className="welcome-text">
             Industrial production monitoring and recipe management platform
@@ -65,28 +69,26 @@ export default function Login() {
 
           <p className="welcome-text">
             This system enables operators and engineers to manage production
-            templates, recipes, device configurations, and process parameters
-            in a centralized and reliable environment.
+            templates, recipes, device configurations, and process parameters in
+            a centralized and reliable environment.
           </p>
 
-          <p className="welcome-footer">
-            Secure • Reliable • Industrial Grade
-          </p>
+          <p className="welcome-footer">Secure • Reliable • Industrial Grade</p>
         </div>
 
         <div className="login-right">
           <h2 className="login-heading">Login</h2>
 
           <form onSubmit={handleSubmit}>
-
-            {/* 🔥 DROPDOWN */}
             <select
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="login-select"
             >
-              <option value="">Select User</option>
+              <option value="" disabled hidden>
+                Select User
+              </option>
 
               {USERS.map((user) => (
                 <option
@@ -111,7 +113,6 @@ export default function Login() {
             <button type="submit" disabled={isLoading || !username}>
               {isLoading ? "Logging in..." : "LOGIN"}
             </button>
-
           </form>
         </div>
       </div>

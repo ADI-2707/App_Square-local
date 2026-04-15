@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, desc, asc, func
+from datetime import datetime, timedelta
 
 from app.models.template_group import TemplateGroup
 from app.models.device import DeviceInstance
@@ -165,3 +166,71 @@ def get_device_with_tags(db: Session, device_id: int):
             for tag in tags
         ]
     }
+
+
+
+def get_templates_filtered(
+    db: Session,
+    search: str = "",
+    sort: str = "newest",
+    date_filter: str = "all",
+    skip: int = 0,
+    limit: int = 10
+):
+    query = db.query(
+        TemplateGroup,
+        func.count(DeviceInstance.id).label("device_count")
+    ).outerjoin(
+        DeviceInstance,
+        DeviceInstance.template_group_id == TemplateGroup.id
+    ).group_by(TemplateGroup.id)
+
+    if search:
+        query = query.filter(
+            TemplateGroup.name.ilike(f"%{search.strip()}%")
+        )
+
+    now = datetime.utcnow()
+
+    if date_filter == "7d":
+        query = query.filter(
+            TemplateGroup.created_at >= now - timedelta(days=7)
+        )
+
+    elif date_filter == "30d":
+        query = query.filter(
+            TemplateGroup.created_at >= now - timedelta(days=30)
+        )
+
+    elif date_filter == "year":
+        query = query.filter(
+            TemplateGroup.created_at >= datetime(now.year, 1, 1)
+        )
+
+    if sort == "newest":
+        query = query.order_by(desc(TemplateGroup.created_at))
+
+    elif sort == "oldest":
+        query = query.order_by(asc(TemplateGroup.created_at))
+
+    elif sort == "az":
+        query = query.order_by(asc(TemplateGroup.name))
+
+    elif sort == "za":
+        query = query.order_by(desc(TemplateGroup.name))
+
+    total = query.count()
+
+    results = query.offset(skip).limit(limit).all()
+
+    formatted = [
+        {
+            "id": t.id,
+            "name": t.name,
+            "created_at": t.created_at,
+            "device_count": count
+        }
+        for t, count in results
+    ]
+
+    return formatted, total

@@ -1,8 +1,8 @@
 .group-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  height: 100%;
+  gap: 18px;
+  width: 100%;
 }
 
 .form-field {
@@ -12,23 +12,60 @@
 
 .error-field {
   border: 2px solid #d32f2f !important;
-  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+  background: #fff5f5;
 }
 
 .group-form label {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
   margin-bottom: 4px;
-  color: var(--color-text, #2c2c2c);
 }
 
-.group-form input {
+.group-form input,
+.group-form select {
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--color-border);
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
-  box-sizing: border-box;
-  background: var(--color-white);
+  font-size: 14px;
+  background: #f9fafb;
+  transition: all 0.15s ease;
+}
+
+.group-form input:focus,
+.group-form select:focus {
+  outline: none;
+  border-color: #5c6bc0;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.15);
+}
+
+.group-form button {
+  align-self: flex-start;
+  margin-top: 6px;
+  height: 40px;
+  padding: 0 18px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.group-form button:hover {
+  background: #1b5e20;
+  transform: translateY(-1px);
+}
+
+.group-form button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .device-section {

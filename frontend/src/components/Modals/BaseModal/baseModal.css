@@ -19,6 +19,15 @@
   overflow: hidden;
 }
 
+.modal-container.shake {
+  animation: modalShake 0.3s ease;
+}
+
+.modal-close.highlight-close {
+  color: #d32f2f;
+  font-weight: 700;
+}
+
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -45,4 +54,12 @@
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+}
+
+@keyframes modalShake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
 }

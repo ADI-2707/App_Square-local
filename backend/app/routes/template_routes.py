@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 
 from app.utils.dependencies import get_db, get_current_user
@@ -21,7 +21,8 @@ from app.services.template_service import (
     get_devices_by_group,
     get_tags_by_device,
     get_full_template,
-    get_device_full
+    get_device_full,
+    get_templates_advanced
 )
 
 router = APIRouter(prefix="/templates", tags=["Templates"])
@@ -129,4 +130,24 @@ def delete_device(
         device_id=device_id,
         current_user=current_user,
         request=request
+    )
+
+
+@router.get("")
+def get_templates(
+    search: str = Query("", description="Search template name"),
+    sort: str = Query("newest"),
+    date_filter: str = Query("all"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(8, le=50),
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return get_templates_advanced(
+        db=db,
+        search=search,
+        sort=sort,
+        date_filter=date_filter,
+        page=page,
+        limit=limit
     )

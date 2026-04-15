@@ -24,7 +24,6 @@ export default function AddRecipeModal({
     if (!isOpen) return;
 
     setRecipeName("");
-    setSelectedDevices([]);
     setErrors({});
 
     const fetchDevices = async () => {
@@ -32,7 +31,9 @@ export default function AddRecipeModal({
         const res = await api.get(
           `/templates/groups/${templateGroupId}/devices`,
         );
+
         setTemplateDevices(res.data);
+        setSelectedDevices(res.data.map((d) => d.id));
       } catch (err) {
         console.error("Equipment load failed:", err);
       }
