@@ -61,6 +61,7 @@ class FullRecipeResponse(BaseModel):
     template_group_id: int
     devices: List[RecipeDeviceResponse]
     removed_devices: Optional[List[str]] = []
+    removed_tags: Optional[List[str]] = []
     changes: Optional[List[ChangeLog]] = []
     
     model_config = ConfigDict(from_attributes=True)
