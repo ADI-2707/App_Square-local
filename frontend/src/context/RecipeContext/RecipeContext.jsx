@@ -61,10 +61,21 @@ export function RecipeProvider({ children }) {
     try {
       const fullRecipe = await getFullRecipe(recipe.id);
 
-      if (fullRecipe.removed_devices?.length > 0) {
-        alert(
-          `Template updated:\nRemoved devices: ${fullRecipe.removed_devices.join(", ")}`
-        );
+      const removedDevices = fullRecipe.removed_devices || [];
+      const removedTags = fullRecipe.removed_tags || [];
+
+      if (removedDevices.length || removedTags.length) {
+        let message = "Template updated:\n\n";
+
+        if (removedDevices.length) {
+          message += `Removed equipment:\n- ${removedDevices.join("\n- ")}\n\n`;
+        }
+
+        if (removedTags.length) {
+          message += `Removed tags:\n- ${removedTags.join("\n- ")}`;
+        }
+
+        alert(message);
       }
 
       setActiveRecipe(fullRecipe);
