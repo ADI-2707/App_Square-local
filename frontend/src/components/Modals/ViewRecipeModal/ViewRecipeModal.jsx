@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import BaseModal from "../BaseModal/BaseModal";
-import "./viewTemplateModal.css"; // reuse same styling
+import "../ViewTemplateModal/viewTemplateModal.css";
 import api from "../../../Utility/api";
 
 export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
