@@ -38,7 +38,12 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
 
   useEffect(() => {
     if (!isOpen) return;
-    fetchRecipes();
+
+    const handler = setTimeout(() => {
+      fetchRecipes();
+    }, 300);
+
+    return () => clearTimeout(handler);
   }, [search, currentPage, isOpen]);
 
   useEffect(() => {
@@ -53,14 +58,12 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
     const handleKey = (e) => {
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
-          prev === -1 ? 0 : Math.min(prev + 1, recipes.length - 1)
+          prev === -1 ? 0 : Math.min(prev + 1, recipes.length - 1),
         );
       }
 
       if (e.key === "ArrowUp") {
-        setSelectedIndex((prev) =>
-          prev === -1 ? -1 : Math.max(prev - 1, 0)
-        );
+        setSelectedIndex((prev) => (prev === -1 ? -1 : Math.max(prev - 1, 0)));
       }
 
       if (e.key === "Enter") {
@@ -80,7 +83,6 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="All Recipes">
       <div className="view-modal">
-
         <div className="view-search">
           <input
             type="text"
