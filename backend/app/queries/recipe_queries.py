@@ -273,3 +273,21 @@ def get_devices_by_ids_for_template(
             DeviceInstance.template_group_id == template_group_id,
         )
     ).all()
+
+
+def get_recipes_global(
+    db: Session,
+    search: str = "",
+    skip: int = 0,
+    limit: int = 10
+):
+    query = db.query(Recipe)
+
+    if search:
+        query = query.filter(Recipe.name.ilike(f"%{search.strip()}%"))
+
+    total = query.count()
+
+    results = query.order_by(Recipe.created_at.desc()).offset(skip).limit(limit).all()
+
+    return results, total

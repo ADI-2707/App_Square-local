@@ -22,7 +22,8 @@ from app.commands.recipe_commands import (
 from app.queries.recipe_queries import (
     get_recipe_groups_by_template,
     get_recipes_by_group_paginated,
-    get_full_recipe
+    get_full_recipe,
+    get_recipes_global
 )
 
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
