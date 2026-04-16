@@ -156,7 +156,7 @@ def update_recipe_values_route(
     )
 
 
-@router.get("/recipes")
+@router.get("")
 def get_all_recipes(
     search: str = "",
     page: int = 1,
@@ -166,18 +166,11 @@ def get_all_recipes(
 ):
     skip = (page - 1) * limit
 
-    query = db.query(Recipe)
-
-    if search:
-        query = query.filter(Recipe.name.ilike(f"%{search}%"))
-
-    total = query.count()
-
-    results = (
-        query.order_by(Recipe.created_at.desc())
-        .offset(skip)
-        .limit(limit)
-        .all()
+    results, total = get_recipes_global(
+        db=db,
+        search=search,
+        skip=skip,
+        limit=limit
     )
 
     return {
