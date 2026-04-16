@@ -1,91 +1,176 @@
 import { useEffect, useState } from "react";
 import BaseModal from "../BaseModal/BaseModal";
+import "./viewTemplateModal.css"; // reuse same styling
 import api from "../../../Utility/api";
-import "./ViewRecipeModal.css";
 
 export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [direction, setDirection] = useState("next");
+  const [animating, setAnimating] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
-  const limit = 8;
+  const ITEMS_PER_PAGE = 8;
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
   const fetchRecipes = async () => {
+    setLoading(true);
     try {
       const res = await api.get("/recipes", {
         params: {
           search,
-          page,
-          limit,
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
         },
       });
 
       setRecipes(res.data.data);
       setTotal(res.data.total);
-    } catch (err) {
-      console.error("Failed to fetch recipes", err);
+    } catch {
+      alert("Failed to load recipes");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (isOpen) fetchRecipes();
-  }, [isOpen, search, page]);
+    if (!isOpen) return;
+    fetchRecipes();
+  }, [search, currentPage, isOpen]);
 
-  const totalPages = Math.ceil(total / limit);
+  useEffect(() => {
+    if (!loading && animating) {
+      setAnimating(false);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKey = (e) => {
+      if (e.key === "ArrowDown") {
+        setSelectedIndex((prev) =>
+          prev === -1 ? 0 : Math.min(prev + 1, recipes.length - 1)
+        );
+      }
+
+      if (e.key === "ArrowUp") {
+        setSelectedIndex((prev) =>
+          prev === -1 ? -1 : Math.max(prev - 1, 0)
+        );
+      }
+
+      if (e.key === "Enter") {
+        if (selectedIndex === -1) return;
+        const selected = recipes[selectedIndex];
+        if (selected) {
+          onOpenRecipe(selected);
+          onClose();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isOpen, recipes, selectedIndex]);
 
   return (
-    <BaseModal isOpen={isOpen} onClose={onClose} title="View Recipes">
-      <div className="view-recipe-container">
-        <input
-          type="text"
-          placeholder="Search recipes..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="search-input"
-        />
+    <BaseModal isOpen={isOpen} onClose={onClose} title="All Recipes">
+      <div className="view-modal">
 
-        <div className="recipe-list">
-          {recipes.map((recipe) => (
-            <div
-              key={recipe.id}
-              className="recipe-item"
+        <div className="view-search">
+          <input
+            type="text"
+            placeholder="Search recipes..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+              setSelectedIndex(-1);
+            }}
+          />
+        </div>
+
+        <div
+          className={`view-list-wrapper ${
+            animating ? `slide-${direction}` : ""
+          }`}
+        >
+          <div className="view-list">
+            {loading ? (
+              Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => (
+                <div key={index} className="view-item placeholder">
+                  <div className="skeleton-line" />
+                </div>
+              ))
+            ) : recipes.length === 0 ? (
+              <div className="empty">No recipes found</div>
+            ) : (
+              Array.from({ length: ITEMS_PER_PAGE }).map((_, index) => {
+                const recipe = recipes[index];
+
+                if (!recipe) {
+                  return (
+                    <div key={index} className="view-item placeholder">
+                      <div className="skeleton-line" />
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={recipe.id}
+                    className={`view-item ${
+                      selectedIndex === index ? "selected" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedIndex(index);
+                      onOpenRecipe(recipe);
+                      onClose();
+                    }}
+                  >
+                    <span>{recipe.name}</span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        {totalPages > 1 && (
+          <div className="modal-actions">
+            <button
+              disabled={currentPage === 1}
               onClick={() => {
-                onOpenRecipe(recipe);
-                onClose();
+                setDirection("prev");
+                setAnimating(true);
+                setCurrentPage((p) => p - 1);
+                setSelectedIndex(-1);
               }}
             >
-              {recipe.name}
-            </div>
-          ))}
+              Prev
+            </button>
 
-          {recipes.length === 0 && (
-            <div className="empty-state">No recipes found</div>
-          )}
-        </div>
+            <span>
+              Page {currentPage} / {totalPages}
+            </span>
 
-        <div className="pagination">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Prev
-          </button>
-
-          <span>
-            Page {page} / {totalPages || 1}
-          </span>
-
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
+            <button
+              disabled={currentPage === totalPages}
+              onClick={() => {
+                setDirection("next");
+                setAnimating(true);
+                setCurrentPage((p) => p + 1);
+                setSelectedIndex(-1);
+              }}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </BaseModal>
   );
