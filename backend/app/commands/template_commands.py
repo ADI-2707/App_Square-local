@@ -202,3 +202,35 @@ def delete_device_from_template(
     return {
         "message": f"{device_name} deleted successfully"
     }
+
+
+@transactional
+@command_logger(action="TEMPLATE_TAG_DELETE")
+def delete_tag_from_device(
+    db: Session,
+    tag_id: int,
+    current_user: User,
+    request: Request = None
+):
+    tag = db.query(Tag).filter(Tag.id == tag_id).first()
+
+    if not tag:
+        raise HTTPException(404, "Tag not found")
+
+    device = tag.device
+    template_group_id = device.template_group_id
+    tag_name = tag.name
+
+    log = TemplateChangeLog(
+        template_group_id=template_group_id,
+        change_type="TAG_DELETED",
+        entity_name=tag_name,
+        entity_id=tag.id
+    )
+    db.add(log)
+
+    db.delete(tag)
+
+    return {
+        "message": f"Tag '{tag_name}' deleted successfully"
+    }
