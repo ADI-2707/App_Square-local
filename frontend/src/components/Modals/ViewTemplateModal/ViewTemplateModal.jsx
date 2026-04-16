@@ -219,7 +219,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
                     </span>
 
                     <div className="tooltip">
-                      {template.device_count ?? "..."} devices
+                      {template.device_count ?? "..."} equipment
                     </div>
                   </div>
                 );
