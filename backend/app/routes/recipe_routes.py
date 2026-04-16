@@ -28,8 +28,6 @@ from app.queries.recipe_queries import (
 
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
 
-
-
 @router.post("/groups", response_model=RecipeGroupResponse)
 def create_group(
     request: Request,
@@ -44,7 +42,6 @@ def create_group(
         current_user=current_user,
         request=request
     )
-
 
 
 @router.get(
@@ -157,3 +154,33 @@ def update_recipe_values_route(
         current_user=current_user,
         request=request
     )
+
+
+@router.get("/recipes")
+def get_all_recipes(
+    search: str = "",
+    page: int = 1,
+    limit: int = 10,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    skip = (page - 1) * limit
+
+    query = db.query(Recipe)
+
+    if search:
+        query = query.filter(Recipe.name.ilike(f"%{search}%"))
+
+    total = query.count()
+
+    results = (
+        query.order_by(Recipe.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+    return {
+        "data": results,
+        "total": total
+    }
