@@ -8,6 +8,7 @@ import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 import { getIcon } from "../../../Utility/iconMapper";
 import AddRecipeModal from "../../Modals/AddRecipeModal/AddRecipeModal";
 import ViewTemplateModal from "../../Modals/ViewTemplateModal/ViewTemplateModal";
+import ViewRecipeModal from "../../Modals/ViewRecipeModal/ViewRecipeModal";
 import "./sidebar.css";
 
 export default function Sidebar({ onOpenModal, disabled = false }) {
@@ -53,6 +54,7 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
   const [activeDeviceId, setActiveDeviceId] = useState(null);
   const [recentTemplates, setRecentTemplates] = useState([]);
   const [hasLoaded, setHasLoaded] = useState(false);
+  const [viewAllRecipesModal, setViewAllRecipesModal] = useState(false);
 
   const hasTemplates = groups.allIds.length > 0;
 
@@ -321,7 +323,7 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
 
           if (
             workspace?.type === "device" &&
-            contextMenu.templateId === contextMenu.templateId
+            workspace?.data?.template_group_id === contextMenu.templateId
           ) {
             openWorkspace(null, null);
           }
@@ -522,76 +524,93 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                 + Create Area
               </button>
 
-              {flattenedRecipeGroups.map((rGroup) => {
-                const recipeList = recipes[rGroup.id]?.[1] || [];
+              <div
+                className={`template-tree-scroll ${
+                  flattenedRecipeGroups.length >= 10 ? "limit-scroll" : ""
+                }`}
+              >
+                {flattenedRecipeGroups.map((rGroup) => {
+                  const recipeList = recipes[rGroup.id]?.[1] || [];
 
-                return (
-                  <div key={rGroup.id} className="tree-node">
-                    <div
-                      className="tree-item expandable"
-                      onClick={() => toggleRecipeGroup(rGroup)}
-                      onContextMenu={(e) =>
-                        handleRightClick(e, {
-                          type: "recipeGroup",
-                          recipeGroup: rGroup,
-                          templateId: rGroup.templateId,
-                        })
-                      }
-                    >
-                      <div className="tree-item-content">
-                        <span className="arrow">
-                          {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}
-                        </span>
-
-                        <img src={getIcon("area")} className="sidebar-icon" />
-
-                        <span>
-                          {rGroup.name}
-                          <span className="template-label">
-                            ({rGroup.templateName})
+                  return (
+                    <div key={rGroup.id} className="tree-node">
+                      <div
+                        className="tree-item expandable"
+                        onClick={() => toggleRecipeGroup(rGroup)}
+                        onContextMenu={(e) =>
+                          handleRightClick(e, {
+                            type: "recipeGroup",
+                            recipeGroup: rGroup,
+                            templateId: rGroup.templateId,
+                          })
+                        }
+                      >
+                        <div className="tree-item-content">
+                          <span className="arrow">
+                            {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}
                           </span>
-                        </span>
-                      </div>
-                    </div>
 
-                    {expandedRecipeGroups[rGroup.id] && (
-                      <div className="tree-children">
-                        {recipeList.length > 0 ? (
-                          recipeList.map((recipe) => (
-                            <div key={recipe.id} className="tree-node">
-                              <div
-                                className={`tree-item leaf ${
-                                  activeRecipeId === recipe.id
-                                    ? "active-item"
-                                    : ""
-                                }`}
-                                onClick={() => handleOpenRecipe(recipe)}
-                                onContextMenu={(e) =>
-                                  handleRightClick(e, {
-                                    type: "recipe",
-                                    recipe,
-                                    recipeGroupId: rGroup.id,
-                                  })
-                                }
-                              >
-                                <div className="tree-item-content">
-                                  <img
-                                    src={getIcon("recipe")}
-                                    className="sidebar-icon"
-                                  />
-                                  <span>{recipe.name}</span>
+                          <img src={getIcon("area")} className="sidebar-icon" />
+
+                          <span>
+                            {rGroup.name}
+                            <span className="template-label">
+                              ({rGroup.templateName})
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {expandedRecipeGroups[rGroup.id] && (
+                        <div className="tree-children">
+                          {recipeList.length > 0 ? (
+                            recipeList.map((recipe) => (
+                              <div key={recipe.id} className="tree-node">
+                                <div
+                                  className={`tree-item leaf ${
+                                    activeRecipeId === recipe.id
+                                      ? "active-item"
+                                      : ""
+                                  }`}
+                                  onClick={() => handleOpenRecipe(recipe)}
+                                  onContextMenu={(e) =>
+                                    handleRightClick(e, {
+                                      type: "recipe",
+                                      recipe,
+                                      recipeGroupId: rGroup.id,
+                                    })
+                                  }
+                                >
+                                  <div className="tree-item-content">
+                                    <img
+                                      src={getIcon("recipe")}
+                                      className="sidebar-icon"
+                                    />
+                                    <span>{recipe.name}</span>
+                                  </div>
                                 </div>
                               </div>
+                            ))
+                          ) : (
+                            <div className="tree-empty-centered">
+                              No recipes available
                             </div>
-                          ))
-                        ) : (
-                          <div className="tree-empty">No recipes</div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {flattenedRecipeGroups.length > 0 && (
+                <div
+                  className="view-all-btn"
+                  onClick={() => setViewAllRecipesModal(true)}
+                >
+                  View All Recipes →
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -690,6 +709,14 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
         <ViewTemplateModal
           isOpen={true}
           onClose={() => setViewAllTemplatesModal(false)}
+        />
+      )}
+
+      {viewAllRecipesModal && (
+        <ViewRecipeModal
+          isOpen={true}
+          onClose={() => setViewAllRecipesModal(false)}
+          onOpenRecipe={handleOpenRecipe}
         />
       )}
     </>
