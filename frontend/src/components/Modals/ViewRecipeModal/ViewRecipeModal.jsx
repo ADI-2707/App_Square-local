@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import BaseModal from "../BaseModal/BaseModal";
 import "../ViewTemplateModal/viewTemplateModal.css";
 import api from "../../../Utility/api";
+import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
 
 export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
+  const { workspace } = useWorkspace();
+
   const [recipes, setRecipes] = useState([]);
   const [search, setSearch] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -58,12 +61,14 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
     const handleKey = (e) => {
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
-          prev === -1 ? 0 : Math.min(prev + 1, recipes.length - 1),
+          prev === -1 ? 0 : Math.min(prev + 1, recipes.length - 1)
         );
       }
 
       if (e.key === "ArrowUp") {
-        setSelectedIndex((prev) => (prev === -1 ? -1 : Math.max(prev - 1, 0)));
+        setSelectedIndex((prev) =>
+          prev === -1 ? -1 : Math.max(prev - 1, 0)
+        );
       }
 
       if (e.key === "Enter") {
@@ -79,6 +84,20 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, recipes, selectedIndex]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (workspace?.type === "recipe") {
+      const index = recipes.findIndex(
+        (r) => r.id === workspace.data?.id
+      );
+
+      setSelectedIndex(index !== -1 ? index : -1);
+    } else {
+      setSelectedIndex(-1);
+    }
+  }, [isOpen, recipes, workspace]);
 
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="All Recipes">
@@ -135,6 +154,10 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
                     }}
                   >
                     <span>{recipe.name}</span>
+
+                    <div className="tooltip">
+                      {recipe.template_name || "Template"}
+                    </div>
                   </div>
                 );
               })

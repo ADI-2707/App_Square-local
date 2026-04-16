@@ -173,7 +173,22 @@ def get_all_recipes(
         limit=limit
     )
 
+    data = []
+
+    for recipe in results:
+        template_name = "Unknown"
+
+        if hasattr(recipe, "recipe_group") and recipe.recipe_group:
+            if hasattr(recipe.recipe_group, "template_group") and recipe.recipe_group.template_group:
+                template_name = recipe.recipe_group.template_group.name
+
+        data.append({
+            "id": recipe.id,
+            "name": recipe.name,
+            "template_name": template_name
+        })
+
     return {
-        "data": results,
+        "data": data,
         "total": total
     }
