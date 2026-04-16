@@ -603,7 +603,7 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                 })}
               </div>
 
-              {flattenedRecipeGroups.length > 0 && (
+              {flattenedRecipeGroups.length > 10 && (
                 <div
                   className="view-all-btn"
                   onClick={() => setViewAllRecipesModal(true)}
