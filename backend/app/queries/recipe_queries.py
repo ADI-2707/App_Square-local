@@ -61,15 +61,34 @@ def get_full_recipe(db: Session, recipe_id: int):
 
     active_device_names = {d.name for d in template_devices}
 
+    template_tags_map = {}
+    for device in template_devices:
+        template_tags_map[device.name] = {tag.name for tag in device.tags}
+
     valid_devices = []
+    removed_tags = []
+
     for device in recipe.devices:
-        if device.device_name in active_device_names:
-            valid_devices.append(device)
+        if device.device_name not in active_device_names:
+            continue
+
+        valid_tag_values = []
+
+        current_template_tags = template_tags_map.get(device.device_name, set())
+
+        for tag_val in device.tag_values:
+            if tag_val.tag_name in current_template_tags:
+                valid_tag_values.append(tag_val)
+            else:
+                removed_tags.append(tag_val.tag_name)
+
+        device.tag_values = valid_tag_values
+        valid_devices.append(device)
 
     logs = db.query(TemplateChangeLog).filter(
         and_(
             TemplateChangeLog.template_group_id == template_group.id,
-            TemplateChangeLog.change_type == "EQUIPMENT_DELETED"  # ✅ MATCHED
+            TemplateChangeLog.change_type.in_(["EQUIPMENT_DELETED", "TAG_DELETED"])
         )
     ).order_by(TemplateChangeLog.created_at.desc()).all()
 
@@ -109,7 +128,8 @@ def get_full_recipe(db: Session, recipe_id: int):
             for log in new_logs
         ],
 
-        "removed_devices": removed_devices
+        "removed_devices": removed_devices,
+        "removed_tags": list(set(removed_tags))
     }
 
     recipe.last_synced_at = datetime.utcnow()
