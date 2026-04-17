@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "../AboutModal/aboutModal.css";
 
 export default function HelpModal({ isOpen, onClose }) {
+  const [openIndex, setOpenIndex] = useState(null);
+
   if (!isOpen) return null;
 
   useEffect(() => {
@@ -12,29 +14,94 @@ export default function HelpModal({ isOpen, onClose }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
+  const steps = [
+    {
+      title: "Create a Template",
+      details: [
+        "Go to Templates section",
+        "Click on Create Template",
+        "Define structure and save"
+      ]
+    },
+    {
+      title: "Add Equipment (Devices)",
+      details: [
+        "Open template",
+        "Add devices/equipment",
+        "Assign tags"
+      ]
+    },
+    {
+      title: "Define Tags",
+      details: [
+        "Configure tag names",
+        "Map tags to devices",
+        "Validate configuration"
+      ]
+    },
+    {
+      title: "Create Area (Recipe Group)",
+      details: [
+        "Go to Recipes",
+        "Click Create Area",
+        "Assign template"
+      ]
+    },
+    {
+      title: "Create Recipes",
+      details: [
+        "Select area",
+        "Add recipe",
+        "Define values"
+      ]
+    },
+    {
+      title: "Load Recipe into Workspace",
+      details: [
+        "Select recipe",
+        "Load into workspace",
+        "Execute production"
+      ]
+    }
+  ];
+
+  const toggle = (index) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">
-            <img src="/app.svg" alt="App Logo" className="modal-logo" />
+            <img src="/app.svg" className="modal-logo" />
             <h2>How to Use APP SQUARE</h2>
           </div>
 
-          <span className="modal-close" onClick={onClose}>
-            ×
-          </span>
+          <span className="modal-close" onClick={onClose}>×</span>
         </div>
 
         <div className="modal-content">
-          <ol>
-            <li>Create a Template</li>
-            <li>Add Equipment (Devices)</li>
-            <li>Define Tags</li>
-            <li>Create Area (Recipe Group)</li>
-            <li>Create Recipes</li>
-            <li>Load Recipe into Workspace</li>
-          </ol>
+          {steps.map((step, index) => (
+            <div key={index} className="help-item">
+              
+              <div className="help-header" onClick={() => toggle(index)}>
+                <span>{index + 1}. {step.title}</span>
+                <span className="help-arrow">
+                  {openIndex === index ? "▼" : "▶"}
+                </span>
+              </div>
+
+              {openIndex === index && (
+                <ul className="help-details">
+                  {step.details.map((d, i) => (
+                    <li key={i}>{d}</li>
+                  ))}
+                </ul>
+              )}
+
+            </div>
+          ))}
         </div>
 
         <div className="modal-footer">

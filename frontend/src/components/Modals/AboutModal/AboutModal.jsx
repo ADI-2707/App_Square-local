@@ -33,15 +33,26 @@ export default function AboutModal({ isOpen, onClose }) {
           </p>
 
           <p>
-            It enables operators and engineers to efficiently configure
-            processes and execute workflows with consistency.
+            It enables operators and engineers to configure processes, maintain
+            consistency, and execute production workflows efficiently.
           </p>
+
+          <h4 className="modal-section-title">Key Capabilities</h4>
 
           <ul>
             <li>Centralized template management</li>
             <li>Equipment and tag configuration</li>
             <li>Structured recipe creation</li>
             <li>Real-time workspace execution</li>
+          </ul>
+
+          <h4 className="modal-section-title">Why It Matters</h4>
+
+          <ul>
+            <li>Reduces manual configuration errors</li>
+            <li>Improves production consistency</li>
+            <li>Speeds up setup and changeovers</li>
+            <li>Provides clear visibility of process data</li>
           </ul>
         </div>
 
