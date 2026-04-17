@@ -1,12 +1,25 @@
+import { useEffect } from "react";
 import "../AboutModal/aboutModal.css";
 
 export default function HelpModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   return (
-    <div className="modal-overlay">
-      <div className="modal-box">
-        <h2>How to Use APP SQUARE</h2>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+
+        <div className="modal-header">
+          <h2>How to Use APP SQUARE</h2>
+          <span className="modal-close" onClick={onClose}>×</span>
+        </div>
 
         <div className="modal-content">
           <ol>
@@ -22,6 +35,7 @@ export default function HelpModal({ isOpen, onClose }) {
         <div className="modal-footer">
           <button onClick={onClose}>Close</button>
         </div>
+
       </div>
     </div>
   );

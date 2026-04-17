@@ -1,12 +1,25 @@
+import { useEffect } from "react";
 import "./aboutModal.css";
 
 export default function AboutModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
   return (
-    <div className="modal-overlay">
-      <div className="modal-box">
-        <h2>About APP SQUARE</h2>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+        
+        <div className="modal-header">
+          <h2>About APP SQUARE</h2>
+          <span className="modal-close" onClick={onClose}>×</span>
+        </div>
 
         <div className="modal-content">
           <p>
@@ -16,7 +29,7 @@ export default function AboutModal({ isOpen, onClose }) {
 
           <p>
             It enables operators and engineers to efficiently configure
-            processes, monitor data, and execute production workflows.
+            processes and execute workflows with consistency.
           </p>
 
           <ul>
@@ -30,6 +43,7 @@ export default function AboutModal({ isOpen, onClose }) {
         <div className="modal-footer">
           <button onClick={onClose}>Close</button>
         </div>
+
       </div>
     </div>
   );
