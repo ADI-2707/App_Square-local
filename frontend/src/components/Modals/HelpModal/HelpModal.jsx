@@ -15,10 +15,15 @@ export default function HelpModal({ isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-
         <div className="modal-header">
-          <h2>How to Use APP SQUARE</h2>
-          <span className="modal-close" onClick={onClose}>×</span>
+          <div className="modal-title">
+            <img src="/app.svg" alt="App Logo" className="modal-logo" />
+            <h2>How to Use APP SQUARE</h2>
+          </div>
+
+          <span className="modal-close" onClick={onClose}>
+            ×
+          </span>
         </div>
 
         <div className="modal-content">
@@ -35,7 +40,6 @@ export default function HelpModal({ isOpen, onClose }) {
         <div className="modal-footer">
           <button onClick={onClose}>Close</button>
         </div>
-
       </div>
     </div>
   );
