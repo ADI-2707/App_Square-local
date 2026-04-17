@@ -23,6 +23,19 @@
   animation: modalFadeIn 0.2s ease;
 }
 
+.modal-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modal-logo {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
 .modal-box h2 {
   padding: 16px 18px;
   margin: 0;
@@ -86,17 +99,18 @@
 }
 
 .modal-close {
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 4px 12px;
+  margin: 2px;
+  border-radius: 50%;
   color: var(--color-text-secondary);
   transition: all 0.15s ease;
 }
 
 .modal-close:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-hover);
+  color: var(--color-white);
+  background: rgb(255, 113, 113);
 }
 
 @keyframes modalFadeIn {

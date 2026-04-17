@@ -15,10 +15,15 @@ export default function AboutModal({ isOpen, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-        
         <div className="modal-header">
-          <h2>About APP SQUARE</h2>
-          <span className="modal-close" onClick={onClose}>×</span>
+          <div className="modal-title">
+            <img src="/app.svg" alt="App Logo" className="modal-logo" />
+            <h2>About APP SQUARE</h2>
+          </div>
+
+          <span className="modal-close" onClick={onClose}>
+            ×
+          </span>
         </div>
 
         <div className="modal-content">
@@ -43,7 +48,6 @@ export default function AboutModal({ isOpen, onClose }) {
         <div className="modal-footer">
           <button onClick={onClose}>Close</button>
         </div>
-
       </div>
     </div>
   );
