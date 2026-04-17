@@ -61,14 +61,12 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
     const handleKey = (e) => {
       if (e.key === "ArrowDown") {
         setSelectedIndex((prev) =>
-          prev === -1 ? 0 : Math.min(prev + 1, recipes.length - 1)
+          prev === -1 ? 0 : Math.min(prev + 1, recipes.length - 1),
         );
       }
 
       if (e.key === "ArrowUp") {
-        setSelectedIndex((prev) =>
-          prev === -1 ? -1 : Math.max(prev - 1, 0)
-        );
+        setSelectedIndex((prev) => (prev === -1 ? -1 : Math.max(prev - 1, 0)));
       }
 
       if (e.key === "Enter") {
@@ -89,9 +87,7 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
     if (!isOpen) return;
 
     if (workspace?.type === "recipe") {
-      const index = recipes.findIndex(
-        (r) => r.id === workspace.data?.id
-      );
+      const index = recipes.findIndex((r) => r.id === workspace.data?.id);
 
       setSelectedIndex(index !== -1 ? index : -1);
     } else {
@@ -153,7 +149,12 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
                       onClose();
                     }}
                   >
-                    <span>{recipe.name}</span>
+                    <span className="recipe-name">
+                      {recipe.name}
+                      {recipe.area_name && (
+                        <span className="area-tag">[{recipe.area_name}]</span>
+                      )}
+                    </span>
 
                     <div className="tooltip">
                       {recipe.template_name || "Template"}

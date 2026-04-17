@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, selectinload, joinedload
 from sqlalchemy import and_
 from datetime import datetime
 
@@ -281,7 +281,10 @@ def get_recipes_global(
     skip: int = 0,
     limit: int = 10
 ):
-    query = db.query(Recipe)
+    query = db.query(Recipe).options(
+        joinedload(Recipe.recipe_group)
+        .joinedload(RecipeGroup.template_group)
+    )
 
     if search:
         query = query.filter(Recipe.name.ilike(f"%{search.strip()}%"))

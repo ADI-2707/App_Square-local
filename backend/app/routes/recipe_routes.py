@@ -186,7 +186,8 @@ def get_all_recipes(
             "id": recipe.id,
             "name": recipe.name,
             "template_name": template_name,
-            "recipe_group_id": recipe.recipe_group_id
+            "recipe_group_id": recipe.recipe_group_id,
+            "area_name": recipe.recipe_group.name if recipe.recipe_group else None
         })
 
     return {
