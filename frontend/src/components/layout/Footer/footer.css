@@ -1,0 +1,43 @@
+.app-footer {
+  height: 40px;
+  background: var(--color-bg-soft);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  margin-left: var(--sidebar-width);
+  font-size: var(--text-sm);
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-logo {
+  width: 18px;
+  height: 18px;
+  opacity: 0.9;
+}
+
+.footer-brand {
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+}
+
+.footer-right {
+  display: flex;
+  gap: 16px;
+}
+
+.footer-link {
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: color 0.15s ease;
+}
+
+.footer-link:hover {
+  color: var(--color-primary);
+}
