@@ -58,11 +58,28 @@
 }
 
 .sidebar-header {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 4px 20px;
-  margin-bottom: 10px;
+  padding: 6px 20px 12px 20px;
+  margin-bottom: 8px;
+}
+
+.sidebar-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 20px;
+  right: 20px;
+  height: 1px;
+  
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.12),
+    transparent
+  );
 }
 
 .sidebar-logo {
