@@ -6,6 +6,7 @@ import Footer from "../Footer/Footer";
 import GroupModal from "../../Modals/GroupModal/GroupModal";
 import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
 import AboutModal from "../../Modals/AboutModal/AboutModal";
+import HelpModal from "../../Modals/HelpModal/HelpModal";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import WorkspaceToolbar from "../../workspace/WorkspaceToolbar/WorkspaceToolbar";

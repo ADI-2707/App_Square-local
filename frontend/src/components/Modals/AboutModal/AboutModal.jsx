@@ -8,25 +8,28 @@ export default function AboutModal({ isOpen, onClose }) {
       <div className="modal-box">
         <h2>About APP SQUARE</h2>
 
-        <p>
-          APP SQUARE is an industrial application designed for managing
-          production templates, equipment, and recipes in real-time.
-        </p>
+        <div className="modal-content">
+          <p>
+            APP SQUARE is an industrial application designed for managing
+            production templates, equipment, and recipes in real-time.
+          </p>
 
-        <p>
-          It enables operators and engineers to efficiently configure
-          processes, monitor data, and execute production workflows
-          with accuracy and consistency.
-        </p>
+          <p>
+            It enables operators and engineers to efficiently configure
+            processes, monitor data, and execute production workflows.
+          </p>
 
-        <ul>
-          <li>Centralized template management</li>
-          <li>Equipment and tag configuration</li>
-          <li>Structured recipe creation</li>
-          <li>Real-time workspace execution</li>
-        </ul>
+          <ul>
+            <li>Centralized template management</li>
+            <li>Equipment and tag configuration</li>
+            <li>Structured recipe creation</li>
+            <li>Real-time workspace execution</li>
+          </ul>
+        </div>
 
-        <button onClick={onClose}>Close</button>
+        <div className="modal-footer">
+          <button onClick={onClose}>Close</button>
+        </div>
       </div>
     </div>
   );
