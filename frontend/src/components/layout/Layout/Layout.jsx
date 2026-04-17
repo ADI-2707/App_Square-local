@@ -18,6 +18,7 @@ export default function Layout({ children }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editableData, setEditableData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const getViewModeKey = (type) => `app_square_view_mode_${type}`;
   const VALID_VIEW_MODES = ["device", "tag"];
@@ -489,9 +490,10 @@ export default function Layout({ children }) {
           onClose={closeModal}
         />
       </div>
-      <Footer onOpenAbout={() => setShowAbout(true)} />
+      <Footer onOpenAbout={() => setShowAbout(true)} onOpenHelp={() => setShowHelp(true)} />
 
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
+      <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
     </>
   );
 }

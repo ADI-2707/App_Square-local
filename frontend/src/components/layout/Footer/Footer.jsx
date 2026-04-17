@@ -1,6 +1,6 @@
 import "./footer.css";
 
-export default function Footer({ onOpenAbout }) {
+export default function Footer({ onOpenAbout, onOpenHelp }) {
   return (
     <div className="app-footer">
       <div className="footer-left">
@@ -12,7 +12,7 @@ export default function Footer({ onOpenAbout }) {
         <span className="footer-link" onClick={onOpenAbout}>
           About
         </span>
-        <span className="footer-link">
+        <span className="footer-link" onClick={onOpenHelp}>
           Help
         </span>
       </div>

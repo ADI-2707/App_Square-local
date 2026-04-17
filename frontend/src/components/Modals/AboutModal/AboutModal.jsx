@@ -6,16 +6,25 @@ export default function AboutModal({ isOpen, onClose }) {
   return (
     <div className="modal-overlay">
       <div className="modal-box">
-        <h2>How to Use APP SQUARE</h2>
+        <h2>About APP SQUARE</h2>
 
-        <ol>
-          <li>Create a Template</li>
-          <li>Add Equipment (Devices)</li>
-          <li>Define Tags</li>
-          <li>Create Area (Recipe Group)</li>
-          <li>Create Recipes</li>
-          <li>Load Recipe into Workspace</li>
-        </ol>
+        <p>
+          APP SQUARE is an industrial application designed for managing
+          production templates, equipment, and recipes in real-time.
+        </p>
+
+        <p>
+          It enables operators and engineers to efficiently configure
+          processes, monitor data, and execute production workflows
+          with accuracy and consistency.
+        </p>
+
+        <ul>
+          <li>Centralized template management</li>
+          <li>Equipment and tag configuration</li>
+          <li>Structured recipe creation</li>
+          <li>Real-time workspace execution</li>
+        </ul>
 
         <button onClick={onClose}>Close</button>
       </div>
