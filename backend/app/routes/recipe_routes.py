@@ -185,7 +185,8 @@ def get_all_recipes(
         data.append({
             "id": recipe.id,
             "name": recipe.name,
-            "template_name": template_name
+            "template_name": template_name,
+            "recipe_group_id": recipe.recipe_group_id
         })
 
     return {
