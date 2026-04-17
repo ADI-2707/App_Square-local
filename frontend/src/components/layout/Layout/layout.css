@@ -35,8 +35,10 @@
 
 .matrix-scroll {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
   max-width: 100%;
+  max-height: 70vh;
+  position: relative;
 }
 
 .recipe-matrix-table {
@@ -88,6 +90,21 @@
   font-size: var(--text-md);
 }
 
+.recipe-matrix-table thead tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--color-bg-hover);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.recipe-matrix-table thead tr:nth-child(2) th {
+  position: sticky;
+  top: 48px;
+  z-index: 9;
+  background: var(--color-bg-hover);
+}
+
 .tag-header {
   position: sticky;
   left: 0;
@@ -113,12 +130,6 @@
 .recipe-matrix-table:not(.recipe-mode):not(.template-mode)
   tr > *:not(:first-child):not(:last-child) {
   border-right: 2px solid var(--color-border-strong);
-}
-
-.recipe-matrix-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 6;
 }
 
 .recipe-matrix-table tbody tr:hover {
