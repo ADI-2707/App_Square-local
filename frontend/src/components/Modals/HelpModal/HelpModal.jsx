@@ -4,8 +4,6 @@ import "../AboutModal/aboutModal.css";
 export default function HelpModal({ isOpen, onClose }) {
   const [openIndex, setOpenIndex] = useState(null);
 
-  if (!isOpen) return null;
-
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -14,55 +12,15 @@ export default function HelpModal({ isOpen, onClose }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
+  if (!isOpen) return null;
+
   const steps = [
-    {
-      title: "Create a Template",
-      details: [
-        "Go to Templates section",
-        "Click on Create Template",
-        "Define structure and save"
-      ]
-    },
-    {
-      title: "Add Equipment (Devices)",
-      details: [
-        "Open template",
-        "Add devices/equipment",
-        "Assign tags"
-      ]
-    },
-    {
-      title: "Define Tags",
-      details: [
-        "Configure tag names",
-        "Map tags to devices",
-        "Validate configuration"
-      ]
-    },
-    {
-      title: "Create Area (Recipe Group)",
-      details: [
-        "Go to Recipes",
-        "Click Create Area",
-        "Assign template"
-      ]
-    },
-    {
-      title: "Create Recipes",
-      details: [
-        "Select area",
-        "Add recipe",
-        "Define values"
-      ]
-    },
-    {
-      title: "Load Recipe into Workspace",
-      details: [
-        "Select recipe",
-        "Load into workspace",
-        "Execute production"
-      ]
-    }
+    { title: "Create a Template", details: ["Go to Templates", "Click Create", "Save"] },
+    { title: "Add Equipment", details: ["Open template", "Add device", "Assign tags"] },
+    { title: "Define Tags", details: ["Create tags", "Map to device"] },
+    { title: "Create Area", details: ["Go to Recipes", "Create Area"] },
+    { title: "Create Recipes", details: ["Add recipe", "Set values"] },
+    { title: "Load Recipe", details: ["Select recipe", "Load"] }
   ];
 
   const toggle = (index) => {
@@ -77,14 +35,12 @@ export default function HelpModal({ isOpen, onClose }) {
             <img src="/app.svg" className="modal-logo" />
             <h2>How to Use APP SQUARE</h2>
           </div>
-
           <span className="modal-close" onClick={onClose}>×</span>
         </div>
 
         <div className="modal-content">
           {steps.map((step, index) => (
             <div key={index} className="help-item">
-              
               <div className="help-header" onClick={() => toggle(index)}>
                 <span>{index + 1}. {step.title}</span>
                 <span className="help-arrow">
@@ -99,7 +55,6 @@ export default function HelpModal({ isOpen, onClose }) {
                   ))}
                 </ul>
               )}
-
             </div>
           ))}
         </div>
