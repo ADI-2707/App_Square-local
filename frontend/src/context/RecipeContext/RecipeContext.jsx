@@ -18,7 +18,6 @@ export function RecipeProvider({ children }) {
         ...prev,
         [templateGroupId]: res.data,
       }));
-
     } catch (err) {
       console.error("Failed to load recipe groups:", err);
       alert(err?.response?.data?.detail || "Failed to load recipe groups");
@@ -38,7 +37,6 @@ export function RecipeProvider({ children }) {
           [page]: res.data,
         },
       }));
-
     } catch (err) {
       console.error("Failed to load recipes:", err);
       alert(err?.response?.data?.detail || "Failed to load recipes");
@@ -49,7 +47,6 @@ export function RecipeProvider({ children }) {
     try {
       const res = await api.get(`/recipes/${recipeId}/full`);
       return res.data;
-
     } catch (err) {
       console.error("Failed to load full recipe:", err);
       alert(err?.response?.data?.detail || "Failed to load recipe");
@@ -61,26 +58,8 @@ export function RecipeProvider({ children }) {
     try {
       const fullRecipe = await getFullRecipe(recipe.id);
 
-      const removedDevices = fullRecipe.removed_devices || [];
-      const removedTags = fullRecipe.removed_tags || [];
-
-      if (removedDevices.length || removedTags.length) {
-        let message = "Template updated:\n\n";
-
-        if (removedDevices.length) {
-          message += `Removed equipment:\n- ${removedDevices.join("\n- ")}\n\n`;
-        }
-
-        if (removedTags.length) {
-          message += `Removed tags:\n- ${removedTags.join("\n- ")}`;
-        }
-
-        alert(message);
-      }
-
       setActiveRecipe(fullRecipe);
       return fullRecipe;
-
     } catch (error) {
       console.error("Failed to open recipe:", error);
       throw error;
@@ -118,7 +97,7 @@ export function RecipeProvider({ children }) {
 
         Object.keys(groupData).forEach((page) => {
           updatedPages[page] = groupData[page].filter(
-            (recipe) => recipe.id !== recipeId
+            (recipe) => recipe.id !== recipeId,
           );
         });
 
@@ -131,7 +110,6 @@ export function RecipeProvider({ children }) {
       if (activeRecipe?.id === recipeId) {
         setActiveRecipe(null);
       }
-
     } catch (err) {
       console.error("Failed to delete recipe:", err);
       alert(err?.response?.data?.detail || "Failed to delete recipe");
@@ -145,7 +123,7 @@ export function RecipeProvider({ children }) {
       setRecipeGroups((prev) => ({
         ...prev,
         [templateGroupId]: (prev[templateGroupId] || []).filter(
-          (group) => group.id !== recipeGroupId
+          (group) => group.id !== recipeGroupId,
         ),
       }));
 
@@ -154,7 +132,6 @@ export function RecipeProvider({ children }) {
         delete updated[recipeGroupId];
         return updated;
       });
-
     } catch (err) {
       console.error("Failed to delete recipe group:", err);
       alert(err?.response?.data?.detail || "Failed to delete recipe group");
