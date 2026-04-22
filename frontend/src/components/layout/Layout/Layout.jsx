@@ -257,7 +257,6 @@ export default function Layout({ children }) {
     const device = workspace.data.devices[deviceIndex];
 
     const tag = device.tag_values.find((t) => t.tag_name === tagName);
-
     if (!tag) return;
 
     const confirmed = window.confirm(
@@ -265,8 +264,7 @@ export default function Layout({ children }) {
     );
 
     if (!confirmed) return;
-
-    await deleteTag(device.id, tagName);
+    await deleteTag(tag.id);
 
     const updated = await api.get(`/templates/${workspace.data.id}/full`);
     openWorkspace("template", updated.data);
