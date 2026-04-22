@@ -261,6 +261,7 @@
 }
 
 .tag-delete-btn {
+  position: relative;
   background: transparent;
   border: none;
   color: #c62828;
