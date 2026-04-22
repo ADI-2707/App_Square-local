@@ -266,7 +266,7 @@ export default function Layout({ children }) {
 
     if (!confirmed) return;
 
-    await deleteTag(tag.id, device.id);
+    await deleteTag(device.id, tagName);
 
     const updated = await api.get(`/templates/${workspace.data.id}/full`);
     openWorkspace("template", updated.data);
