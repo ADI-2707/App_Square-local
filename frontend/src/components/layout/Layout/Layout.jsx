@@ -368,8 +368,24 @@ export default function Layout({ children }) {
                         {tableRows.map((row, rowIndex) => (
                           <tr key={rowIndex}>
                             {row.map((cell, colIndex) => (
-                              <td key={colIndex} className="tag-cell">
-                                {cell.tagName}
+                              <td
+                                key={colIndex}
+                                className="tag-cell tag-cell-with-action"
+                              >
+                                <span>{cell.tagName}</span>
+
+                                {isTemplate &&
+                                  role === "admin" &&
+                                  cell.tagName !== "-" && (
+                                    <button
+                                      className="tag-delete-btn"
+                                      onClick={() =>
+                                        handleDeleteTag(cell.tagName, colIndex)
+                                      }
+                                    >
+                                      ✕
+                                    </button>
+                                  )}
                               </td>
                             ))}
                           </tr>
