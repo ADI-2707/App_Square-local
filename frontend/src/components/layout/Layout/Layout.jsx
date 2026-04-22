@@ -376,18 +376,16 @@ export default function Layout({ children }) {
                               >
                                 <span>{cell.tagName}</span>
 
-                                {isTemplate &&
-                                  role === "admin" &&
-                                  cell.tagName !== "-" && (
-                                    <button
-                                      className="tag-delete-btn"
-                                      onClick={() =>
-                                        handleDeleteTag(cell.tagName, colIndex)
-                                      }
-                                    >
-                                      ✕
-                                    </button>
-                                  )}
+                                {role === "admin" && cell.tagName !== "-" && (
+                                  <button
+                                    className="tag-delete-btn"
+                                    onClick={() =>
+                                      handleDeleteTag(cell.tagName, colIndex)
+                                    }
+                                  >
+                                    ✕
+                                  </button>
+                                )}
                               </td>
                             ))}
                           </tr>
@@ -399,7 +397,11 @@ export default function Layout({ children }) {
                       <thead>
                         <tr>
                           {devices.map((device) => (
-                            <th key={device.id} className="device-header">
+                            <th
+                              key={device.id}
+                              className="device-header"
+                              colSpan={2}
+                            >
                               {device.device_name}
                             </th>
                           ))}
@@ -407,9 +409,10 @@ export default function Layout({ children }) {
 
                         <tr>
                           {devices.map((device) => (
-                            <th key={device.id} className="sub-header">
-                              Tag
-                            </th>
+                            <React.Fragment key={device.id}>
+                              <th className="sub-header">Tag</th>
+                              <th className="sub-header">Value</th>
+                            </React.Fragment>
                           ))}
                         </tr>
                       </thead>
@@ -418,16 +421,34 @@ export default function Layout({ children }) {
                         {tableRows.map((row, rowIndex) => (
                           <tr key={rowIndex}>
                             {row.map((cell, colIndex) => (
-                              <td key={colIndex} className="tag-cell">
-                                {cell.tagName}
-                                <div className="tag-value">{cell.value}</div>
-                              </td>
+                              <React.Fragment key={colIndex}>
+                                <td className="tag-cell">{cell.tagName}</td>
+
+                                <td className="value-cell">
+                                  {isEditing ? (
+                                    <input
+                                      className="value-input"
+                                      value={cell.value}
+                                      onChange={(e) =>
+                                        handleValueChange(
+                                          colIndex,
+                                          tagIndexMap[colIndex]?.[cell.tagName],
+                                          e.target.value,
+                                        )
+                                      }
+                                    />
+                                  ) : (
+                                    cell.value
+                                  )}
+                                </td>
+                              </React.Fragment>
                             ))}
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   ) : (
+                    
                     <table className="recipe-matrix-table recipe-mode">
                       <thead>
                         <tr>
