@@ -177,6 +177,12 @@
   width: 100%;
 }
 
+.recipe-matrix-table.template-mode th,
+.recipe-matrix-table.template-mode td {
+  width: 200px;
+  min-width: 200px;
+}
+
 .value-input {
   width: 90%;
   height: 26px;
