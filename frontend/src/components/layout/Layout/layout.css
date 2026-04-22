@@ -122,16 +122,15 @@
 
 .recipe-matrix-table thead tr:first-child th {
   position: sticky;
-  top: 0;
-  z-index: 10;
+  top: var(--navbar-height);
+  z-index: 20;
   background: var(--color-bg-hover);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .recipe-matrix-table thead tr:nth-child(2) th {
   position: sticky;
-  top: 48px;
-  z-index: 9;
+  top: calc(var(--navbar-height) + 48px);
+  z-index: 19;
   background: var(--color-bg-hover);
 }
 
