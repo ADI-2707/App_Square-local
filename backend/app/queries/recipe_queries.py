@@ -130,7 +130,12 @@ def get_full_recipe(db: Session, recipe_id: int):
             {
                 "type": log.change_type,
                 "name": log.entity_name,
-                "timestamp": log.created_at.isoformat()
+                "timestamp": log.created_at.isoformat(),
+                "label": (
+                    f"Tag '{log.entity_name}' removed from template"
+                    if log.change_type == "TAG_DELETED"
+                    else f"Equipment '{log.entity_name}' removed from template"
+                )
             }
             for log in new_logs
         ],
