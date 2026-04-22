@@ -407,10 +407,10 @@ export default function Layout({ children }) {
 
                         <tr>
                           {devices.map((device) => (
-                            <React.Fragment key={device.id}>
+                            <Fragment key={device.id}>
                               <th className="sub-header">Tag</th>
                               <th className="sub-header">Value</th>
-                            </React.Fragment>
+                            </Fragment>
                           ))}
                         </tr>
                       </thead>
@@ -419,7 +419,7 @@ export default function Layout({ children }) {
                         {tableRows.map((row, rowIndex) => (
                           <tr key={rowIndex}>
                             {row.map((cell, colIndex) => (
-                              <React.Fragment key={colIndex}>
+                              <Fragment key={colIndex}>
                                 <td className="tag-cell">{cell.tagName}</td>
 
                                 <td className="value-cell">
@@ -439,7 +439,7 @@ export default function Layout({ children }) {
                                     cell.value
                                   )}
                                 </td>
-                              </React.Fragment>
+                              </Fragment>
                             ))}
                           </tr>
                         ))}
