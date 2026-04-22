@@ -232,7 +232,9 @@ export default function Layout({ children }) {
   const allTags = isRecipe
     ? Array.from(
         new Set(
-          devices.flatMap((device) => device.tag_values.map((t) => t.tag_name)),
+          devices.flatMap((device) =>
+            (device.tag_values || []).map((t) => t.tag_name),
+          ),
         ),
       )
     : [];
