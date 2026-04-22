@@ -229,6 +229,14 @@ export default function Layout({ children }) {
     return rows;
   }, [devices]);
 
+  const allTags = isRecipe
+    ? Array.from(
+        new Set(
+          devices.flatMap((device) => device.tag_values.map((t) => t.tag_name)),
+        ),
+      )
+    : [];
+
   const handleCancelEdit = () => {
     const originalDevices = workspace?.data?.devices || [];
 
