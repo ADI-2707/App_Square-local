@@ -9,6 +9,8 @@ import AboutModal from "../../Modals/AboutModal/AboutModal";
 import HelpModal from "../../Modals/HelpModal/HelpModal";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
+import { useEntities } from "../../../context/EntityContext/EntityContext";
+import { useAuth } from "../../../context/AuthContext/AuthContext";
 import WorkspaceToolbar from "../../workspace/WorkspaceToolbar/WorkspaceToolbar";
 import ChangeLogBanner from "../../workspace/ChangeLogBanner/ChangeLogBanner";
 import api from "../../../Utility/api";
@@ -29,6 +31,8 @@ export default function Layout({ children }) {
 
   const { workspace } = useWorkspace();
   const { openRecipeInWorkspace } = useRecipes();
+  const { deleteTag } = useEntities();
+  const { role } = useAuth();
   const location = useLocation();
 
   const scrollRef = useRef(null);
@@ -237,6 +241,25 @@ export default function Layout({ children }) {
     setIsEditing(false);
   };
 
+  const handleDeleteTag = async (tagName, deviceIndex) => {
+    const device = workspace.data.devices[deviceIndex];
+
+    const tag = device.tag_values.find((t) => t.tag_name === tagName);
+
+    if (!tag) return;
+
+    const confirmed = window.confirm(
+      `Delete tag "${tagName}"?\n\nThis will affect all linked recipes.`,
+    );
+
+    if (!confirmed) return;
+
+    await deleteTag(tag.id, device.id);
+
+    const updated = await api.get(`/templates/${workspace.data.id}/full`);
+    openWorkspace("template", updated.data);
+  };
+
   const tagMatrix = useMemo(() => {
     if (!devices.length) return [];
 
@@ -358,7 +381,25 @@ export default function Layout({ children }) {
 
                               return (
                                 <Fragment key={`${rowIndex}-${colIndex}`}>
-                                  <td className="tag-cell">{cell.tagName}</td>
+                                  <td className="tag-cell tag-cell-with-action">
+                                    <span>{cell.tagName}</span>
+
+                                    {workspace?.type === "template" &&
+                                      role === "admin" &&
+                                      cell.tagName !== "-" && (
+                                        <button
+                                          className="tag-delete-btn"
+                                          onClick={() =>
+                                            handleDeleteTag(
+                                              cell.tagName,
+                                              colIndex,
+                                            )
+                                          }
+                                        >
+                                          ✕
+                                        </button>
+                                      )}
+                                  </td>
 
                                   {showValues && (
                                     <td

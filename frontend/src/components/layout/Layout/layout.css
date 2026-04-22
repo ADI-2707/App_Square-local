@@ -249,6 +249,32 @@
   animation: viewSwitch 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.tag-cell-with-action {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.tag-delete-btn {
+  background: transparent;
+  border: none;
+  color: #c62828;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.tag-cell-with-action:hover .tag-delete-btn {
+  opacity: 1;
+}
+
+.tag-delete-btn:hover {
+  color: #ff1744;
+  transform: scale(1.1);
+}
+
 @keyframes viewSwitch {
   0% {
     opacity: 0.65;
