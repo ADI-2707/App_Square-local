@@ -130,7 +130,9 @@ export default function Layout({ children }) {
     return map;
   }, [devices]);
 
-  const showValues = workspace?.type === "recipe";
+  const isRecipe = workspace?.type === "recipe";
+  const isTemplate = workspace?.type === "template";
+  const showValues = isRecipe;
 
   const hasChanges = () => {
     if (!workspace?.data?.devices || !editableData.length) return false;
@@ -336,7 +338,9 @@ export default function Layout({ children }) {
                 <div className="matrix-scroll" ref={scrollRef}>
                   {viewMode === "device" ? (
                     <table
-                      className={`recipe-matrix-table ${showValues ? "recipe-mode" : "template-mode"}`}
+                      className={`recipe-matrix-table ${
+                        isRecipe ? "recipe-mode" : "template-mode"
+                      }`}
                     >
                       <thead>
                         <tr>
