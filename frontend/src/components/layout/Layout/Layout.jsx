@@ -450,23 +450,36 @@ export default function Layout({ children }) {
                     <table className="recipe-matrix-table recipe-mode">
                       <thead>
                         <tr>
-                          <th>Tag</th>
+                          <th className="device-header tag-header-main">Tag</th>
+
                           {devices.map((device) => (
-                            <th key={device.id}>{device.device_name}</th>
+                            <th key={device.id} className="device-header">{device.device_name}</th>
                           ))}
                         </tr>
+
+                         <tr>
+            <th className="sub-header">Tag</th>
+
+            {devices.map((device) => (
+              <th key={device.id} className="sub-header">
+                Value
+              </th>
+            ))}
+          </tr>
                       </thead>
 
                       <tbody>
                         {allTags.map((tag, rowIndex) => (
                           <tr key={rowIndex}>
-                            <td>{tag}</td>
+                            <td className="tag-cell">{tag}</td>
+
                             {devices.map((device, colIndex) => {
                               const tagVal = device.tag_values.find(
                                 (t) => t.tag_name === tag,
                               );
+
                               return (
-                                <td key={colIndex}>
+                                <td key={colIndex} className="value-cell">
                                   {tagVal ? tagVal.value : "-"}
                                 </td>
                               );
