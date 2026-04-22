@@ -10,6 +10,7 @@ import HelpModal from "../../Modals/HelpModal/HelpModal";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import WorkspaceToolbar from "../../workspace/WorkspaceToolbar/WorkspaceToolbar";
+import ChangeLogBanner from "../../workspace/ChangeLogBanner/ChangeLogBanner";
 import api from "../../../Utility/api";
 import "./layout.css";
 
@@ -280,6 +281,9 @@ export default function Layout({ children }) {
               key={`${workspace.type}-${workspace.data.id}`}
               className={`recipe-workspace ${animateIntro ? "view-enter" : ""}`}
             >
+              {workspace?.data?.changes?.length > 0 && (
+                <ChangeLogBanner changes={workspace.data.changes} />
+              )}
               <h2 className="workspace-title">
                 {workspace.type === "recipe" &&
                   `Active Recipe: ${workspace.data.name}`}
@@ -491,7 +495,10 @@ export default function Layout({ children }) {
           onClose={closeModal}
         />
       </div>
-      <Footer onOpenAbout={() => setShowAbout(true)} onOpenHelp={() => setShowHelp(true)} />
+      <Footer
+        onOpenAbout={() => setShowAbout(true)}
+        onOpenHelp={() => setShowHelp(true)}
+      />
 
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />

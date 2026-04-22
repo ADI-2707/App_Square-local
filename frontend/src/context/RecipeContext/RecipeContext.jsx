@@ -59,7 +59,11 @@ export function RecipeProvider({ children }) {
       const fullRecipe = await getFullRecipe(recipe.id);
 
       setActiveRecipe(fullRecipe);
-      return fullRecipe;
+      
+      return {
+        type: "recipe",
+        data: fullRecipe,
+      };
     } catch (error) {
       console.error("Failed to open recipe:", error);
       throw error;
