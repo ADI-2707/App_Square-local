@@ -29,7 +29,7 @@ export default function Layout({ children }) {
 
   const [viewMode, setViewMode] = useState("device");
 
-  const { workspace } = useWorkspace();
+  const { workspace, openWorkspace } = useWorkspace();
   const { openRecipeInWorkspace } = useRecipes();
   const { deleteTag } = useEntities();
   const { role } = useAuth();
@@ -336,20 +336,12 @@ export default function Layout({ children }) {
                 className="recipe-matrix-container view-transition"
               >
                 <div className="matrix-scroll" ref={scrollRef}>
-                  {viewMode === "device" ? (
-                    <table
-                      className={`recipe-matrix-table ${
-                        isRecipe ? "recipe-mode" : "template-mode"
-                      }`}
-                    >
+                  {isTemplate ? (
+                    <table className="recipe-matrix-table template-mode">
                       <thead>
                         <tr>
                           {devices.map((device) => (
-                            <th
-                              key={device.id}
-                              colSpan={showValues ? 2 : 1}
-                              className="device-header"
-                            >
+                            <th key={device.id} className="device-header">
                               {device.device_name}
                             </th>
                           ))}
@@ -357,12 +349,9 @@ export default function Layout({ children }) {
 
                         <tr>
                           {devices.map((device) => (
-                            <Fragment key={device.id}>
-                              <th className="sub-header">Tag</th>
-                              {showValues && (
-                                <th className="sub-header">Value</th>
-                              )}
-                            </Fragment>
+                            <th key={device.id} className="sub-header">
+                              Tag
+                            </th>
                           ))}
                         </tr>
                       </thead>
@@ -370,152 +359,70 @@ export default function Layout({ children }) {
                       <tbody>
                         {tableRows.map((row, rowIndex) => (
                           <tr key={rowIndex}>
-                            {row.map((cell, colIndex) => {
-                              const originalValue =
-                                workspace?.data?.devices?.[colIndex]
-                                  ?.tag_values?.[rowIndex]?.value;
-
-                              const currentValue =
-                                devices[colIndex]?.tag_values?.[rowIndex]
-                                  ?.value;
-
-                              const isChanged =
-                                String(originalValue ?? "") !==
-                                String(currentValue ?? "");
-
-                              return (
-                                <Fragment key={`${rowIndex}-${colIndex}`}>
-                                  <td className="tag-cell tag-cell-with-action">
-                                    <span>{cell.tagName}</span>
-
-                                    {workspace?.type === "template" &&
-                                      role === "admin" &&
-                                      cell.tagName !== "-" && (
-                                        <button
-                                          className="tag-delete-btn"
-                                          onClick={() =>
-                                            handleDeleteTag(
-                                              cell.tagName,
-                                              colIndex,
-                                            )
-                                          }
-                                        >
-                                          ✕
-                                        </button>
-                                      )}
-                                  </td>
-
-                                  {showValues && (
-                                    <td
-                                      className={`value-cell ${isChanged ? "changed-cell" : ""}`}
-                                    >
-                                      {isEditing ? (
-                                        <input
-                                          type="number"
-                                          className="value-input"
-                                          value={currentValue ?? ""}
-                                          onChange={(e) => {
-                                            const val = e.target.value;
-                                            if (val === "")
-                                              return handleValueChange(
-                                                colIndex,
-                                                rowIndex,
-                                                "",
-                                              );
-                                            const num = Number(val);
-                                            if (!Number.isNaN(num)) {
-                                              handleValueChange(
-                                                colIndex,
-                                                rowIndex,
-                                                num,
-                                              );
-                                            }
-                                          }}
-                                        />
-                                      ) : (
-                                        currentValue
-                                      )}
-                                    </td>
-                                  )}
-                                </Fragment>
-                              );
-                            })}
+                            {row.map((cell, colIndex) => (
+                              <td key={colIndex} className="tag-cell">
+                                {cell.tagName}
+                              </td>
+                            ))}
                           </tr>
                         ))}
                       </tbody>
                     </table>
-                  ) : (
-                    <table className="recipe-matrix-table">
+                  ) : viewMode === "device" ? (
+                    <table className="recipe-matrix-table recipe-mode">
                       <thead>
                         <tr>
-                          <th className="tag-header">Tag</th>
                           {devices.map((device) => (
                             <th key={device.id} className="device-header">
                               {device.device_name}
                             </th>
                           ))}
                         </tr>
+
+                        <tr>
+                          {devices.map((device) => (
+                            <th key={device.id} className="sub-header">
+                              Tag
+                            </th>
+                          ))}
+                        </tr>
                       </thead>
 
                       <tbody>
-                        {tagMatrix.map((row, rowIndex) => (
+                        {tableRows.map((row, rowIndex) => (
                           <tr key={rowIndex}>
-                            <td className="tag-cell">{row.tagName}</td>
+                            {row.map((cell, colIndex) => (
+                              <td key={colIndex} className="tag-cell">
+                                {cell.tagName}
+                                <div className="tag-value">{cell.value}</div>
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <table className="recipe-matrix-table recipe-mode">
+                      <thead>
+                        <tr>
+                          <th>Tag</th>
+                          {devices.map((device) => (
+                            <th key={device.id}>{device.device_name}</th>
+                          ))}
+                        </tr>
+                      </thead>
 
-                            {devices.map((device, deviceIndex) => {
-                              const tagIndex =
-                                tagIndexMap[deviceIndex]?.[row.tagName];
-
-                              const originalValue =
-                                workspace?.data?.devices?.[deviceIndex]
-                                  ?.tag_values?.[tagIndex]?.value;
-
-                              const currentValue =
-                                tagIndex !== -1
-                                  ? devices?.[deviceIndex]?.tag_values?.[
-                                      tagIndex
-                                    ]?.value
-                                  : "";
-
-                              const isChanged =
-                                String(originalValue ?? "") !==
-                                String(currentValue ?? "");
-
+                      <tbody>
+                        {allTags.map((tag, rowIndex) => (
+                          <tr key={rowIndex}>
+                            <td>{tag}</td>
+                            {devices.map((device, colIndex) => {
+                              const tagVal = device.tag_values.find(
+                                (t) => t.tag_name === tag,
+                              );
                               return (
-                                <td
-                                  key={device.id}
-                                  className={`value-cell ${isChanged ? "changed-cell" : ""}`}
-                                >
-                                  {isEditing && tagIndex !== -1 ? (
-                                    <input
-                                      type="number"
-                                      className="value-input"
-                                      value={currentValue ?? ""}
-                                      onChange={(e) => {
-                                        const val = e.target.value;
-
-                                        if (val === "") {
-                                          handleValueChange(
-                                            deviceIndex,
-                                            tagIndex,
-                                            "",
-                                          );
-                                          return;
-                                        }
-
-                                        const num = Number(val);
-                                        if (!Number.isNaN(num)) {
-                                          handleValueChange(
-                                            deviceIndex,
-                                            tagIndex,
-                                            num,
-                                          );
-                                        }
-                                      }}
-                                    />
-                                  ) : (
-                                    (currentValue ?? "-")
-                                  )}
+                                <td key={colIndex}>
+                                  {tagVal ? tagVal.value : "-"}
                                 </td>
                               );
                             })}
