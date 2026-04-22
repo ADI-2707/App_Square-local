@@ -446,7 +446,7 @@ export default function Layout({ children }) {
                       </tbody>
                     </table>
                   ) : (
-                    <table className="recipe-matrix-table recipe-mode">
+                    <table className="recipe-matrix-table tag-mode">
                       <thead>
                         <tr>
                           <th className="device-header tag-header-main">Tag</th>
