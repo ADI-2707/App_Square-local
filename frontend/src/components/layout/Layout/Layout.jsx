@@ -365,27 +365,38 @@ export default function Layout({ children }) {
                       </thead>
 
                       <tbody>
-                        {tableRows.map((row, rowIndex) => (
+                        {Array.from({
+                          length: Math.max(
+                            ...devices.map((d) => d.tag_values?.length || 0),
+                          ),
+                        }).map((_, rowIndex) => (
                           <tr key={rowIndex}>
-                            {row.map((cell, colIndex) => (
-                              <td
-                                key={colIndex}
-                                className="tag-cell tag-cell-with-action"
-                              >
-                                <span>{cell.tagName}</span>
+                            {devices.map((device, deviceIndex) => {
+                              const tag = device.tag_values?.[rowIndex];
 
-                                {role === "admin" && cell.tagName !== "-" && (
-                                  <button
-                                    className="tag-delete-btn"
-                                    onClick={() =>
-                                      handleDeleteTag(cell.tagName, colIndex)
-                                    }
-                                  >
-                                    ✕
-                                  </button>
-                                )}
-                              </td>
-                            ))}
+                              return (
+                                <td
+                                  key={deviceIndex}
+                                  className="tag-cell tag-cell-with-action"
+                                >
+                                  <span>{tag?.tag_name ?? "-"}</span>
+
+                                  {role === "admin" && tag?.tag_name && (
+                                    <button
+                                      className="tag-delete-btn"
+                                      onClick={() =>
+                                        handleDeleteTag(
+                                          tag.tag_name,
+                                          deviceIndex,
+                                        )
+                                      }
+                                    >
+                                      ✕
+                                    </button>
+                                  )}
+                                </td>
+                              );
+                            })}
                           </tr>
                         ))}
                       </tbody>
