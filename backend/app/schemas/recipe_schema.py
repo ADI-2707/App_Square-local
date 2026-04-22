@@ -53,6 +53,7 @@ class ChangeLog(BaseModel):
     type: str
     name: str
     timestamp: str
+    label: str
 
 
 class FullRecipeResponse(BaseModel):
