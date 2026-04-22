@@ -208,6 +208,30 @@ export function EntityProvider({ children }) {
     }
   };
 
+  const deleteTag = async (tagId, deviceId) => {
+    try {
+      await api.delete(`/templates/tags/${tagId}`);
+
+      setTags((prev) => {
+        const newById = { ...prev.byId };
+        delete newById[tagId];
+
+        const newByDeviceId = {
+          ...prev.byDeviceId,
+          [deviceId]: prev.byDeviceId[deviceId].filter((id) => id !== tagId),
+        };
+
+        return {
+          byId: newById,
+          byDeviceId: newByDeviceId,
+        };
+      });
+    } catch (err) {
+      console.error("Failed to delete tag:", err);
+      alert(err?.response?.data?.detail || "Failed to delete tag");
+    }
+  };
+
   const fetchTemplates = async ({
     search = "",
     sort = "newest",
@@ -250,6 +274,7 @@ export function EntityProvider({ children }) {
         addFullTemplateGroup,
         deleteTemplate,
         deleteDevice,
+        deleteTag,
         fetchTemplates,
       }}
     >
