@@ -212,12 +212,19 @@ def delete_tag_from_device(
     current_user: User,
     request: Request = None
 ):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin required")
+
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
 
     if not tag:
-        raise HTTPException(404, "Tag not found")
+        raise HTTPException(status_code=404, detail="Tag not found")
 
     device = tag.device
+
+    if not device:
+        raise HTTPException(status_code=400, detail="Tag is not linked to any device")
+
     template_group_id = device.template_group_id
     tag_name = tag.name
 
