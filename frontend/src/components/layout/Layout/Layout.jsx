@@ -474,8 +474,8 @@ export default function Layout({ children }) {
                           <tr key={rowIndex}>
                             <td className="tag-cell">{tag}</td>
 
-                            {devices.map((device, colIndex) => {
-                              const tagVal = device.tag_values.find(
+                            {devices.map((device, deviceIndex) => {
+                              const tagIndex = device.tag_values.findIndex(
                                 (t) => t.tag_name === tag,
                               );
 
