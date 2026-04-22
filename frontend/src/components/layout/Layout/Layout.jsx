@@ -446,26 +446,27 @@ export default function Layout({ children }) {
                       </tbody>
                     </table>
                   ) : (
-                    
                     <table className="recipe-matrix-table recipe-mode">
                       <thead>
                         <tr>
                           <th className="device-header tag-header-main">Tag</th>
 
                           {devices.map((device) => (
-                            <th key={device.id} className="device-header">{device.device_name}</th>
+                            <th key={device.id} className="device-header">
+                              {device.device_name}
+                            </th>
                           ))}
                         </tr>
 
-                         <tr>
-            <th className="sub-header">Tag</th>
+                        <tr>
+                          <th className="sub-header">Tag</th>
 
-            {devices.map((device) => (
-              <th key={device.id} className="sub-header">
-                Value
-              </th>
-            ))}
-          </tr>
+                          {devices.map((device) => (
+                            <th key={device.id} className="sub-header">
+                              Value
+                            </th>
+                          ))}
+                        </tr>
                       </thead>
 
                       <tbody>

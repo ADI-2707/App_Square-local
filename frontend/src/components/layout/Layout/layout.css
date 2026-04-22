@@ -227,6 +227,20 @@
   left: auto;
 }
 
+.recipe-matrix-table.tag-mode th,
+.recipe-matrix-table.tag-mode td {
+  text-align: center;
+}
+
+.recipe-matrix-table.tag-mode thead tr:first-child th:not(:last-child),
+.recipe-matrix-table.tag-mode tbody td:not(:last-child) {
+  border-right: 3px solid var(--color-border-strong);
+}
+
+.tag-header-main {
+  border-right: 3px solid var(--color-border-strong);
+}
+
 .workspace-placeholder {
   padding: var(--space-xl);
   background: var(--color-surface);
