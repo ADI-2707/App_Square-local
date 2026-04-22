@@ -66,8 +66,9 @@
 
 .matrix-scroll {
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
   max-width: 100%;
+  max-height: 70vh;
   position: relative;
 }
 
