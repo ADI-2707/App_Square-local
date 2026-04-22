@@ -9,7 +9,7 @@
   position: relative;
   margin-top: var(--navbar-height);
   margin-left: var(--sidebar-width);
-  height: calc(100vh - var(--navbar-height));
+  height: calc(100vh - var(--navbar-height) - 40px);
   width: calc(100% - var(--sidebar-width));
   padding: var(--space-lg);
   overflow-y: auto;
@@ -61,7 +61,7 @@
   box-shadow: var(--shadow-soft);
   border: 1px solid var(--color-border);
   max-width: 100%;
-  overflow: visible !important;
+  overflow: hidden;
 }
 
 .matrix-scroll {
@@ -122,14 +122,14 @@
 
 .recipe-matrix-table thead tr:first-child th {
   position: sticky;
-  top: var(--navbar-height);
+  top: 0;
   z-index: 20;
   background: var(--color-bg-hover);
 }
 
 .recipe-matrix-table thead tr:nth-child(2) th {
   position: sticky;
-  top: calc(var(--navbar-height) + 48px);
+  top: 48px;
   z-index: 19;
   background: var(--color-bg-hover);
 }
