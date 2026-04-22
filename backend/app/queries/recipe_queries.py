@@ -96,7 +96,14 @@ def get_full_recipe(db: Session, recipe_id: int):
     for log in logs:
         if recipe.last_synced_at is None or log.created_at > recipe.last_synced_at:
             new_logs.append(log)
-    removed_devices = [log.entity_name for log in new_logs]
+    removed_devices = []
+    removed_tags_from_logs = []
+
+    for log in new_logs:
+        if log.change_type == "EQUIPMENT_DELETED":
+            removed_devices.append(log.entity_name)
+        elif log.change_type == "TAG_DELETED":
+            removed_tags_from_logs.append(log.entity_name)
 
     response = {
         "id": recipe.id,
@@ -128,8 +135,8 @@ def get_full_recipe(db: Session, recipe_id: int):
             for log in new_logs
         ],
 
-        "removed_devices": removed_devices,
-        "removed_tags": list(set(removed_tags))
+        "removed_devices": list(set(removed_devices)),
+        "removed_tags": list(set(removed_tags + removed_tags_from_logs))
     }
 
     recipe.last_synced_at = datetime.utcnow()
