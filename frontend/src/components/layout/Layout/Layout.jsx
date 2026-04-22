@@ -479,9 +479,32 @@ export default function Layout({ children }) {
                                 (t) => t.tag_name === tag,
                               );
 
+                              const tagVal =
+                                tagIndex !== -1
+                                  ? device.tag_values[tagIndex]
+                                  : null;
+
                               return (
-                                <td key={colIndex} className="value-cell">
-                                  {tagVal ? tagVal.value : "-"}
+                                <td key={deviceIndex} className="value-cell">
+                                  {tagVal ? (
+                                    isEditing ? (
+                                      <input
+                                        className="value-input"
+                                        value={tagVal.value}
+                                        onChange={(e) =>
+                                          handleValueChange(
+                                            deviceIndex,
+                                            tagIndex,
+                                            e.target.value,
+                                          )
+                                        }
+                                      />
+                                    ) : (
+                                      tagVal.value
+                                    )
+                                  ) : (
+                                    "-"
+                                  )}
                                 </td>
                               );
                             })}
