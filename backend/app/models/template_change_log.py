@@ -16,6 +16,8 @@ class TemplateChangeLog(Base):
 
     entity_id = Column(Integer, nullable=False)
 
+    device_name = Column(String(150), nullable=True) 
+
     deleted_by = Column(String(50), nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

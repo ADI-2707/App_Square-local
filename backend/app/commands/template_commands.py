@@ -233,6 +233,7 @@ def delete_tag_from_device(
         change_type="TAG_DELETED",
         entity_name=tag_name,
         entity_id=tag.id,
+        device_name=device.name,
         deleted_by=current_user.username
     )
     db.add(log)
