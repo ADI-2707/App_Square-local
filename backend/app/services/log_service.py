@@ -9,12 +9,22 @@ RETENTION_DAYS = 90
 IST = pytz.timezone("Asia/Kolkata")
 
 
-def _resolve_actor(user: User | None) -> str:
-    if not user:
-        return "SYS"
+def _resolve_actor(user: User | None = None) -> str:
+    try:
+        if not user:
+            return "SYS"
+        
+        actor_code = user.__dict__.get("actor_code")
+        user_id = user.__dict__.get("id")
 
-    if getattr(user, "actor_code", None):
-        return user.actor_code
+        if actor_code:
+            return actor_code
+
+        if user_id:
+            return f"user:{user_id}"
+
+    except Exception:
+        pass
 
     return "SYS"
 

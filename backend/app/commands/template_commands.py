@@ -171,7 +171,6 @@ def delete_device_from_template(
     current_user: User,
     request: Request = None
 ):
-
     device = db.query(DeviceInstance).filter(
         DeviceInstance.id == device_id
     ).first()
@@ -180,7 +179,7 @@ def delete_device_from_template(
         raise HTTPException(404, "Equipment not found")
 
     device_name = device.name
-    template_group_id = device.template_group_id 
+    template_group_id = device.template_group_id
 
     recipe_devices = db.query(RecipeDevice).filter(
         RecipeDevice.device_name == device_name
@@ -193,7 +192,8 @@ def delete_device_from_template(
         template_group_id=template_group_id,
         change_type="EQUIPMENT_DELETED",
         entity_name=device_name,
-        entity_id=device.id
+        entity_id=device.id,
+        deleted_by=current_user.username
     )
     db.add(log)
 
@@ -201,4 +201,45 @@ def delete_device_from_template(
 
     return {
         "message": f"{device_name} deleted successfully"
+    }
+
+
+@transactional
+@command_logger(action="TEMPLATE_TAG_DELETE")
+def delete_tag_from_device(
+    db: Session,
+    tag_id: int,
+    current_user: User,
+    request: Request = None
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin required")
+
+    tag = db.query(Tag).filter(Tag.id == tag_id).first()
+
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+
+    device = tag.device
+
+    if not device:
+        raise HTTPException(status_code=400, detail="Tag is not linked to any device")
+
+    template_group_id = device.template_group_id
+    tag_name = tag.name
+
+    log = TemplateChangeLog(
+        template_group_id=template_group_id,
+        change_type="TAG_DELETED",
+        entity_name=tag_name,
+        entity_id=tag.id,
+        device_name=device.name,
+        deleted_by=current_user.username
+    )
+    db.add(log)
+
+    db.delete(tag)
+
+    return {
+        "message": f"Tag '{tag_name}' deleted successfully"
     }

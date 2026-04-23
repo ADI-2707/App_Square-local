@@ -13,7 +13,8 @@ from app.schemas.template_schema import (
 from app.commands.template_commands import (
     create_full_template_group,
     delete_device_from_template,
-    delete_template_group as delete_template_group_command
+    delete_template_group as delete_template_group_command,
+    delete_tag_from_device
 )
 
 from app.services.template_service import (
@@ -150,4 +151,19 @@ def get_templates(
         date_filter=date_filter,
         page=page,
         limit=limit
+    )
+
+
+@router.delete("/tags/{tag_id}")
+def delete_tag(
+    tag_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return delete_tag_from_device(
+        db=db,
+        tag_id=tag_id,
+        current_user=current_user,
+        request=request
     )

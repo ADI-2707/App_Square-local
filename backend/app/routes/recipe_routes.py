@@ -22,12 +22,11 @@ from app.commands.recipe_commands import (
 from app.queries.recipe_queries import (
     get_recipe_groups_by_template,
     get_recipes_by_group_paginated,
-    get_full_recipe
+    get_full_recipe,
+    get_recipes_global
 )
 
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
-
-
 
 @router.post("/groups", response_model=RecipeGroupResponse)
 def create_group(
@@ -43,7 +42,6 @@ def create_group(
         current_user=current_user,
         request=request
     )
-
 
 
 @router.get(
@@ -152,7 +150,47 @@ def update_recipe_values_route(
     return update_recipe_values(
         db=db,
         recipe_id=recipe_id,
-        devices=data["devices"],
+        changes=data.get("changes", []),
         current_user=current_user,
         request=request
     )
+
+
+@router.get("")
+def get_all_recipes(
+    search: str = "",
+    page: int = 1,
+    limit: int = 10,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    skip = (page - 1) * limit
+
+    results, total = get_recipes_global(
+        db=db,
+        search=search,
+        skip=skip,
+        limit=limit
+    )
+
+    data = []
+
+    for recipe in results:
+        template_name = "Unknown"
+
+        if hasattr(recipe, "recipe_group") and recipe.recipe_group:
+            if hasattr(recipe.recipe_group, "template_group") and recipe.recipe_group.template_group:
+                template_name = recipe.recipe_group.template_group.name
+
+        data.append({
+            "id": recipe.id,
+            "name": recipe.name,
+            "template_name": template_name,
+            "recipe_group_id": recipe.recipe_group_id,
+            "area_name": recipe.recipe_group.name if recipe.recipe_group else None
+        })
+
+    return {
+        "data": data,
+        "total": total
+    }

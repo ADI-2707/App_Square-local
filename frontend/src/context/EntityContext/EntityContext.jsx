@@ -208,6 +208,40 @@ export function EntityProvider({ children }) {
     }
   };
 
+  const deleteTag = async (tagId, deviceId) => {
+    try {
+      await api.delete(`/templates/tags/${tagId}`);
+
+      setTags((prev) => {
+        const newById = { ...prev.byId };
+        delete newById[tagId];
+
+        const newByDeviceId = {
+          ...prev.byDeviceId,
+          [deviceId]: (prev.byDeviceId[deviceId] || []).filter(
+            (id) => id !== tagId,
+          ),
+        };
+
+        return {
+          byId: newById,
+          byDeviceId: newByDeviceId,
+        };
+      });
+    } catch (err) {
+      const errorMsg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.message ||
+        JSON.stringify(err?.response?.data) ||
+        "Failed to load recipe";
+
+      console.error("FULL ERROR:", err?.response?.data);
+
+      alert(errorMsg);
+    }
+  };
+
   const fetchTemplates = async ({
     search = "",
     sort = "newest",
@@ -250,6 +284,7 @@ export function EntityProvider({ children }) {
         addFullTemplateGroup,
         deleteTemplate,
         deleteDevice,
+        deleteTag,
         fetchTemplates,
       }}
     >

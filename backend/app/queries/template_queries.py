@@ -129,6 +129,7 @@ def get_full_template(db: Session, template_group_id: int):
             "device_name": device.name,
             "tag_values": [
                 {
+                    "id": tag.id,
                     "tag_name": tag.name,
                     "value": "-"
                 }

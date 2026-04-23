@@ -32,6 +32,7 @@ origins = [
     origin.strip() for origin in ALLOWED_ORIGINS.split(",") if origin
 ]
 
+app.add_middleware(ExceptionLoggingMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -40,8 +41,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-app.add_middleware(ExceptionLoggingMiddleware)
 
 app.include_router(auth_routes.router)
 app.include_router(admin_routes.router)

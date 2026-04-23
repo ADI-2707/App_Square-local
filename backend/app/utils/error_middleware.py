@@ -28,9 +28,11 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
                 try:
                     error_message = f"HTTP {response.status_code}"
 
+                    user_obj = getattr(request.state, "user", None)
+
                     add_log(
                         db=log_db,
-                        user=getattr(request.state, "user", None),
+                        user=user_obj if user_obj and hasattr(user_obj, "__dict__") else None,
                         action="HTTP_ERROR",
                         status="FAILURE",
                         endpoint=request.url.path,
@@ -52,9 +54,11 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
             log_db: Session = SessionLocal()
 
             try:
+                user_obj = getattr(request.state, "user", None)
+
                 add_log(
                     db=log_db,
-                    user=getattr(request.state, "user", None),
+                    user=user_obj if user_obj and hasattr(user_obj, "__dict__") else None,
                     action="UNHANDLED_EXCEPTION",
                     status="FAILURE",
                     endpoint=request.url.path,
@@ -70,5 +74,8 @@ class ExceptionLoggingMiddleware(BaseHTTPMiddleware):
 
             return JSONResponse(
                 status_code=500,
-                content={"detail": "Internal server error"}
+                content={
+                    "detail": str(e),
+                    "trace": traceback.format_exc()
+                }
             )
