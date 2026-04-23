@@ -7,11 +7,27 @@
   padding-top: var(--space-md);
   display: flex;
   flex-direction: column;
-  z-index: 1001;
+  z-index: 2000;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
-  overflow-x: hidden;
+  overflow-x: visible;
   will-change: width;
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-tooltip-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.sidebar-title.sidebar-tooltip-wrapper {
+  width: 100%;
+}
+
+.sidebar.collapsed .sidebar-tooltip-wrapper {
+  justify-content: center;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -44,7 +60,9 @@
   justify-content: center;
 }
 
-.sidebar.collapsed span {
+.sidebar.collapsed .sidebar-appname,
+.sidebar.collapsed .tree-item-content span,
+.sidebar.collapsed .sidebar-title span {
   display: none;
 }
 
@@ -136,17 +154,6 @@
   letter-spacing: 0.5px;
 }
 
-.sidebar {
-  position: fixed;
-  left: 0;
-  width: var(--sidebar-width);
-  height: 100vh;
-  background-color: var(--color-primary);
-  display: flex;
-  flex-direction: column;
-  z-index: 1001;
-}
-
 .sidebar-content-scroll {
   flex: 1;
   overflow-y: auto;
@@ -191,7 +198,7 @@
 }
 
 .sidebar-title {
-  position: sticky;
+  position: relative;
   top: 0;
   z-index: 5;
   padding: 14px 20px;

@@ -66,6 +66,7 @@ export default function Sidebar({
   const [hasLoaded, setHasLoaded] = useState(false);
   const [viewAllRecipesModal, setViewAllRecipesModal] = useState(false);
   const [recentRecipeGroups, setRecentRecipeGroups] = useState([]);
+  const [tooltip, setTooltip] = useState(null);
 
   const hasTemplates = groups.allIds.length > 0;
 
@@ -475,11 +476,24 @@ export default function Sidebar({
         <div className="sidebar-content-scroll">
           <div className="sidebar-section">
             <div
-              className="sidebar-title"
+              className="sidebar-title sidebar-tooltip-wrapper"
               onClick={() => handleSectionClick("templates")}
+              onMouseEnter={(e) => {
+                if (isCollapsed) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setTooltip({
+                    label: "Templates",
+                    x: rect.right + 10,
+                    y: rect.top + rect.height / 2,
+                  });
+                }
+              }}
+              onMouseLeave={() => setTooltip(null)}
             >
               {isCollapsed ? (
-                <img src="/icons/template.svg" className="sidebar-icon" />
+                <>
+                  <img src="/icons/template.svg" className="sidebar-icon" />
+                </>
               ) : (
                 <>{openSections.templates ? "▾" : "▸"} Templates</>
               )}
@@ -594,13 +608,25 @@ export default function Sidebar({
 
           <div className="sidebar-section">
             <div
-              className={`sidebar-title ${
+              className={`sidebar-title sidebar-tooltip-wrapper ${
                 !hasTemplates ? "disabled-section" : ""
               }`}
               onClick={() => hasTemplates && handleSectionClick("recipes")}
+              onMouseEnter={(e) => {
+                if (isCollapsed) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setTooltip({
+                    label: "Recipes",
+                    x: rect.right + 10,
+                    y: rect.top + rect.height / 2,
+                  });
+                }
+              }}
+              onMouseLeave={() => setTooltip(null)}
             >
               {isCollapsed ? (
-                <img src="/icons/recipe.svg" className="sidebar-icon" />
+                <>
+                  <img src="/icons/recipe.svg" className="sidebar-icon" />                </>
               ) : (
                 <>{openSections.recipes ? "▾" : "▸"} Recipes</>
               )}
@@ -817,6 +843,27 @@ export default function Sidebar({
           onClose={() => setViewAllRecipesModal(false)}
           onOpenRecipe={handleOpenRecipe}
         />
+      )}
+    {tooltip && createPortal(
+        <div
+          style={{
+            position: "fixed",
+            top: tooltip.y,
+            left: tooltip.x,
+            transform: "translateY(-50%)",
+            background: "#111827",
+            color: "white",
+            padding: "6px 10px",
+            fontSize: "12px",
+            borderRadius: "4px",
+            whiteSpace: "nowrap",
+            zIndex: 9999,
+            pointerEvents: "none",
+          }}
+        >
+          {tooltip.label}
+        </div>,
+        document.body
       )}
     </>
   );

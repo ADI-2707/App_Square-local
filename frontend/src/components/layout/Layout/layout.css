@@ -13,7 +13,7 @@
   width: calc(100% - var(--sidebar-width));
   padding: var(--space-lg);
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: visible;
   scroll-behavior: smooth;
 
   transition:
