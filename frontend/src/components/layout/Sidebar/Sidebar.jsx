@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
@@ -48,6 +48,11 @@ export default function Sidebar({
   const [addRecipeModal, setAddRecipeModal] = useState(null);
 
   const [openSections, setOpenSections] = useState({
+    templates: false,
+    recipes: false,
+  });
+
+  const prevOpenSectionsRef = useRef({
     templates: false,
     recipes: false,
   });
@@ -189,6 +194,19 @@ export default function Sidebar({
     }
   }, [workspace]);
 
+  useEffect(() => {
+    if (isCollapsed) {
+      prevOpenSectionsRef.current = openSections;
+
+      setOpenSections({
+        templates: false,
+        recipes: false,
+      });
+    } else {
+      setOpenSections(prevOpenSectionsRef.current);
+    }
+  }, [isCollapsed]);
+
   const toggleSection = (section) => {
     if (disabled) return;
 
@@ -307,6 +325,18 @@ export default function Sidebar({
     });
   };
 
+  const handleSectionClick = (section) => {
+    if (isCollapsed) {
+      setIsCollapsed(false);
+      setOpenSections((prev) => ({
+        ...prev,
+        [section]: true,
+      }));
+    } else {
+      toggleSection(section);
+    }
+  };
+
   const handleDelete = async () => {
     if (disabled || !contextMenu) return;
 
@@ -385,7 +415,7 @@ export default function Sidebar({
               workspace?.type === "device" &&
               workspace?.data?.id === contextMenu.deviceId
             ) {
-              openWorkspace(null, null); // clear workspace
+              openWorkspace(null, null);
             }
 
             if (
@@ -446,7 +476,7 @@ export default function Sidebar({
           <div className="sidebar-section">
             <div
               className="sidebar-title"
-              onClick={() => toggleSection("templates")}
+              onClick={() => handleSectionClick("templates")}
             >
               {isCollapsed ? (
                 <img src="/icons/template.svg" className="sidebar-icon" />
@@ -567,7 +597,7 @@ export default function Sidebar({
               className={`sidebar-title ${
                 !hasTemplates ? "disabled-section" : ""
               }`}
-              onClick={() => hasTemplates && toggleSection("recipes")}
+              onClick={() => hasTemplates && handleSectionClick("recipes")}
             >
               {isCollapsed ? (
                 <img src="/icons/recipe.svg" className="sidebar-icon" />
