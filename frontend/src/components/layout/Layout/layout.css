@@ -104,6 +104,12 @@
   white-space: nowrap;
 }
 
+.ui-locked input,
+.ui-locked button {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 .recipe-matrix-table th,
 .recipe-matrix-table td {
   width: 150px;

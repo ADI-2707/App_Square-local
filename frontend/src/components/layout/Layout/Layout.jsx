@@ -11,8 +11,10 @@ import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useAuth } from "../../../context/AuthContext/AuthContext";
+import { useUiLock } from "../../../context/UiLockContext/UiLockContext";
 import WorkspaceToolbar from "../../workspace/WorkspaceToolbar/WorkspaceToolbar";
 import ChangeLogBanner from "../../workspace/ChangeLogBanner/ChangeLogBanner";
+import UiLockOverlay from "../../common/UiLockOverlay/UiLockOverlay";
 import DeleteIcon from "../../../assets/icons/DeleteIcon";
 import api from "../../../Utility/api";
 import "./layout.css";
@@ -33,6 +35,8 @@ export default function Layout({ children }) {
   const { workspace, openWorkspace } = useWorkspace();
   const { openRecipeInWorkspace } = useRecipes();
   const { deleteTag } = useEntities();
+  const { lockUI, unlockUI } = useUiLock();
+  const { isLocked } = useUiLock();
   const { role } = useAuth();
   const location = useLocation();
 
@@ -168,21 +172,49 @@ export default function Layout({ children }) {
         const confirmed = window.confirm(
           "Are you sure you want to apply these changes?",
         );
-
         if (!confirmed) return;
 
         try {
-          await api.put(`/recipes/${workspace.data.id}/values`, {
-            devices: editableData,
+          lockUI("Saving only changed values...");
+
+          const changedPayload = [];
+
+          editableData.forEach((device, dIndex) => {
+            const originalDevice = workspace.data.devices[dIndex];
+
+            device.tag_values.forEach((tag, tIndex) => {
+              const originalTag = originalDevice?.tag_values?.[tIndex];
+
+              if (!originalTag) return;
+
+              if (String(originalTag.value ?? "") !== String(tag.value ?? "")) {
+                changedPayload.push({
+                  tag_id: tag.id || tag.tag_id || tag.tagId,
+                  device_id: device.id,
+                  value: tag.value,
+                });
+              }
+            });
           });
 
-          alert("Changes saved successfully");
+          if (changedPayload.length === 0) {
+            unlockUI();
+            setIsEditing(false);
+            return;
+          }
+
+          await api.put(`/recipes/${workspace.data.id}/values`, {
+            changes: changedPayload,
+          });
 
           await openRecipeInWorkspace(workspace.data);
+
+          alert("Changes saved successfully");
         } catch (err) {
           console.error(err);
           alert("Failed to save changes");
-          return;
+        } finally {
+          unlockUI();
         }
       }
 
@@ -270,38 +302,29 @@ export default function Layout({ children }) {
     );
 
     if (!confirmed) return;
+
     const deviceId = devices[deviceIndex].id;
 
-  await deleteTag(tagId, deviceId);
+    try {
+      lockUI(
+        `Deleting "${tag.tag_name}" from ${devices[deviceIndex].device_name}...`,
+      );
 
-    const updated = await api.get(`/templates/${workspace.data.id}/full`);
-    openWorkspace("template", updated.data);
+      await deleteTag(tagId, deviceId);
+
+      const updated = await api.get(`/templates/${workspace.data.id}/full`);
+      openWorkspace("template", updated.data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete tag");
+    } finally {
+      unlockUI();
+    }
   };
-
-  const tagMatrix = useMemo(() => {
-    if (!devices.length) return [];
-
-    const tagMap = {};
-
-    devices.forEach((device) => {
-      device.tag_values?.forEach((tag) => {
-        if (!tagMap[tag.tag_name]) {
-          tagMap[tag.tag_name] = {};
-        }
-
-        tagMap[tag.tag_name][device.device_name] = tag.value;
-      });
-    });
-
-    return Object.entries(tagMap).map(([tagName, deviceValues]) => ({
-      tagName,
-      values: deviceValues,
-    }));
-  }, [devices]);
 
   return (
     <>
-      <div className="layout-container">
+      <div className={`layout-container ${isLocked ? "ui-locked" : ""}`}>
         <Navbar />
         <Sidebar onOpenModal={setActiveModal} disabled={isAdminView} />
 
@@ -562,6 +585,8 @@ export default function Layout({ children }) {
 
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+
+      <UiLockOverlay />
     </>
   );
 }

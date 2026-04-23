@@ -63,6 +63,7 @@ export default function WorkspaceToolbar({
           <button
             className={`hmi-btn ${isEditing ? "apply-btn" : "edit-btn"}`}
             onClick={onEditToggle}
+            disabled={isEditing && isToggleDisabled}
           >
             <img
               src={isEditing ? "/icons/check.svg" : "/icons/edit.svg"}

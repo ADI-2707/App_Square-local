@@ -150,7 +150,7 @@ def update_recipe_values_route(
     return update_recipe_values(
         db=db,
         recipe_id=recipe_id,
-        devices=data["devices"],
+        changes=data.get("changes", []),
         current_user=current_user,
         request=request
     )

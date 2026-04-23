@@ -175,7 +175,7 @@ def delete_recipe_group_command(
 def update_recipe_values(
     db: Session,
     recipe_id: int,
-    devices: list,
+    changes: list,
     current_user,
     request=None
 ):
@@ -184,29 +184,40 @@ def update_recipe_values(
     if not recipe:
         raise HTTPException(status_code=404, detail="Recipe not found")
 
-    for device in devices:
-        for tag in device.get("tag_values", []):
+    if not changes:
+        return {"message": "No changes to update"}
 
-            raw_value = tag.get("value")
+    for change in changes:
 
-            if raw_value is None or raw_value == "":
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Value cannot be empty for tag '{tag.get('tag_name', '')}'"
-                )
+        tag_id = change.get("tag_id")
+        device_id = change.get("device_id")
+        raw_value = change.get("value")
 
-            try:
-                value = float(raw_value)
-            except (ValueError, TypeError):
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Invalid numeric value for tag '{tag.get('tag_name', '')}'"
-                )
+        if tag_id is None or device_id is None:
+            raise HTTPException(
+                status_code=400,
+                detail="tag_id and device_id are required"
+            )
 
-            db.query(RecipeTagValue).filter(
-                RecipeTagValue.id == tag["id"]
-            ).update({
-                "value": value
-            })
+        if raw_value is None or raw_value == "":
+            raise HTTPException(
+                status_code=400,
+                detail="Value cannot be empty"
+            )
+
+        try:
+            value = float(raw_value)
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid numeric value: {raw_value}"
+            )
+
+        db.query(RecipeTagValue).filter(
+            RecipeTagValue.tag_id == tag_id,
+            RecipeTagValue.recipe_device_id == device_id
+        ).update({
+            "value": value
+        })
 
     return {"message": "Recipe updated successfully"}
