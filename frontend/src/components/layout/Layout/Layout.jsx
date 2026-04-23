@@ -26,6 +26,7 @@ export default function Layout({ children }) {
   const [editableData, setEditableData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const getViewModeKey = (type) => `app_square_view_mode_${type}`;
   const VALID_VIEW_MODES = ["device", "tag"];
@@ -326,9 +327,22 @@ export default function Layout({ children }) {
     <>
       <div className={`layout-container ${isLocked ? "ui-locked" : ""}`}>
         <Navbar />
-        <Sidebar onOpenModal={setActiveModal} disabled={isAdminView} />
+        <Sidebar
+          onOpenModal={setActiveModal}
+          disabled={isAdminView}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+        />
 
-        <div className="layout-content">
+        <div
+          className="layout-content"
+          style={{
+            marginLeft: isSidebarCollapsed ? "70px" : "260px",
+            width: isSidebarCollapsed
+              ? "calc(100% - 70px)"
+              : "calc(100% - 260px)",
+          }}
+        >
           {children ? (
             children
           ) : !workspace ? (

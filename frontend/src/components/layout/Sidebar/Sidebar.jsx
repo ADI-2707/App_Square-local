@@ -11,7 +11,12 @@ import ViewTemplateModal from "../../Modals/ViewTemplateModal/ViewTemplateModal"
 import ViewRecipeModal from "../../Modals/ViewRecipeModal/ViewRecipeModal";
 import "./sidebar.css";
 
-export default function Sidebar({ onOpenModal, disabled = false }) {
+export default function Sidebar({
+  onOpenModal,
+  disabled = false,
+  isCollapsed,
+  setIsCollapsed,
+}) {
   const {
     groups,
     devices,
@@ -67,6 +72,10 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
 
     return [...uniqueRecent, ...remaining].slice(0, 10);
   }, [recentTemplates, groups.allIds]);
+
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => !prev);
+  };
 
   const updateRecentTemplates = (templateId) => {
     setRecentTemplates((prev) => {
@@ -406,10 +415,31 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
 
   return (
     <>
-      <div className={`sidebar ${disabled ? "sidebar-disabled" : ""}`}>
+      <div
+        className={`sidebar ${isCollapsed ? "collapsed" : ""} ${
+          disabled ? "sidebar-disabled" : ""
+        }`}
+      >
         <div className="sidebar-header">
-          <img src="/app.svg" alt="App Logo" className="sidebar-logo" />
-          <div className="sidebar-appname">APP SQUARE</div>
+          <img
+            src="/app.svg"
+            alt="App Logo"
+            className="sidebar-logo"
+            onClick={() => {
+              if (isCollapsed) toggleSidebar();
+            }}
+            style={{ cursor: "pointer" }}
+          />
+
+          {!isCollapsed && (
+            <>
+              <div className="sidebar-appname">APP SQUARE</div>
+
+              <div className="sidebar-toggle" onClick={toggleSidebar}>
+                <img src="/icons/sidebar-toggle.svg" className="toggle-icon" />
+              </div>
+            </>
+          )}
         </div>
 
         <div className="sidebar-content-scroll">
@@ -418,7 +448,11 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
               className="sidebar-title"
               onClick={() => toggleSection("templates")}
             >
-              {openSections.templates ? "▾" : "▸"} Templates
+              {isCollapsed ? (
+                <img src="/icons/template.svg" className="sidebar-icon" />
+              ) : (
+                <>{openSections.templates ? "▾" : "▸"} Templates</>
+              )}
             </div>
 
             {openSections.templates && (
@@ -465,11 +499,11 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                             </span>
 
                             <img
-                              src={getIcon("template")}
+                              src="/icons/template.svg"
                               className="sidebar-icon"
                             />
 
-                            <span>{group.name}</span>
+                            {!isCollapsed && <span>{group.name}</span>}
                           </div>
                         </div>
 
@@ -497,11 +531,13 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                                   >
                                     <div className="tree-item-content">
                                       <img
-                                        src={getIcon("device")}
+                                        src="/icons/device.svg"
                                         className="sidebar-icon"
                                       />
 
-                                      <span>{device.name}</span>
+                                      {!isCollapsed && (
+                                        <span>{device.name}</span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -533,7 +569,11 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
               }`}
               onClick={() => hasTemplates && toggleSection("recipes")}
             >
-              {openSections.recipes ? "▾" : "▸"} Recipes
+              {isCollapsed ? (
+                <img src="/icons/recipe.svg" className="sidebar-icon" />
+              ) : (
+                <>{openSections.recipes ? "▾" : "▸"} Recipes</>
+              )}
             </div>
 
             {openSections.recipes && hasTemplates && (
@@ -576,12 +616,14 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                               className="sidebar-icon"
                             />
 
-                            <span>
-                              {rGroup.name}
-                              <span className="template-label">
-                                ({rGroup.templateName})
+                            {!isCollapsed && (
+                              <span>
+                                {rGroup.name}
+                                <span className="template-label">
+                                  ({rGroup.templateName})
+                                </span>
                               </span>
-                            </span>
+                            )}
                           </div>
                         </div>
 
@@ -610,7 +652,9 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                                         src={getIcon("recipe")}
                                         className="sidebar-icon"
                                       />
-                                      <span>{recipe.name}</span>
+                                      {!isCollapsed && (
+                                        <span>{recipe.name}</span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>

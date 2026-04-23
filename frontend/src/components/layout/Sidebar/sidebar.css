@@ -34,6 +34,40 @@
   cursor: not-allowed !important;
 }
 
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+}
+
+.sidebar.collapsed span {
+  display: none;
+}
+
+.sidebar.collapsed .tree-item-content {
+  justify-content: center;
+}
+
+.sidebar-toggle {
+  margin-left: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.toggle-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.85;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-toggle:hover .toggle-icon {
+  opacity: 1;
+}
+
 .tree-item-content {
   display: flex;
   align-items: center;
@@ -46,10 +80,16 @@
 }
 
 .sidebar-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
-  opacity: 0.9;
+}
+
+.sidebar-icon path,
+.sidebar-icon rect,
+.sidebar-icon line,
+.sidebar-icon circle {
+  stroke-width: 2.5;
 }
 
 .sidebar-disabled .tree-item,
