@@ -13,6 +13,7 @@ import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useAuth } from "../../../context/AuthContext/AuthContext";
 import WorkspaceToolbar from "../../workspace/WorkspaceToolbar/WorkspaceToolbar";
 import ChangeLogBanner from "../../workspace/ChangeLogBanner/ChangeLogBanner";
+import DeleteIcon from "../../../assets/icons/DeleteIcon";
 import api from "../../../Utility/api";
 import "./layout.css";
 
@@ -88,6 +89,7 @@ export default function Layout({ children }) {
   }, []);
 
   useEffect(() => {
+    if (workspace?.type === "template") return;
     const originalDevices = workspace?.data?.devices || [];
 
     if (!originalDevices.length) {
@@ -112,9 +114,15 @@ export default function Layout({ children }) {
     }
   }, [viewMode, workspace?.type]);
 
-  const devices = editableData.length
-    ? editableData
-    : workspace?.data?.devices || [];
+  const isRecipe = workspace?.type === "recipe";
+  const isTemplate = workspace?.type === "template";
+  const showValues = isRecipe;
+
+  const devices = isTemplate
+    ? workspace?.data?.devices || []
+    : editableData.length
+      ? editableData
+      : workspace?.data?.devices || [];
 
   const tagIndexMap = useMemo(() => {
     const map = {};
@@ -129,10 +137,6 @@ export default function Layout({ children }) {
 
     return map;
   }, [devices]);
-
-  const isRecipe = workspace?.type === "recipe";
-  const isTemplate = workspace?.type === "template";
-  const showValues = isRecipe;
 
   const hasChanges = () => {
     if (!workspace?.data?.devices || !editableData.length) return false;
@@ -253,18 +257,22 @@ export default function Layout({ children }) {
     setIsEditing(false);
   };
 
-  const handleDeleteTag = async (tagName, deviceIndex) => {
-    const device = workspace.data.devices[deviceIndex];
+  const handleDeleteTag = async (tag, deviceIndex) => {
+    const tagId = tag.id || tag.tag_id || tag.tagId;
 
-    const tag = device.tag_values.find((t) => t.tag_name === tagName);
-    if (!tag) return;
+    if (!tagId) {
+      console.error("Tag ID missing", tag);
+      return;
+    }
 
     const confirmed = window.confirm(
-      `Delete tag "${tagName}"?\n\nThis will affect all linked recipes.`,
+      `Delete tag "${tag.tag_name}"?\n\nThis will affect all linked recipes.`,
     );
 
     if (!confirmed) return;
-    await deleteTag(tag.id);
+    const deviceId = devices[deviceIndex].id;
+
+  await deleteTag(tagId, deviceId);
 
     const updated = await api.get(`/templates/${workspace.data.id}/full`);
     openWorkspace("template", updated.data);
@@ -345,14 +353,14 @@ export default function Layout({ children }) {
               >
                 <div className="matrix-scroll" ref={scrollRef}>
                   {isTemplate ? (
-                    <table className="recipe-matrix-table recipe-mode template-mode">
+                    <table className="recipe-matrix-table template-device-mode">
                       <thead>
                         <tr>
                           {devices.map((device) => (
                             <th
                               key={device.id}
                               className="device-header"
-                              colSpan={1}
+                              colSpan={isTemplate ? 1 : 2}
                             >
                               {device.device_name}
                             </th>
@@ -360,51 +368,47 @@ export default function Layout({ children }) {
                         </tr>
 
                         <tr>
-                          {devices.map((device) => (
-                            <th key={device.id} className="sub-header">
-                              Tag
-                            </th>
-                          ))}
+                          {devices.map((device) =>
+                            isTemplate ? (
+                              <th key={device.id} className="sub-header">
+                                Tag
+                              </th>
+                            ) : (
+                              <Fragment key={device.id}>
+                                <th className="sub-header">Tag</th>
+                                <th className="sub-header">Value</th>
+                              </Fragment>
+                            ),
+                          )}
                         </tr>
                       </thead>
 
                       <tbody>
-                        {devices.map((device, deviceIndex) => (
-                          <Fragment key={device.id}>
-                            {(device.tag_values || []).map((tag, tagIndex) => (
-                              <tr key={`${deviceIndex}-${tagIndex}`}>
-                                {devices.map((d, colIndex) => {
-                                  if (colIndex !== deviceIndex) {
-                                    return <td key={colIndex}></td>;
-                                  }
+                        <tr>
+                          {devices.map((device, deviceIndex) => (
+                            <td key={device.id} className="template-column">
+                              {device.tag_values?.map((tag, tagIndex) => (
+                                <div
+                                  className="tag-cell tag-cell-with-action"
+                                  key={`${device.id}-${tag.id}-${tagIndex}`}
+                                >
+                                  <span>{tag.tag_name}</span>
 
-                                  return (
-                                    <td
-                                      key={colIndex}
-                                      className="tag-cell tag-cell-with-action"
+                                  {role === "admin" && (
+                                    <button
+                                      className="tag-delete-btn"
+                                      onClick={() =>
+                                        handleDeleteTag(tag, deviceIndex)
+                                      }
                                     >
-                                      <span>{tag.tag_name}</span>
-
-                                      {role === "admin" && (
-                                        <button
-                                          className="tag-delete-btn"
-                                          onClick={() =>
-                                            handleDeleteTag(
-                                              tag.tag_name,
-                                              deviceIndex,
-                                            )
-                                          }
-                                        >
-                                          ✕
-                                        </button>
-                                      )}
-                                    </td>
-                                  );
-                                })}
-                              </tr>
-                            ))}
-                          </Fragment>
-                        ))}
+                                      <DeleteIcon />
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+                            </td>
+                          ))}
+                        </tr>
                       </tbody>
                     </table>
                   ) : viewMode === "device" ? (
@@ -435,29 +439,34 @@ export default function Layout({ children }) {
                       <tbody>
                         {tableRows.map((row, rowIndex) => (
                           <tr key={rowIndex}>
-                            {row.map((cell, colIndex) => (
-                              <Fragment key={colIndex}>
-                                <td className="tag-cell">{cell.tagName}</td>
+                            {row.map((cell, colIndex) => {
+                              const tagIndex =
+                                tagIndexMap[colIndex]?.[cell.tagName];
 
-                                <td className="value-cell">
-                                  {isEditing ? (
-                                    <input
-                                      className="value-input"
-                                      value={cell.value}
-                                      onChange={(e) =>
-                                        handleValueChange(
-                                          colIndex,
-                                          tagIndexMap[colIndex]?.[cell.tagName],
-                                          e.target.value,
-                                        )
-                                      }
-                                    />
-                                  ) : (
-                                    cell.value
-                                  )}
-                                </td>
-                              </Fragment>
-                            ))}
+                              return (
+                                <Fragment key={colIndex}>
+                                  <td className="tag-cell">{cell.tagName}</td>
+
+                                  <td className="value-cell">
+                                    {isEditing ? (
+                                      <input
+                                        className="value-input"
+                                        value={cell.value}
+                                        onChange={(e) =>
+                                          handleValueChange(
+                                            colIndex,
+                                            tagIndex,
+                                            e.target.value,
+                                          )
+                                        }
+                                      />
+                                    ) : (
+                                      cell.value
+                                    )}
+                                  </td>
+                                </Fragment>
+                              );
+                            })}
                           </tr>
                         ))}
                       </tbody>

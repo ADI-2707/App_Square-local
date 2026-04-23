@@ -244,6 +244,32 @@
   border-right: none;
 }
 
+.template-device-mode tr > * {
+  border-right: 3px solid var(--color-border-strong);
+}
+
+.template-device-mode tr > *:nth-child(2n) {
+  border-right: 3px solid var(--color-border-strong);
+}
+
+.template-device-mode th,
+.template-device-mode td {
+  width: 150px;
+  min-width: 150px;
+  max-width: 150px;
+}
+
+.template-column {
+  vertical-align: top;
+  padding: 8px;
+}
+
+.template-column .tag-cell {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
 .tag-header-main {
   border-right: 3px solid var(--color-border-strong);
 }
@@ -287,10 +313,22 @@
   background: transparent;
   border: none;
   color: #c62828;
-  font-size: 12px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
   cursor: pointer;
   opacity: 0.7;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tag-delete-btn svg {
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
 }
 
 .tag-cell-with-action:hover .tag-delete-btn {

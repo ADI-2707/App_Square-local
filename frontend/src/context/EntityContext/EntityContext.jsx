@@ -218,7 +218,9 @@ export function EntityProvider({ children }) {
 
         const newByDeviceId = {
           ...prev.byDeviceId,
-          [deviceId]: prev.byDeviceId[deviceId].filter((id) => id !== tagId),
+          [deviceId]: (prev.byDeviceId[deviceId] || []).filter(
+            (id) => id !== tagId,
+          ),
         };
 
         return {
@@ -227,8 +229,16 @@ export function EntityProvider({ children }) {
         };
       });
     } catch (err) {
-      console.error("Failed to delete tag:", err);
-      alert(err?.response?.data?.detail || "Failed to delete tag");
+      const errorMsg =
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        err?.message ||
+        JSON.stringify(err?.response?.data) ||
+        "Failed to load recipe";
+
+      console.error("FULL ERROR:", err?.response?.data);
+
+      alert(errorMsg);
     }
   };
 

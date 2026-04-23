@@ -37,7 +37,7 @@ def get_full_recipe(db: Session, recipe_id: int):
     recipe = db.query(Recipe).options(
         selectinload(Recipe.devices).selectinload(RecipeDevice.tag_values)
     ).filter(
-            Recipe.id == recipe_id,
+        Recipe.id == recipe_id,
     ).first()
 
     if not recipe:
@@ -54,36 +54,41 @@ def get_full_recipe(db: Session, recipe_id: int):
         return Exception("Template group not found")
 
     template_devices = db.query(DeviceInstance).filter(
-        and_(
-            DeviceInstance.template_group_id == template_group.id,
-        )
+        DeviceInstance.template_group_id == template_group.id
     ).all()
 
     active_device_names = {d.name for d in template_devices}
 
-    template_tags_map = {}
-    for device in template_devices:
-        template_tags_map[device.name] = {tag.name for tag in device.tags}
+    template_tags_map = {
+        device.name: {tag.name for tag in device.tags}
+        for device in template_devices
+    }
 
-    valid_devices = []
+    valid_devices_response = []
     removed_tags = []
 
     for device in recipe.devices:
         if device.device_name not in active_device_names:
             continue
 
-        valid_tag_values = []
-
         current_template_tags = template_tags_map.get(device.device_name, set())
 
+        valid_tag_values = []
         for tag_val in device.tag_values:
             if tag_val.tag_name in current_template_tags:
-                valid_tag_values.append(tag_val)
+                valid_tag_values.append({
+                    "id": tag_val.id,
+                    "tag_name": tag_val.tag_name,
+                    "value": tag_val.value
+                })
             else:
                 removed_tags.append(tag_val.tag_name)
 
-        device.tag_values = valid_tag_values
-        valid_devices.append(device)
+        valid_devices_response.append({
+            "id": device.id,
+            "device_name": device.device_name,
+            "tag_values": valid_tag_values
+        })
 
     logs = db.query(TemplateChangeLog).filter(
         and_(
@@ -92,40 +97,26 @@ def get_full_recipe(db: Session, recipe_id: int):
         )
     ).order_by(TemplateChangeLog.created_at.desc()).all()
 
-    new_logs = []
-    for log in logs:
-        if recipe.last_synced_at is None or log.created_at > recipe.last_synced_at:
-            new_logs.append(log)
-    removed_devices = []
-    removed_tags_from_logs = []
+    new_logs = [
+        log for log in logs
+        if recipe.last_synced_at is None or log.created_at > recipe.last_synced_at
+    ]
 
-    for log in new_logs:
-        if log.change_type == "EQUIPMENT_DELETED":
-            removed_devices.append(log.entity_name)
-        elif log.change_type == "TAG_DELETED":
-            removed_tags_from_logs.append(log.entity_name)
+    removed_devices = [
+        log.entity_name for log in new_logs
+        if log.change_type == "EQUIPMENT_DELETED"
+    ]
+
+    removed_tags_from_logs = [
+        log.entity_name for log in new_logs
+        if log.change_type == "TAG_DELETED"
+    ]
 
     response = {
         "id": recipe.id,
         "name": recipe.name,
         "template_group_id": template_group.id,
-
-        "devices": [
-            {
-                "id": d.id,
-                "device_name": d.device_name,
-                "tag_values": [
-                    {
-                        "id": tv.id,
-                        "tag_name": tv.tag_name,
-                        "value": tv.value
-                    }
-                    for tv in d.tag_values
-                ]
-            }
-            for d in valid_devices
-        ],
-
+        "devices": valid_devices_response,
         "changes": [
             {
                 "type": log.change_type,
@@ -141,7 +132,6 @@ def get_full_recipe(db: Session, recipe_id: int):
             }
             for log in new_logs
         ],
-
         "removed_devices": list(set(removed_devices)),
         "removed_tags": list(set(removed_tags + removed_tags_from_logs))
     }
