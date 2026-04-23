@@ -26,7 +26,11 @@ export default function Layout({ children }) {
   const [editableData, setEditableData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem("sidebarCollapsed");
+    return saved === "true";
+  });
 
   const getViewModeKey = (type) => `app_square_view_mode_${type}`;
   const VALID_VIEW_MODES = ["device", "tag"];
@@ -48,6 +52,10 @@ export default function Layout({ children }) {
   const closeModal = () => {
     setActiveModal(null);
   };
+
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", isSidebarCollapsed);
+  }, [isSidebarCollapsed]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
