@@ -232,6 +232,11 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
         const filtered = prev.filter((id) => id !== recipe.recipe_group_id);
         return [recipe.recipe_group_id, ...filtered];
       });
+
+      if (fullRecipe.changes && fullRecipe.changes.length > 0) {
+        const lines = fullRecipe.changes.map((c) => `• ${c.label}`).join("\n");
+        alert(`⚠ Template Updates Detected:\n\n${lines}`);
+      }
     } catch (error) {
       console.error(error);
       alert("Failed to load recipe");

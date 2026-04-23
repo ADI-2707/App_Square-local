@@ -171,7 +171,6 @@ def delete_device_from_template(
     current_user: User,
     request: Request = None
 ):
-
     device = db.query(DeviceInstance).filter(
         DeviceInstance.id == device_id
     ).first()
@@ -180,7 +179,7 @@ def delete_device_from_template(
         raise HTTPException(404, "Equipment not found")
 
     device_name = device.name
-    template_group_id = device.template_group_id 
+    template_group_id = device.template_group_id
 
     recipe_devices = db.query(RecipeDevice).filter(
         RecipeDevice.device_name == device_name
@@ -193,7 +192,8 @@ def delete_device_from_template(
         template_group_id=template_group_id,
         change_type="EQUIPMENT_DELETED",
         entity_name=device_name,
-        entity_id=device.id
+        entity_id=device.id,
+        deleted_by=current_user.username
     )
     db.add(log)
 
@@ -232,7 +232,8 @@ def delete_tag_from_device(
         template_group_id=template_group_id,
         change_type="TAG_DELETED",
         entity_name=tag_name,
-        entity_id=tag.id
+        entity_id=tag.id,
+        deleted_by=current_user.username
     )
     db.add(log)
 

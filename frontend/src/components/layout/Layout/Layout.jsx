@@ -345,11 +345,15 @@ export default function Layout({ children }) {
               >
                 <div className="matrix-scroll" ref={scrollRef}>
                   {isTemplate ? (
-                    <table className="recipe-matrix-table template-mode">
+                    <table className="recipe-matrix-table recipe-mode template-mode">
                       <thead>
                         <tr>
                           {devices.map((device) => (
-                            <th key={device.id} className="device-header">
+                            <th
+                              key={device.id}
+                              className="device-header"
+                              colSpan={1}
+                            >
                               {device.device_name}
                             </th>
                           ))}
@@ -365,39 +369,41 @@ export default function Layout({ children }) {
                       </thead>
 
                       <tbody>
-                        {Array.from({
-                          length: Math.max(
-                            ...devices.map((d) => d.tag_values?.length || 0),
-                          ),
-                        }).map((_, rowIndex) => (
-                          <tr key={rowIndex}>
-                            {devices.map((device, deviceIndex) => {
-                              const tag = device.tag_values?.[rowIndex];
+                        {devices.map((device, deviceIndex) => (
+                          <Fragment key={device.id}>
+                            {(device.tag_values || []).map((tag, tagIndex) => (
+                              <tr key={`${deviceIndex}-${tagIndex}`}>
+                                {devices.map((d, colIndex) => {
+                                  if (colIndex !== deviceIndex) {
+                                    return <td key={colIndex}></td>;
+                                  }
 
-                              return (
-                                <td
-                                  key={deviceIndex}
-                                  className="tag-cell tag-cell-with-action"
-                                >
-                                  <span>{tag?.tag_name ?? "-"}</span>
-
-                                  {role === "admin" && tag?.tag_name && (
-                                    <button
-                                      className="tag-delete-btn"
-                                      onClick={() =>
-                                        handleDeleteTag(
-                                          tag.tag_name,
-                                          deviceIndex,
-                                        )
-                                      }
+                                  return (
+                                    <td
+                                      key={colIndex}
+                                      className="tag-cell tag-cell-with-action"
                                     >
-                                      ✕
-                                    </button>
-                                  )}
-                                </td>
-                              );
-                            })}
-                          </tr>
+                                      <span>{tag.tag_name}</span>
+
+                                      {role === "admin" && (
+                                        <button
+                                          className="tag-delete-btn"
+                                          onClick={() =>
+                                            handleDeleteTag(
+                                              tag.tag_name,
+                                              deviceIndex,
+                                            )
+                                          }
+                                        >
+                                          ✕
+                                        </button>
+                                      )}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                          </Fragment>
                         ))}
                       </tbody>
                     </table>
