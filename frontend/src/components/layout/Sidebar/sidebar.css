@@ -105,13 +105,6 @@
   flex-shrink: 0;
 }
 
-.sidebar-icon path,
-.sidebar-icon rect,
-.sidebar-icon line,
-.sidebar-icon circle {
-  stroke-width: 2.5;
-}
-
 .sidebar-disabled .tree-item,
 .sidebar-disabled .sidebar-title {
   cursor: not-allowed;
