@@ -267,6 +267,22 @@ export function EntityProvider({ children }) {
     }
   };
 
+  const searchTemplateTags = async (search, limit = 10) => {
+    try {
+      const res = await api.get("/templates/tags/search", {
+        params: {
+          q: search,
+          limit,
+        },
+      });
+
+      return res.data;
+    } catch (err) {
+      console.error("Failed to search tags:", err);
+      throw err;
+    }
+  };
+
   return (
     <EntityContext.Provider
       value={{
@@ -286,6 +302,7 @@ export function EntityProvider({ children }) {
         deleteDevice,
         deleteTag,
         fetchTemplates,
+        searchTemplateTags,
       }}
     >
       {children}

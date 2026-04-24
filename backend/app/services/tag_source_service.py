@@ -37,8 +37,13 @@ def resolve_tag_names(source_names: list[str]) -> list[dict[str, str]]:
     resolved_tags = []
     missing_tags = []
 
+    tag_values = set(tag_map.values())
+
     for source_name in cleaned_source_names:
         resolved_name = tag_map.get(source_name)
+
+        if resolved_name is None and source_name in tag_values:
+            resolved_name = source_name
 
         if resolved_name is None:
             missing_tags.append(source_name)
@@ -62,3 +67,63 @@ def resolve_tag_names(source_names: list[str]) -> list[dict[str, str]]:
 
     return resolved_tags
 
+
+def search_tag_names(search: str, limit: int = 10) -> list[dict[str, str]]:
+    query = (search or "").strip().lower()
+
+    if not query:
+        return []
+
+    tag_map = _get_tag_map()
+    matches = []
+
+    for lookup_value, tag_name in tag_map.items():
+        lookup_text = lookup_value.lower()
+        tag_text = tag_name.lower()
+
+        if query not in lookup_text and query not in tag_text:
+            continue
+
+        score = 0
+
+        if tag_text.startswith(query):
+            score += 3
+        elif query in tag_text:
+            score += 2
+
+        if lookup_text.startswith(query):
+            score += 2
+        elif query in lookup_text:
+            score += 1
+
+        matches.append(
+            {
+                "lookup_value": lookup_value,
+                "tag_name": tag_name,
+                "_score": score,
+            }
+        )
+
+    matches.sort(key=lambda item: (-item["_score"], item["tag_name"], item["lookup_value"]))
+
+    unique_matches = []
+    seen = set()
+
+    for item in matches:
+        dedupe_key = item["tag_name"].strip().lower()
+
+        if dedupe_key in seen:
+            continue
+
+        seen.add(dedupe_key)
+        unique_matches.append(
+            {
+                "lookup_value": item["lookup_value"],
+                "tag_name": item["tag_name"],
+            }
+        )
+
+        if len(unique_matches) >= limit:
+            break
+
+    return unique_matches

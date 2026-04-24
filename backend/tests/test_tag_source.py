@@ -114,6 +114,38 @@ def test_resolve_tags_route_returns_column_b_values(client, monkeypatch, tmp_pat
     ]
 
 
+def test_search_tags_route_returns_matching_column_b_values(client, monkeypatch, tmp_path):
+    workbook_path = tmp_path / "tag-source.xlsx"
+    write_test_workbook(
+        workbook_path,
+        [
+            ("DriveAlarmFb", "Applications.Area.DriveAlarmFb"),
+            ("DriveHealthyFb", "Applications.Area.DriveHealthyFb"),
+            ("MotorSpeedFb", "Applications.Area.MotorSpeedFb"),
+        ],
+    )
+    configure_excel_source(monkeypatch, workbook_path)
+    token = get_token(client)
+
+    response = client.get(
+        "/templates/tags/search",
+        headers={"Authorization": f"Bearer {token}"},
+        params={"q": "drive", "limit": 10},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "lookup_value": "DriveAlarmFb",
+            "tag_name": "Applications.Area.DriveAlarmFb",
+        },
+        {
+            "lookup_value": "DriveHealthyFb",
+            "tag_name": "Applications.Area.DriveHealthyFb",
+        },
+    ]
+
+
 def test_template_creation_uses_resolved_tag_names_without_lowercasing(
     client,
     db_session,
