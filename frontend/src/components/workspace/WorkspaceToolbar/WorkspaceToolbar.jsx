@@ -10,11 +10,11 @@ export default function WorkspaceToolbar({
   viewMode,
   setViewMode,
 }) {
+
   const isToggleDisabled = isEditing;
 
   const handleToggle = () => {
     if (isToggleDisabled) return;
-
     setViewMode((prev) => (prev === "device" ? "tag" : "device"));
   };
 
@@ -53,7 +53,10 @@ export default function WorkspaceToolbar({
         )}
 
         {showEdit && isEditing && (
-          <button className="hmi-btn cancel-btn" onClick={onCancel}>
+          <button
+            className="hmi-btn cancel-btn"
+            onClick={onCancel}
+          >
             <img src="/icons/close.svg" className="btn-icon" alt="cancel" />
             Cancel
           </button>
@@ -63,7 +66,6 @@ export default function WorkspaceToolbar({
           <button
             className={`hmi-btn ${isEditing ? "apply-btn" : "edit-btn"}`}
             onClick={onEditToggle}
-            disabled={isEditing && isToggleDisabled}
           >
             <img
               src={isEditing ? "/icons/check.svg" : "/icons/edit.svg"}

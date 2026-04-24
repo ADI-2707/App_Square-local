@@ -214,7 +214,7 @@ def update_recipe_values(
             )
 
         db.query(RecipeTagValue).filter(
-            RecipeTagValue.tag_id == tag_id,
+            RecipeTagValue.id == tag_id,
             RecipeTagValue.recipe_device_id == device_id
         ).update({
             "value": value

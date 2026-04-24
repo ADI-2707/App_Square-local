@@ -27,6 +27,11 @@ export default function Layout({ children }) {
   const [showAbout, setShowAbout] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem("sidebarCollapsed");
+    return saved === "true";
+  });
+
   const getViewModeKey = (type) => `app_square_view_mode_${type}`;
   const VALID_VIEW_MODES = ["device", "tag"];
 
@@ -47,6 +52,10 @@ export default function Layout({ children }) {
   const closeModal = () => {
     setActiveModal(null);
   };
+
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", isSidebarCollapsed);
+  }, [isSidebarCollapsed]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -189,7 +198,7 @@ export default function Layout({ children }) {
 
               if (String(originalTag.value ?? "") !== String(tag.value ?? "")) {
                 changedPayload.push({
-                  tag_id: tag.id || tag.tag_id || tag.tagId,
+                  tag_id: tag.id,
                   device_id: device.id,
                   value: tag.value,
                 });
@@ -290,7 +299,7 @@ export default function Layout({ children }) {
   };
 
   const handleDeleteTag = async (tag, deviceIndex) => {
-    const tagId = tag.id || tag.tag_id || tag.tagId;
+    const tagId = tag.id;
 
     if (!tagId) {
       console.error("Tag ID missing", tag);
@@ -326,9 +335,16 @@ export default function Layout({ children }) {
     <>
       <div className={`layout-container ${isLocked ? "ui-locked" : ""}`}>
         <Navbar />
-        <Sidebar onOpenModal={setActiveModal} disabled={isAdminView} />
+        <Sidebar
+          onOpenModal={setActiveModal}
+          disabled={isAdminView}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+        />
 
-        <div className="layout-content">
+        <div
+          className={`layout-content ${isSidebarCollapsed ? "sidebar-collapsed" : ""}`}
+        >
           {children ? (
             children
           ) : !workspace ? (
@@ -581,6 +597,7 @@ export default function Layout({ children }) {
       <Footer
         onOpenAbout={() => setShowAbout(true)}
         onOpenHelp={() => setShowHelp(true)}
+        isSidebarCollapsed={isSidebarCollapsed}
       />
 
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />

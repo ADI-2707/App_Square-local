@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
@@ -11,7 +11,12 @@ import ViewTemplateModal from "../../Modals/ViewTemplateModal/ViewTemplateModal"
 import ViewRecipeModal from "../../Modals/ViewRecipeModal/ViewRecipeModal";
 import "./sidebar.css";
 
-export default function Sidebar({ onOpenModal, disabled = false }) {
+export default function Sidebar({
+  onOpenModal,
+  disabled = false,
+  isCollapsed,
+  setIsCollapsed,
+}) {
   const {
     groups,
     devices,
@@ -47,6 +52,11 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
     recipes: false,
   });
 
+  const prevOpenSectionsRef = useRef({
+    templates: false,
+    recipes: false,
+  });
+
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
   const [viewAllTemplatesModal, setViewAllTemplatesModal] = useState(false);
@@ -56,6 +66,7 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
   const [hasLoaded, setHasLoaded] = useState(false);
   const [viewAllRecipesModal, setViewAllRecipesModal] = useState(false);
   const [recentRecipeGroups, setRecentRecipeGroups] = useState([]);
+  const [tooltip, setTooltip] = useState(null);
 
   const hasTemplates = groups.allIds.length > 0;
 
@@ -67,6 +78,10 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
 
     return [...uniqueRecent, ...remaining].slice(0, 10);
   }, [recentTemplates, groups.allIds]);
+
+  const toggleSidebar = () => {
+    setIsCollapsed((prev) => !prev);
+  };
 
   const updateRecentTemplates = (templateId) => {
     setRecentTemplates((prev) => {
@@ -179,6 +194,19 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
       setActiveRecipeId(null);
     }
   }, [workspace]);
+
+  useEffect(() => {
+    if (isCollapsed) {
+      prevOpenSectionsRef.current = openSections;
+
+      setOpenSections({
+        templates: false,
+        recipes: false,
+      });
+    } else {
+      setOpenSections(prevOpenSectionsRef.current);
+    }
+  }, [isCollapsed]);
 
   const toggleSection = (section) => {
     if (disabled) return;
@@ -298,6 +326,18 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
     });
   };
 
+  const handleSectionClick = (section) => {
+    if (isCollapsed) {
+      setIsCollapsed(false);
+      setOpenSections((prev) => ({
+        ...prev,
+        [section]: true,
+      }));
+    } else {
+      toggleSection(section);
+    }
+  };
+
   const handleDelete = async () => {
     if (disabled || !contextMenu) return;
 
@@ -376,7 +416,7 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
               workspace?.type === "device" &&
               workspace?.data?.id === contextMenu.deviceId
             ) {
-              openWorkspace(null, null); // clear workspace
+              openWorkspace(null, null);
             }
 
             if (
@@ -406,19 +446,57 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
 
   return (
     <>
-      <div className={`sidebar ${disabled ? "sidebar-disabled" : ""}`}>
+      <div
+        className={`sidebar ${isCollapsed ? "collapsed" : ""} ${
+          disabled ? "sidebar-disabled" : ""
+        }`}
+      >
         <div className="sidebar-header">
-          <img src="/app.svg" alt="App Logo" className="sidebar-logo" />
-          <div className="sidebar-appname">APP SQUARE</div>
+          <img
+            src="/app.svg"
+            alt="App Logo"
+            className="sidebar-logo"
+            onClick={() => {
+              if (isCollapsed) toggleSidebar();
+            }}
+            style={{ cursor: "pointer" }}
+          />
+
+          {!isCollapsed && (
+            <>
+              <div className="sidebar-appname">APP SQUARE</div>
+
+              <div className="sidebar-toggle" onClick={toggleSidebar}>
+                <img src="/icons/sidebar-toggle.svg" className="toggle-icon" />
+              </div>
+            </>
+          )}
         </div>
 
         <div className="sidebar-content-scroll">
           <div className="sidebar-section">
             <div
-              className="sidebar-title"
-              onClick={() => toggleSection("templates")}
+              className="sidebar-title sidebar-tooltip-wrapper"
+              onClick={() => handleSectionClick("templates")}
+              onMouseEnter={(e) => {
+                if (isCollapsed) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setTooltip({
+                    label: "Templates",
+                    x: rect.right + 10,
+                    y: rect.top + rect.height / 2,
+                  });
+                }
+              }}
+              onMouseLeave={() => setTooltip(null)}
             >
-              {openSections.templates ? "▾" : "▸"} Templates
+              {isCollapsed ? (
+                <>
+                  <img src="/icons/template.svg" className="sidebar-icon" />
+                </>
+              ) : (
+                <>{openSections.templates ? "▾" : "▸"} Templates</>
+              )}
             </div>
 
             {openSections.templates && (
@@ -465,11 +543,11 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                             </span>
 
                             <img
-                              src={getIcon("template")}
+                              src="/icons/template.svg"
                               className="sidebar-icon"
                             />
 
-                            <span>{group.name}</span>
+                            {!isCollapsed && <span>{group.name}</span>}
                           </div>
                         </div>
 
@@ -497,11 +575,13 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                                   >
                                     <div className="tree-item-content">
                                       <img
-                                        src={getIcon("device")}
+                                        src="/icons/device.svg"
                                         className="sidebar-icon"
                                       />
 
-                                      <span>{device.name}</span>
+                                      {!isCollapsed && (
+                                        <span>{device.name}</span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -528,12 +608,28 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
 
           <div className="sidebar-section">
             <div
-              className={`sidebar-title ${
+              className={`sidebar-title sidebar-tooltip-wrapper ${
                 !hasTemplates ? "disabled-section" : ""
               }`}
-              onClick={() => hasTemplates && toggleSection("recipes")}
+              onClick={() => hasTemplates && handleSectionClick("recipes")}
+              onMouseEnter={(e) => {
+                if (isCollapsed) {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setTooltip({
+                    label: "Recipes",
+                    x: rect.right + 10,
+                    y: rect.top + rect.height / 2,
+                  });
+                }
+              }}
+              onMouseLeave={() => setTooltip(null)}
             >
-              {openSections.recipes ? "▾" : "▸"} Recipes
+              {isCollapsed ? (
+                <>
+                  <img src="/icons/recipe.svg" className="sidebar-icon" />                </>
+              ) : (
+                <>{openSections.recipes ? "▾" : "▸"} Recipes</>
+              )}
             </div>
 
             {openSections.recipes && hasTemplates && (
@@ -576,12 +672,14 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                               className="sidebar-icon"
                             />
 
-                            <span>
-                              {rGroup.name}
-                              <span className="template-label">
-                                ({rGroup.templateName})
+                            {!isCollapsed && (
+                              <span>
+                                {rGroup.name}
+                                <span className="template-label">
+                                  ({rGroup.templateName})
+                                </span>
                               </span>
-                            </span>
+                            )}
                           </div>
                         </div>
 
@@ -610,7 +708,9 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
                                         src={getIcon("recipe")}
                                         className="sidebar-icon"
                                       />
-                                      <span>{recipe.name}</span>
+                                      {!isCollapsed && (
+                                        <span>{recipe.name}</span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -743,6 +843,27 @@ export default function Sidebar({ onOpenModal, disabled = false }) {
           onClose={() => setViewAllRecipesModal(false)}
           onOpenRecipe={handleOpenRecipe}
         />
+      )}
+    {tooltip && createPortal(
+        <div
+          style={{
+            position: "fixed",
+            top: tooltip.y,
+            left: tooltip.x,
+            transform: "translateY(-50%)",
+            background: "#111827",
+            color: "white",
+            padding: "6px 10px",
+            fontSize: "12px",
+            borderRadius: "4px",
+            whiteSpace: "nowrap",
+            zIndex: 9999,
+            pointerEvents: "none",
+          }}
+        >
+          {tooltip.label}
+        </div>,
+        document.body
       )}
     </>
   );

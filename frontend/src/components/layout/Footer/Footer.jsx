@@ -1,8 +1,8 @@
 import "./footer.css";
 
-export default function Footer({ onOpenAbout, onOpenHelp }) {
+export default function Footer({ onOpenAbout, onOpenHelp, isSidebarCollapsed }) {
   return (
-    <div className="app-footer">
+    <div className={`app-footer ${isSidebarCollapsed ? "collapsed" : ""}`}>
       <div className="footer-left">
         <img src="/app.svg" className="footer-logo" />
         <span className="footer-brand">APP SQUARE</span>

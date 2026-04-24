@@ -245,7 +245,7 @@ def create_recipe_tag_value(
     recipe_device_id: int,
     tag_name: str,
     data_type: str,
-    default_value: str = "0"
+    default_value: float = 0.0
 ):
     tag_value = RecipeTagValue(
         recipe_device_id=recipe_device_id,
