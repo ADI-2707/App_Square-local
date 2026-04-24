@@ -17,6 +17,15 @@ class TemplateGroupFullCreate(BaseModel):
     devices: List[DeviceCreate]
 
 
+class TagResolveRequest(BaseModel):
+    tags: List[str]
+
+
+class ResolvedTagResponse(BaseModel):
+    lookup_value: str
+    tag_name: str
+
+
 class TagResponse(BaseModel):
     id: int
     name: str

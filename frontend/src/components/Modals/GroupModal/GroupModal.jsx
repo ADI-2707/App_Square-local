@@ -77,7 +77,7 @@ export default function GroupModal({ isOpen, onClose }) {
         tags: Array.from(
           new Set(
             device.tags
-              .map((tag) => tag.name?.trim().toLowerCase())
+              .map((tag) => tag.name?.trim())
               .filter(Boolean),
           ),
         ).map((name) => ({ name })),

@@ -13,6 +13,7 @@ from app.models.tag import Tag
 from app.models.recipe import RecipeDevice, RecipeGroup, Recipe
 from app.models.template_group import TemplateGroup
 from app.services.log_service import add_log
+from app.services.tag_source_service import resolve_tag_names
 
 
 @transactional
@@ -71,30 +72,27 @@ def create_full_template_group(
             group_id=group.id
         )
 
+        resolved_tags = resolve_tag_names(
+            [tag_data.name for tag_data in device_data.tags]
+        )
+
         seen_tags = set()
 
-        for tag_data in device_data.tags:
+        for resolved_tag in resolved_tags:
+            tag_name = resolved_tag["tag_name"]
 
-            if not tag_data.name or not tag_data.name.strip():
+            if tag_name in seen_tags:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Empty tag in device '{device_data.name}'"
+                    detail=f"Duplicate resolved tag '{tag_name}' in device '{device_data.name}'"
                 )
 
-            normalized_tag = tag_data.name.strip().lower()
-
-            if normalized_tag in seen_tags:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Duplicate tag '{normalized_tag}' in device '{device_data.name}'"
-                )
-
-            seen_tags.add(normalized_tag)
+            seen_tags.add(tag_name)
 
             try:
                 template_queries.create_tag(
                     db=db,
-                    name=tag_data.name,
+                    name=tag_name,
                     device_id=device.id
                 )
             except ValueError as e:
