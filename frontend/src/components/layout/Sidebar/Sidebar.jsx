@@ -38,6 +38,10 @@ export default function Sidebar({
     deleteRecipe,
     deleteRecipeGroup,
     activeRecipe,
+    recentRecipeGroups,
+    recentRecipesByGroup,
+    markRecipeGroupRecent,
+    markRecipeRecent,
   } = useRecipes();
 
   const { workspace, openWorkspace } = useWorkspace();
@@ -67,7 +71,6 @@ export default function Sidebar({
   const [recentTemplates, setRecentTemplates] = useState([]);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [viewAllRecipesModal, setViewAllRecipesModal] = useState(false);
-  const [recentRecipeGroups, setRecentRecipeGroups] = useState([]);
   const [tooltip, setTooltip] = useState(null);
 
   const hasTemplates = groups.allIds.length > 0;
@@ -119,7 +122,7 @@ export default function Sidebar({
     });
 
     return result;
-  }, [recipeGroups, groups.byId]);
+  }, [recipeGroups, groups.byId, recentRecipeGroups]);
 
   useEffect(() => {
     loadGroups();
@@ -237,6 +240,8 @@ export default function Sidebar({
   const toggleRecipeGroup = async (group) => {
     if (disabled) return;
 
+    markRecipeGroupRecent(group.id);
+
     if (!expandedRecipeGroups[group.id]) {
       await loadRecipesPaginated(group.id, 1);
     }
@@ -258,10 +263,7 @@ export default function Sidebar({
       setActiveRecipeId(recipe.id);
       setActiveDeviceId(null);
 
-      setRecentRecipeGroups((prev) => {
-        const filtered = prev.filter((id) => id !== recipe.recipe_group_id);
-        return [recipe.recipe_group_id, ...filtered];
-      });
+      markRecipeRecent(recipe.recipe_group_id, recipe.id);
 
       if (fullRecipe.changes && fullRecipe.changes.length > 0) {
         const lines = fullRecipe.changes.map((c) => `• ${c.label}`).join("\n");
@@ -650,6 +652,17 @@ export default function Sidebar({
                 >
                   {flattenedRecipeGroups.map((rGroup) => {
                     const recipeList = recipes[rGroup.id]?.[1] || [];
+                    const recentRecipeIds = recentRecipesByGroup[rGroup.id] || [];
+                    const sortedRecipeList = [...recipeList].sort((a, b) => {
+                      const aIndex = recentRecipeIds.indexOf(a.id);
+                      const bIndex = recentRecipeIds.indexOf(b.id);
+
+                      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                      if (aIndex !== -1) return -1;
+                      if (bIndex !== -1) return 1;
+
+                      return a.name.localeCompare(b.name);
+                    });
 
                     return (
                       <div key={rGroup.id} className="tree-node">
@@ -687,8 +700,8 @@ export default function Sidebar({
 
                         {expandedRecipeGroups[rGroup.id] && (
                           <div className="tree-children">
-                            {recipeList.length > 0 ? (
-                              recipeList.map((recipe) => (
+                            {sortedRecipeList.length > 0 ? (
+                              sortedRecipeList.map((recipe) => (
                                 <div key={recipe.id} className="tree-node">
                                   <div
                                     className={`tree-item leaf ${
