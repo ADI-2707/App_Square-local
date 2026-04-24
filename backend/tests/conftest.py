@@ -1,4 +1,5 @@
 import pytest
+from pathlib import Path
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -8,7 +9,9 @@ from app.database import Base
 from app.utils.dependencies import get_db
 from app.services.auth_service import initialize_system_users
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+TEST_DB_PATH = (BACKEND_DIR / "test.db").resolve()
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{TEST_DB_PATH.as_posix()}"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
