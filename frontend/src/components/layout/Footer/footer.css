@@ -12,6 +12,11 @@
   padding: 0 16px;
   font-size: var(--text-sm);
   z-index: 1000;
+  transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-footer.collapsed {
+  left: 70px;
 }
 
 .footer-left {

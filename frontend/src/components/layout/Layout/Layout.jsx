@@ -198,7 +198,7 @@ export default function Layout({ children }) {
 
               if (String(originalTag.value ?? "") !== String(tag.value ?? "")) {
                 changedPayload.push({
-                  tag_id: tag.id || tag.tag_id || tag.tagId,
+                  tag_id: tag.id,
                   device_id: device.id,
                   value: tag.value,
                 });
@@ -299,7 +299,7 @@ export default function Layout({ children }) {
   };
 
   const handleDeleteTag = async (tag, deviceIndex) => {
-    const tagId = tag.id || tag.tag_id || tag.tagId;
+    const tagId = tag.id;
 
     if (!tagId) {
       console.error("Tag ID missing", tag);
@@ -343,13 +343,7 @@ export default function Layout({ children }) {
         />
 
         <div
-          className="layout-content"
-          style={{
-            marginLeft: isSidebarCollapsed ? "70px" : "260px",
-            width: isSidebarCollapsed
-              ? "calc(100% - 70px)"
-              : "calc(100% - 260px)",
-          }}
+          className={`layout-content ${isSidebarCollapsed ? "sidebar-collapsed" : ""}`}
         >
           {children ? (
             children
@@ -603,6 +597,7 @@ export default function Layout({ children }) {
       <Footer
         onOpenAbout={() => setShowAbout(true)}
         onOpenHelp={() => setShowHelp(true)}
+        isSidebarCollapsed={isSidebarCollapsed}
       />
 
       <AboutModal isOpen={showAbout} onClose={() => setShowAbout(false)} />

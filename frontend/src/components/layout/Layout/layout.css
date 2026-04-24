@@ -21,6 +21,11 @@
     width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.layout-content.sidebar-collapsed {
+  margin-left: 70px;
+  width: calc(100% - 70px);
+}
+
 .layout-content::-webkit-scrollbar {
   width: 8px;
 }
