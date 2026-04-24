@@ -18,8 +18,11 @@ def create_recipe_group(
     request: Request = None
 ):
 
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Admin required")
+    if current_user.role not in {"admin", "operator"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin or operator access required"
+        )
 
     existing = recipe_queries.get_recipe_group_by_name(
         db,
@@ -51,8 +54,11 @@ def create_recipe(
     request: Request = None
 ):
 
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Admin required")
+    if current_user.role not in {"admin", "operator"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin or operator access required"
+        )
 
     group = recipe_queries.get_recipe_group_by_id(db, recipe_group_id)
 
@@ -129,8 +135,11 @@ def delete_recipe_command(
     request: Request = None
 ):
 
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Admin required")
+    if current_user.role not in {"admin", "operator"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin or operator access required"
+        )
 
     recipe = recipe_queries.get_recipe_by_id(db, recipe_id)
 
@@ -151,8 +160,11 @@ def delete_recipe_group_command(
     request: Request = None
 ):
 
-    if current_user.role != "admin":
-        raise HTTPException(status_code=403, detail="Admin required")
+    if current_user.role not in {"admin", "operator"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin or operator access required"
+        )
 
     group = recipe_queries.get_recipe_group_by_id(db, recipe_group_id)
 
@@ -179,6 +191,12 @@ def update_recipe_values(
     current_user,
     request=None
 ):
+    if current_user.role not in {"admin", "operator"}:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin or operator access required"
+        )
+
     recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
 
     if not recipe:

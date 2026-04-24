@@ -43,6 +43,8 @@ export default function Sidebar({
   const { workspace, openWorkspace } = useWorkspace();
   const { lockUI, unlockUI } = useUiLock();
   const { role } = useAuth();
+  const canManageTemplates = role === "admin";
+  const canManageRecipes = role === "admin" || role === "operator";
 
   const [contextMenu, setContextMenu] = useState(null);
   const [addRecipeModal, setAddRecipeModal] = useState(null);
@@ -503,9 +505,9 @@ export default function Sidebar({
               <div className="sidebar-submenu">
                 <button
                   className={`sidebar-action-btn ${
-                    role !== "admin" || disabled ? "disabled-btn" : ""
+                    !canManageTemplates || disabled ? "disabled-btn" : ""
                   }`}
-                  onClick={() => role === "admin" && onOpenModal("createGroup")}
+                  onClick={() => canManageTemplates && onOpenModal("createGroup")}
                 >
                   + Create Recipe Template
                 </button>
@@ -750,9 +752,9 @@ export default function Sidebar({
             {contextMenu.type === "recipe" && (
               <div
                 className={`context-item ${
-                  role !== "admin" ? "disabled-item" : ""
+                  !canManageRecipes ? "disabled-item" : ""
                 }`}
-                onClick={() => role === "admin" && handleDelete()}
+                onClick={() => canManageRecipes && handleDelete()}
               >
                 Delete Recipe
               </div>
@@ -775,9 +777,9 @@ export default function Sidebar({
 
                 <div
                   className={`context-item ${
-                    role !== "admin" ? "disabled-item" : ""
+                    !canManageRecipes ? "disabled-item" : ""
                   }`}
-                  onClick={() => role === "admin" && handleDelete()}
+                  onClick={() => canManageRecipes && handleDelete()}
                 >
                   Delete Area
                 </div>
@@ -792,9 +794,9 @@ export default function Sidebar({
 
                 <div
                   className={`context-item ${
-                    role !== "admin" ? "disabled-item" : ""
+                    !canManageTemplates ? "disabled-item" : ""
                   }`}
-                  onClick={() => role === "admin" && handleDelete()}
+                  onClick={() => canManageTemplates && handleDelete()}
                 >
                   Delete Template
                 </div>
@@ -809,9 +811,9 @@ export default function Sidebar({
 
                 <div
                   className={`context-item ${
-                    role !== "admin" ? "disabled-item" : ""
+                    !canManageTemplates ? "disabled-item" : ""
                   }`}
-                  onClick={() => role === "admin" && handleDelete()}
+                  onClick={() => canManageTemplates && handleDelete()}
                 >
                   Delete Equipment
                 </div>

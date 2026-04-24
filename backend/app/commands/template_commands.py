@@ -137,6 +137,9 @@ def delete_template_group(
     current_user: User,
     request: Request = None
 ):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin required")
+
     group = db.query(TemplateGroup).filter(
         TemplateGroup.id == group_id
     ).first()
@@ -169,6 +172,9 @@ def delete_device_from_template(
     current_user: User,
     request: Request = None
 ):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin required")
+
     device = db.query(DeviceInstance).filter(
         DeviceInstance.id == device_id
     ).first()
