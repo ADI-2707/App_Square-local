@@ -230,38 +230,42 @@ export default function DeviceModal({
             </h4>
           </div>
 
-          <div className="tag-input-row">
-            <input
-              type="text"
-              placeholder="Search tag name"
-              value={tagQuery}
-              onChange={(e) => setTagQuery(e.target.value)}
-            />
-          </div>
+          <div className="tag-autocomplete">
+            <div className="tag-input-row">
+              <input
+                type="text"
+                placeholder="Search tag name"
+                value={tagQuery}
+                onChange={(e) => setTagQuery(e.target.value)}
+              />
+            </div>
 
-          {(isSearching || searchResults.length > 0 || tagQuery.trim()) && (
-            <ul className="tag-search-results">
-              {isSearching ? (
-                <li className="tag-search-item muted">Searching...</li>
-              ) : searchResults.length > 0 ? (
-                searchResults.map((tagOption) => (
-                  <li key={tagOption.lookup_value} className="tag-search-item">
-                    <button type="button" onClick={() => addTag(tagOption)}>
-                      {tagOption.tag_name}
-                    </button>
+            {(isSearching || searchResults.length > 0 || tagQuery.trim()) && (
+              <ul className="tag-search-results tag-search-results-floating">
+                {isSearching ? (
+                  <li className="tag-search-item muted">Searching...</li>
+                ) : searchResults.length > 0 ? (
+                  searchResults.map((tagOption) => (
+                    <li key={tagOption.lookup_value} className="tag-search-item">
+                      <button type="button" onClick={() => addTag(tagOption)}>
+                        {tagOption.tag_name}
+                      </button>
+                    </li>
+                  ))
+                ) : (
+                  <li className="tag-search-item muted">
+                    No matching tags found
                   </li>
-                ))
-              ) : (
-                <li className="tag-search-item muted">No matching tags found</li>
-              )}
-            </ul>
-          )}
+                )}
+              </ul>
+            )}
+          </div>
 
           <ul className="tag-list">
             {tags.map((tag, index) => (
               <li key={index} className="tag-row">
                 {editingIndex === index ? (
-                  <>
+                  <div className="tag-row-editor">
                     <input
                       className="edit-input"
                       value={editQuery}
@@ -299,7 +303,7 @@ export default function DeviceModal({
                         )}
                       </ul>
                     )}
-                  </>
+                  </div>
                 ) : (
                   <>
                     <span className="tag-name">{tag.name}</span>
