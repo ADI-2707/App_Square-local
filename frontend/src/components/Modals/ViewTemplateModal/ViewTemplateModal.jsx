@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import BaseModal from "../BaseModal/BaseModal";
 import "./viewTemplateModal.css";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
@@ -19,6 +19,8 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
   const [templates, setTemplates] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  const requestIdRef = useRef(0);
 
   const ITEMS_PER_PAGE = 8;
 
@@ -102,6 +104,7 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
     if (!isOpen) return;
 
     const handler = setTimeout(async () => {
+      const requestId = ++requestIdRef.current;
       setLoading(true);
 
       try {
@@ -113,12 +116,18 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
           limit: ITEMS_PER_PAGE,
         });
 
+        if (requestId !== requestIdRef.current) return;
+
         setTemplates(res.data);
         setTotal(res.total);
       } catch {
-        alert("Failed to load templates");
+        if (requestId === requestIdRef.current) {
+          alert("Failed to load templates");
+        }
       } finally {
-        setLoading(false);
+        if (requestId === requestIdRef.current) {
+          setLoading(false);
+        }
       }
     }, 300);
 
