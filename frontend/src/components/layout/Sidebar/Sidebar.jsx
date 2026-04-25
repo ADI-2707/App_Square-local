@@ -240,8 +240,6 @@ export default function Sidebar({
   const toggleRecipeGroup = async (group) => {
     if (disabled) return;
 
-    markRecipeGroupRecent(group.id);
-
     if (!expandedRecipeGroups[group.id]) {
       await loadRecipesPaginated(group.id, 1);
     }
