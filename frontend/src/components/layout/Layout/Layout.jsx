@@ -26,6 +26,8 @@ export default function Layout({ children }) {
   const [editableData, setEditableData] = useState([]);
   const [showAbout, setShowAbout] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem("sidebarCollapsed");
@@ -52,6 +54,17 @@ export default function Layout({ children }) {
   const closeModal = () => {
     setActiveModal(null);
   };
+
+  useEffect(() => {
+    const checkWidth = () => {
+      setIsSmallScreen(window.innerWidth < 1100);
+    };
+
+    checkWidth();
+    window.addEventListener("resize", checkWidth);
+
+    return () => window.removeEventListener("resize", checkWidth);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("sidebarCollapsed", isSidebarCollapsed);
@@ -266,6 +279,7 @@ export default function Layout({ children }) {
           return {
             tagName: tag?.tag_name ?? "-",
             value: tag?.value ?? "-",
+            hasTag: Boolean(tag),
           };
         }),
       );
@@ -333,7 +347,20 @@ export default function Layout({ children }) {
 
   return (
     <>
-      <div className={`layout-container ${isLocked ? "ui-locked" : ""}`}>
+      {isSmallScreen && showBanner && (
+        <div className="screen-warning-banner">
+          ⚠ For best experience, use a wider screen or reduce zoom
+          <span
+            style={{ marginLeft: "12px", cursor: "pointer" }}
+            onClick={() => setShowBanner(false)}
+          >
+            ✕
+          </span>
+        </div>
+      )}
+      <div
+        className={`layout-container ${isLocked ? "ui-locked" : ""} ${isSmallScreen ? "with-banner" : ""}`}
+      >
         <Navbar />
         <Sidebar
           onOpenModal={setActiveModal}
@@ -487,7 +514,7 @@ export default function Layout({ children }) {
                                   <td className="tag-cell">{cell.tagName}</td>
 
                                   <td className="value-cell">
-                                    {isEditing ? (
+                                    {isEditing && cell.hasTag ? (
                                       <input
                                         className="value-input"
                                         value={cell.value}

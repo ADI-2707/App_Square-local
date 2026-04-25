@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import BaseModal from "../BaseModal/BaseModal";
 import "../ViewTemplateModal/viewTemplateModal.css";
 import api from "../../../Utility/api";
@@ -16,11 +16,13 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
 
+  const requestIdRef = useRef(0);
+
   const ITEMS_PER_PAGE = 8;
+
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
-  const fetchRecipes = async () => {
-    setLoading(true);
+  const fetchRecipes = async (requestId) => {
     try {
       const res = await api.get("/recipes", {
         params: {
@@ -30,12 +32,18 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
         },
       });
 
+      if (requestId !== requestIdRef.current) return;
+
       setRecipes(res.data.data);
       setTotal(res.data.total);
     } catch {
-      alert("Failed to load recipes");
+      if (requestId === requestIdRef.current) {
+        alert("Failed to load recipes");
+      }
     } finally {
-      setLoading(false);
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -43,7 +51,10 @@ export default function ViewRecipeModal({ isOpen, onClose, onOpenRecipe }) {
     if (!isOpen) return;
 
     const handler = setTimeout(() => {
-      fetchRecipes();
+      const requestId = ++requestIdRef.current;
+
+      setLoading(true);
+      fetchRecipes(requestId);
     }, 300);
 
     return () => clearTimeout(handler);
