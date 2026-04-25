@@ -131,37 +131,23 @@ export default function Sidebar({
   useEffect(() => {
     if (!groups.allIds.length) return;
 
-    const saved = localStorage.getItem("recentTemplates");
+    try {
+      const saved = localStorage.getItem("recentTemplates");
 
-    if (saved) {
-      try {
+      if (saved) {
         const parsed = JSON.parse(saved);
 
         const valid = parsed.filter((id) => groups.allIds.includes(id));
 
         setRecentTemplates(valid);
-      } catch {
+      } else {
         setRecentTemplates([]);
       }
+    } catch {
+      setRecentTemplates([]);
+    } finally {
+      setHasLoaded(true);
     }
-  }, [groups.allIds]);
-
-  useEffect(() => {
-    if (!groups.allIds.length) return;
-
-    const saved = localStorage.getItem("recentTemplates");
-
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        const valid = parsed.filter((id) => groups.allIds.includes(id));
-        setRecentTemplates(valid);
-      } catch {
-        setRecentTemplates([]);
-      }
-    }
-
-    setHasLoaded(true);
   }, [groups.allIds]);
 
   useEffect(() => {
@@ -507,7 +493,9 @@ export default function Sidebar({
                   className={`sidebar-action-btn ${
                     !canManageTemplates || disabled ? "disabled-btn" : ""
                   }`}
-                  onClick={() => canManageTemplates && onOpenModal("createGroup")}
+                  onClick={() =>
+                    canManageTemplates && onOpenModal("createGroup")
+                  }
                 >
                   + Create Recipe Template
                 </button>
@@ -628,7 +616,8 @@ export default function Sidebar({
             >
               {isCollapsed ? (
                 <>
-                  <img src="/icons/recipe.svg" className="sidebar-icon" />                </>
+                  <img src="/icons/recipe.svg" className="sidebar-icon" />{" "}
+                </>
               ) : (
                 <>{openSections.recipes ? "▾" : "▸"} Recipes</>
               )}
@@ -650,12 +639,14 @@ export default function Sidebar({
                 >
                   {flattenedRecipeGroups.map((rGroup) => {
                     const recipeList = recipes[rGroup.id]?.[1] || [];
-                    const recentRecipeIds = recentRecipesByGroup[rGroup.id] || [];
+                    const recentRecipeIds =
+                      recentRecipesByGroup[rGroup.id] || [];
                     const sortedRecipeList = [...recipeList].sort((a, b) => {
                       const aIndex = recentRecipeIds.indexOf(a.id);
                       const bIndex = recentRecipeIds.indexOf(b.id);
 
-                      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                      if (aIndex !== -1 && bIndex !== -1)
+                        return aIndex - bIndex;
                       if (aIndex !== -1) return -1;
                       if (bIndex !== -1) return 1;
 
@@ -857,27 +848,28 @@ export default function Sidebar({
           onOpenRecipe={handleOpenRecipe}
         />
       )}
-    {tooltip && createPortal(
-        <div
-          style={{
-            position: "fixed",
-            top: tooltip.y,
-            left: tooltip.x,
-            transform: "translateY(-50%)",
-            background: "#111827",
-            color: "white",
-            padding: "6px 10px",
-            fontSize: "12px",
-            borderRadius: "4px",
-            whiteSpace: "nowrap",
-            zIndex: 9999,
-            pointerEvents: "none",
-          }}
-        >
-          {tooltip.label}
-        </div>,
-        document.body
-      )}
+      {tooltip &&
+        createPortal(
+          <div
+            style={{
+              position: "fixed",
+              top: tooltip.y,
+              left: tooltip.x,
+              transform: "translateY(-50%)",
+              background: "#111827",
+              color: "white",
+              padding: "6px 10px",
+              fontSize: "12px",
+              borderRadius: "4px",
+              whiteSpace: "nowrap",
+              zIndex: 9999,
+              pointerEvents: "none",
+            }}
+          >
+            {tooltip.label}
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
