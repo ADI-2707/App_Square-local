@@ -266,6 +266,7 @@ export default function Layout({ children }) {
           return {
             tagName: tag?.tag_name ?? "-",
             value: tag?.value ?? "-",
+            hasTag: Boolean(tag),
           };
         }),
       );
@@ -487,7 +488,7 @@ export default function Layout({ children }) {
                                   <td className="tag-cell">{cell.tagName}</td>
 
                                   <td className="value-cell">
-                                    {isEditing ? (
+                                    {isEditing && cell.hasTag ? (
                                       <input
                                         className="value-input"
                                         value={cell.value}
