@@ -21,8 +21,8 @@ export function EntityProvider({ children }) {
 
   const [activeTemplate, setActiveTemplate] = useState(null);
 
-  const loadGroups = async () => {
-    if (groups.allIds.length > 0) return;
+  const loadGroups = async ({ force = false } = {}) => {
+    if (!force && groups.allIds.length > 0) return;
 
     try {
       const res = await api.get("/templates/groups");
@@ -42,8 +42,8 @@ export function EntityProvider({ children }) {
     }
   };
 
-  const loadDevices = async (groupId) => {
-    if (devices.byGroupId[groupId]) return;
+  const loadDevices = async (groupId, { force = false } = {}) => {
+    if (!force && devices.byGroupId[groupId]) return;
 
     try {
       const res = await api.get(`/templates/groups/${groupId}/devices`);
