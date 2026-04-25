@@ -37,7 +37,8 @@ export default function ViewTemplateModal({ isOpen, onClose }) {
   const highlightMatch = (text, query) => {
     if (!query) return text;
 
-    const parts = text.split(new RegExp(`(${query})`, "gi"));
+    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const parts = text.split(new RegExp(`(${escapedQuery})`, "gi"));
 
     return parts.map((part, i) =>
       part.toLowerCase() === query.toLowerCase() ? (
