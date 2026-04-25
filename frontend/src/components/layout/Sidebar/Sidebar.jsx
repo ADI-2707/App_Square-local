@@ -496,7 +496,7 @@ export default function Sidebar({
             >
               {isCollapsed ? (
                 <>
-                  <img src="/icons/template.svg" className="sidebar-icon" />
+                  <img src={getIcon("template")} className="sidebar-icon" />
                 </>
               ) : (
                 <>{openSections.templates ? "▾" : "▸"} Templates</>
@@ -547,7 +547,7 @@ export default function Sidebar({
                             </span>
 
                             <img
-                              src="/icons/template.svg"
+                              src={getIcon("template")}
                               className="sidebar-icon"
                             />
 
@@ -579,7 +579,7 @@ export default function Sidebar({
                                   >
                                     <div className="tree-item-content">
                                       <img
-                                        src="/icons/device.svg"
+                                        src={getIcon("device")}
                                         className="sidebar-icon"
                                       />
 
