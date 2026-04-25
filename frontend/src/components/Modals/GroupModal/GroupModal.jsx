@@ -120,7 +120,7 @@ export default function GroupModal({ isOpen, onClose }) {
           if (isLocked) return;
           onClose();
         }}
-        title="Create Recipe Template Group"
+        title="Create Recipe Template"
       >
         <div className="group-form">
           <div className="form-field">
