@@ -68,19 +68,19 @@ def create_device_instance(db: Session, name: str, type: str, group_id: int):
 def create_tag(db: Session, name: str, device_id: int):
     if not name or not str(name).strip():
         raise ValueError("Tag name cannot be empty")
-    
-    normalized_name = name.strip().lower()
+
+    cleaned_name = name.strip()
 
     existing = db.query(Tag).filter(
-        Tag.name == normalized_name,
+        Tag.name == cleaned_name,
         Tag.device_instance_id == device_id
     ).first()
 
     if existing:
-        raise ValueError(f"Tag '{normalized_name}' already exists for this equipment.")
+        raise ValueError(f"Tag '{cleaned_name}' already exists for this equipment.")
 
     tag = Tag(
-        name=normalized_name,
+        name=cleaned_name,
         device_instance_id=device_id
     )
     db.add(tag)

@@ -38,11 +38,17 @@ export default function Sidebar({
     deleteRecipe,
     deleteRecipeGroup,
     activeRecipe,
+    recentRecipeGroups,
+    recentRecipesByGroup,
+    markRecipeGroupRecent,
+    markRecipeRecent,
   } = useRecipes();
 
   const { workspace, openWorkspace } = useWorkspace();
   const { lockUI, unlockUI } = useUiLock();
   const { role } = useAuth();
+  const canManageTemplates = role === "admin";
+  const canManageRecipes = role === "admin" || role === "operator";
 
   const [contextMenu, setContextMenu] = useState(null);
   const [addRecipeModal, setAddRecipeModal] = useState(null);
@@ -65,7 +71,6 @@ export default function Sidebar({
   const [recentTemplates, setRecentTemplates] = useState([]);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [viewAllRecipesModal, setViewAllRecipesModal] = useState(false);
-  const [recentRecipeGroups, setRecentRecipeGroups] = useState([]);
   const [tooltip, setTooltip] = useState(null);
 
   const hasTemplates = groups.allIds.length > 0;
@@ -117,7 +122,7 @@ export default function Sidebar({
     });
 
     return result;
-  }, [recipeGroups, groups.byId]);
+  }, [recipeGroups, groups.byId, recentRecipeGroups]);
 
   useEffect(() => {
     loadGroups();
@@ -235,6 +240,8 @@ export default function Sidebar({
   const toggleRecipeGroup = async (group) => {
     if (disabled) return;
 
+    markRecipeGroupRecent(group.id);
+
     if (!expandedRecipeGroups[group.id]) {
       await loadRecipesPaginated(group.id, 1);
     }
@@ -256,10 +263,7 @@ export default function Sidebar({
       setActiveRecipeId(recipe.id);
       setActiveDeviceId(null);
 
-      setRecentRecipeGroups((prev) => {
-        const filtered = prev.filter((id) => id !== recipe.recipe_group_id);
-        return [recipe.recipe_group_id, ...filtered];
-      });
+      markRecipeRecent(recipe.recipe_group_id, recipe.id);
 
       if (fullRecipe.changes && fullRecipe.changes.length > 0) {
         const lines = fullRecipe.changes.map((c) => `• ${c.label}`).join("\n");
@@ -492,7 +496,7 @@ export default function Sidebar({
             >
               {isCollapsed ? (
                 <>
-                  <img src="/icons/template.svg" className="sidebar-icon" />
+                  <img src={getIcon("template")} className="sidebar-icon" />
                 </>
               ) : (
                 <>{openSections.templates ? "▾" : "▸"} Templates</>
@@ -503,9 +507,9 @@ export default function Sidebar({
               <div className="sidebar-submenu">
                 <button
                   className={`sidebar-action-btn ${
-                    role !== "admin" || disabled ? "disabled-btn" : ""
+                    !canManageTemplates || disabled ? "disabled-btn" : ""
                   }`}
-                  onClick={() => role === "admin" && onOpenModal("createGroup")}
+                  onClick={() => canManageTemplates && onOpenModal("createGroup")}
                 >
                   + Create Recipe Template
                 </button>
@@ -543,7 +547,7 @@ export default function Sidebar({
                             </span>
 
                             <img
-                              src="/icons/template.svg"
+                              src={getIcon("template")}
                               className="sidebar-icon"
                             />
 
@@ -575,7 +579,7 @@ export default function Sidebar({
                                   >
                                     <div className="tree-item-content">
                                       <img
-                                        src="/icons/device.svg"
+                                        src={getIcon("device")}
                                         className="sidebar-icon"
                                       />
 
@@ -648,6 +652,17 @@ export default function Sidebar({
                 >
                   {flattenedRecipeGroups.map((rGroup) => {
                     const recipeList = recipes[rGroup.id]?.[1] || [];
+                    const recentRecipeIds = recentRecipesByGroup[rGroup.id] || [];
+                    const sortedRecipeList = [...recipeList].sort((a, b) => {
+                      const aIndex = recentRecipeIds.indexOf(a.id);
+                      const bIndex = recentRecipeIds.indexOf(b.id);
+
+                      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+                      if (aIndex !== -1) return -1;
+                      if (bIndex !== -1) return 1;
+
+                      return a.name.localeCompare(b.name);
+                    });
 
                     return (
                       <div key={rGroup.id} className="tree-node">
@@ -685,8 +700,8 @@ export default function Sidebar({
 
                         {expandedRecipeGroups[rGroup.id] && (
                           <div className="tree-children">
-                            {recipeList.length > 0 ? (
-                              recipeList.map((recipe) => (
+                            {sortedRecipeList.length > 0 ? (
+                              sortedRecipeList.map((recipe) => (
                                 <div key={recipe.id} className="tree-node">
                                   <div
                                     className={`tree-item leaf ${
@@ -750,9 +765,9 @@ export default function Sidebar({
             {contextMenu.type === "recipe" && (
               <div
                 className={`context-item ${
-                  role !== "admin" ? "disabled-item" : ""
+                  !canManageRecipes ? "disabled-item" : ""
                 }`}
-                onClick={() => role === "admin" && handleDelete()}
+                onClick={() => canManageRecipes && handleDelete()}
               >
                 Delete Recipe
               </div>
@@ -775,9 +790,9 @@ export default function Sidebar({
 
                 <div
                   className={`context-item ${
-                    role !== "admin" ? "disabled-item" : ""
+                    !canManageRecipes ? "disabled-item" : ""
                   }`}
-                  onClick={() => role === "admin" && handleDelete()}
+                  onClick={() => canManageRecipes && handleDelete()}
                 >
                   Delete Area
                 </div>
@@ -792,9 +807,9 @@ export default function Sidebar({
 
                 <div
                   className={`context-item ${
-                    role !== "admin" ? "disabled-item" : ""
+                    !canManageTemplates ? "disabled-item" : ""
                   }`}
-                  onClick={() => role === "admin" && handleDelete()}
+                  onClick={() => canManageTemplates && handleDelete()}
                 >
                   Delete Template
                 </div>
@@ -809,9 +824,9 @@ export default function Sidebar({
 
                 <div
                   className={`context-item ${
-                    role !== "admin" ? "disabled-item" : ""
+                    !canManageTemplates ? "disabled-item" : ""
                   }`}
-                  onClick={() => role === "admin" && handleDelete()}
+                  onClick={() => canManageTemplates && handleDelete()}
                 >
                   Delete Equipment
                 </div>

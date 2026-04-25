@@ -1,12 +1,73 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import api from "../../Utility/api";
 
 const RecipeContext = createContext();
+const RECENT_RECIPE_GROUPS_KEY = "recentRecipeGroups";
+const RECENT_RECIPES_BY_GROUP_KEY = "recentRecipesByGroup";
 
 export function RecipeProvider({ children }) {
   const [recipeGroups, setRecipeGroups] = useState({});
   const [recipes, setRecipes] = useState({});
   const [activeRecipe, setActiveRecipe] = useState(null);
+  const [recentRecipeGroups, setRecentRecipeGroups] = useState([]);
+  const [recentRecipesByGroup, setRecentRecipesByGroup] = useState({});
+
+  useEffect(() => {
+    try {
+      const savedGroups = localStorage.getItem(RECENT_RECIPE_GROUPS_KEY);
+      const savedRecipes = localStorage.getItem(RECENT_RECIPES_BY_GROUP_KEY);
+
+      if (savedGroups) {
+        setRecentRecipeGroups(JSON.parse(savedGroups));
+      }
+
+      if (savedRecipes) {
+        setRecentRecipesByGroup(JSON.parse(savedRecipes));
+      }
+    } catch {
+      setRecentRecipeGroups([]);
+      setRecentRecipesByGroup({});
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      RECENT_RECIPE_GROUPS_KEY,
+      JSON.stringify(recentRecipeGroups),
+    );
+  }, [recentRecipeGroups]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      RECENT_RECIPES_BY_GROUP_KEY,
+      JSON.stringify(recentRecipesByGroup),
+    );
+  }, [recentRecipesByGroup]);
+
+  const markRecipeGroupRecent = (recipeGroupId) => {
+    if (!recipeGroupId) return;
+
+    setRecentRecipeGroups((prev) => {
+      const filtered = prev.filter((id) => id !== recipeGroupId);
+      return [recipeGroupId, ...filtered].slice(0, 25);
+    });
+  };
+
+  const markRecipeRecent = (recipeGroupId, recipeId) => {
+    if (!recipeGroupId || !recipeId) return;
+
+    markRecipeGroupRecent(recipeGroupId);
+
+    setRecentRecipesByGroup((prev) => {
+      const current = prev[recipeGroupId] || [];
+      const filtered = current.filter((id) => id !== recipeId);
+
+      return {
+        ...prev,
+        [recipeGroupId]: [recipeId, ...filtered].slice(0, 25),
+      };
+    });
+  };
 
   const loadRecipeGroups = async (templateGroupId, search = "") => {
     try {
@@ -72,6 +133,8 @@ export function RecipeProvider({ children }) {
   };
 
   const addRecipeGroupLocal = (templateGroupId, group) => {
+    markRecipeGroupRecent(group.id);
+
     setRecipeGroups((prev) => ({
       ...prev,
       [templateGroupId]: [...(prev[templateGroupId] || []), group],
@@ -79,6 +142,8 @@ export function RecipeProvider({ children }) {
   };
 
   const addRecipeLocal = (recipeGroupId, recipe) => {
+    markRecipeRecent(recipeGroupId, recipe.id);
+
     setRecipes((prev) => ({
       ...prev,
       [recipeGroupId]: {
@@ -145,6 +210,8 @@ export function RecipeProvider({ children }) {
         recipeGroups,
         recipes,
         activeRecipe,
+        recentRecipeGroups,
+        recentRecipesByGroup,
         loadRecipeGroups,
         loadRecipesPaginated,
         getFullRecipe,
@@ -152,6 +219,8 @@ export function RecipeProvider({ children }) {
         clearActiveRecipe,
         addRecipeGroupLocal,
         addRecipeLocal,
+        markRecipeGroupRecent,
+        markRecipeRecent,
         deleteRecipe,
         deleteRecipeGroup,
       }}

@@ -8,3 +8,8 @@ backend/.env
 # Python
 *.pyc
 __pycache__/
+
+app_square_local.db
+test.db
+
+.env.example

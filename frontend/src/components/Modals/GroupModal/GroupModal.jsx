@@ -77,7 +77,7 @@ export default function GroupModal({ isOpen, onClose }) {
         tags: Array.from(
           new Set(
             device.tags
-              .map((tag) => tag.name?.trim().toLowerCase())
+              .map((tag) => (tag.lookup_value || tag.name)?.trim())
               .filter(Boolean),
           ),
         ).map((name) => ({ name })),
@@ -120,7 +120,7 @@ export default function GroupModal({ isOpen, onClose }) {
           if (isLocked) return;
           onClose();
         }}
-        title="Create Recipe Template Group"
+        title="Create Recipe Template"
       >
         <div className="group-form">
           <div className="form-field">

@@ -8,7 +8,10 @@ from app.schemas.template_schema import (
     TemplateGroupFullCreate,
     TemplateGroupResponse,
     DeviceResponse,
-    TagResponse
+    TagResponse,
+    TagResolveRequest,
+    ResolvedTagResponse,
+    TagSearchResponse,
 )
 from app.commands.template_commands import (
     create_full_template_group,
@@ -23,7 +26,9 @@ from app.services.template_service import (
     get_tags_by_device,
     get_full_template,
     get_device_full,
-    get_templates_advanced
+    get_templates_advanced,
+    get_resolved_tags,
+    search_available_tags,
 )
 
 router = APIRouter(prefix="/templates", tags=["Templates"])
@@ -41,6 +46,23 @@ def create_full_group(
         current_user=current_user,
         request=request
     )
+
+
+@router.post("/tags/resolve", response_model=list[ResolvedTagResponse])
+def resolve_template_tags(
+    data: TagResolveRequest,
+    current_user = Depends(get_current_user),
+):
+    return get_resolved_tags(data.tags)
+
+
+@router.get("/tags/search", response_model=list[TagSearchResponse])
+def search_template_tags(
+    q: str = Query("", min_length=0),
+    limit: int = Query(10, ge=1, le=50),
+    current_user = Depends(get_current_user),
+):
+    return search_available_tags(q, limit)
 
 
 @router.get("/groups", response_model=list[TemplateGroupResponse])

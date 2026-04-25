@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import FormLabel from "../../common/FormLabel/FormLabel";
 import BaseModal from "../BaseModal/BaseModal.jsx";
 import EditIcon from "../../../assets/icons/EditIcon";
 import DeleteIcon from "../../../assets/icons/DeleteIcon";
-import CheckIcon from "../../../assets/icons/CheckIcon";
 import CloseIcon from "../../../assets/icons/CloseIcon";
+import { useEntities } from "../../../context/EntityContext/EntityContext";
 import "./deviceModal.css";
 
 export default function DeviceModal({
@@ -13,13 +13,18 @@ export default function DeviceModal({
   onSave,
   initialDevice,
 }) {
+  const { searchTemplateTags } = useEntities();
   const [deviceName, setDeviceName] = useState("");
   const [tags, setTags] = useState([]);
-  const [tagName, setTagName] = useState("");
+  const [tagQuery, setTagQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
   const [errors, setErrors] = useState({});
 
   const [editingIndex, setEditingIndex] = useState(null);
-  const [editValue, setEditValue] = useState("");
+  const [editQuery, setEditQuery] = useState("");
+  const [editingResults, setEditingResults] = useState([]);
+  const [isSearchingEdit, setIsSearchingEdit] = useState(false);
 
   useEffect(() => {
     if (initialDevice) {
@@ -31,6 +36,60 @@ export default function DeviceModal({
     }
   }, [initialDevice, isOpen]);
 
+  useEffect(() => {
+    if (!isOpen || editingIndex !== null) return;
+
+    const trimmedQuery = tagQuery.trim();
+
+    if (!trimmedQuery) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        setIsSearching(true);
+        const results = await searchTemplateTags(trimmedQuery);
+        setSearchResults(results);
+      } catch (error) {
+        console.error("Failed to fetch tag suggestions:", error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [isOpen, tagQuery, editingIndex, searchTemplateTags]);
+
+  useEffect(() => {
+    if (!isOpen || editingIndex === null) return;
+
+    const trimmedQuery = editQuery.trim();
+
+    if (!trimmedQuery) {
+      setEditingResults([]);
+      setIsSearchingEdit(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        setIsSearchingEdit(true);
+        const results = await searchTemplateTags(trimmedQuery);
+        setEditingResults(results);
+      } catch (error) {
+        console.error("Failed to fetch tag suggestions:", error);
+        setEditingResults([]);
+      } finally {
+        setIsSearchingEdit(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [isOpen, editQuery, editingIndex, searchTemplateTags]);
+
   const tagExists = (name, excludeIndex = null) => {
     const normalized = name.trim().toLowerCase();
     return tags.some(
@@ -39,16 +98,25 @@ export default function DeviceModal({
     );
   };
 
-  const addTag = () => {
-    if (!tagName.trim()) return;
+  const addTag = (tagOption) => {
+    const tagName = tagOption?.tag_name?.trim();
+
+    if (!tagName) return;
 
     if (tagExists(tagName)) {
       alert("Tag already exists");
       return;
     }
 
-    setTags((prev) => [...prev, { name: tagName.trim() }]);
-    setTagName("");
+    setTags((prev) => [
+      ...prev,
+      {
+        name: tagName,
+        lookup_value: tagOption.lookup_value,
+      },
+    ]);
+    setTagQuery("");
+    setSearchResults([]);
 
     if (errors.tags) {
       setErrors((prev) => ({ ...prev, tags: false }));
@@ -61,28 +129,37 @@ export default function DeviceModal({
 
   const startEdit = (index) => {
     setEditingIndex(index);
-    setEditValue(tags[index].name);
+    setEditQuery(tags[index].name);
+    setEditingResults([]);
   };
 
   const cancelEdit = () => {
     setEditingIndex(null);
-    setEditValue("");
+    setEditQuery("");
+    setEditingResults([]);
   };
 
-  const confirmEdit = (index) => {
-    if (!editValue.trim()) return;
+  const confirmEdit = (index, tagOption) => {
+    const tagName = tagOption?.tag_name?.trim();
 
-    if (tagExists(editValue, index)) {
+    if (!tagName) return;
+
+    if (tagExists(tagName, index)) {
       alert("Tag already exists");
       return;
     }
 
     const updated = [...tags];
-    updated[index].name = editValue.trim();
+    updated[index] = {
+      ...updated[index],
+      name: tagName,
+      lookup_value: tagOption.lookup_value,
+    };
     setTags(updated);
 
     setEditingIndex(null);
-    setEditValue("");
+    setEditQuery("");
+    setEditingResults([]);
   };
 
   const handleSave = () => {
@@ -111,9 +188,11 @@ export default function DeviceModal({
 
     setDeviceName("");
     setTags([]);
-    setTagName("");
+    setTagQuery("");
+    setSearchResults([]);
     setEditingIndex(null);
-    setEditValue("");
+    setEditQuery("");
+    setEditingResults([]);
     setErrors({});
 
     onClose();
@@ -151,43 +230,80 @@ export default function DeviceModal({
             </h4>
           </div>
 
-          <div className="tag-input-row">
-            <input
-              type="text"
-              placeholder="Tag Name"
-              value={tagName}
-              onChange={(e) => setTagName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addTag()}
-            />
-            <button type="button" onClick={addTag}>
-              Add
-            </button>
+          <div className="tag-autocomplete">
+            <div className="tag-input-row">
+              <input
+                type="text"
+                placeholder="Search tag name"
+                value={tagQuery}
+                onChange={(e) => setTagQuery(e.target.value)}
+              />
+            </div>
+
+            {(isSearching || searchResults.length > 0 || tagQuery.trim()) && (
+              <ul className="tag-search-results tag-search-results-floating">
+                {isSearching ? (
+                  <li className="tag-search-item muted">Searching...</li>
+                ) : searchResults.length > 0 ? (
+                  searchResults.map((tagOption) => (
+                    <li key={tagOption.lookup_value} className="tag-search-item">
+                      <button type="button" onClick={() => addTag(tagOption)}>
+                        {tagOption.tag_name}
+                      </button>
+                    </li>
+                  ))
+                ) : (
+                  <li className="tag-search-item muted">
+                    No matching tags found
+                  </li>
+                )}
+              </ul>
+            )}
           </div>
 
           <ul className="tag-list">
             {tags.map((tag, index) => (
               <li key={index} className="tag-row">
                 {editingIndex === index ? (
-                  <>
+                  <div className="tag-row-editor">
                     <input
                       className="edit-input"
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
+                      value={editQuery}
+                      onChange={(e) => setEditQuery(e.target.value)}
                     />
 
                     <div className="tag-actions">
-                      <button
-                        className="icon-btn confirm"
-                        onClick={() => confirmEdit(index)}
-                      >
-                        <CheckIcon />
-                      </button>
-
                       <button className="icon-btn cancel" onClick={cancelEdit}>
                         <CloseIcon />
                       </button>
                     </div>
-                  </>
+
+                    {(isSearchingEdit || editingResults.length > 0 || editQuery.trim()) && (
+                      <ul className="tag-search-results edit-results">
+                        {isSearchingEdit ? (
+                          <li className="tag-search-item muted">Searching...</li>
+                        ) : editingResults.length > 0 ? (
+                          editingResults.map((tagOption) => (
+                            <li
+                              key={tagOption.lookup_value}
+                              className="tag-search-item"
+                            >
+                              <button
+                                type="button"
+                                onClick={() => confirmEdit(index, tagOption)}
+                              >
+                                {tagOption.tag_name}
+                              </button>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="tag-search-item muted">
+                            No matching tags found
+                          </li>
+                        )}
+                      </ul>
+                    )}
+                  </div>
                 ) : (
                   <>
                     <span className="tag-name">{tag.name}</span>
