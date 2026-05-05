@@ -22,7 +22,6 @@ export default function Navbar() {
 
   return (
     <div className="navbar no-left">
-
       <div className="navbar-right">
         {role === "admin" ? (
           isAdminPage ? (
@@ -44,7 +43,8 @@ export default function Navbar() {
         )}
 
         <button className="logout-btn" onClick={handleLogout}>
-          Logout
+          <img src="/icons/logout.svg" className="logout-icon" />
+          <span className="logout-text">LOGOUT</span>
         </button>
       </div>
     </div>

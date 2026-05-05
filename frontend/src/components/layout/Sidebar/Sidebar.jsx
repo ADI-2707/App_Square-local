@@ -455,7 +455,10 @@ export default function Sidebar({
               <div className="sidebar-appname">APP SQUARE</div>
 
               <div className="sidebar-toggle" onClick={toggleSidebar}>
-                <img src="/icons/sidebar-toggle.svg" className="toggle-icon" />
+                <img
+                  src="/icons/sidebar-toggle.svg"
+                  className={`toggle-icon ${isCollapsed ? "collapsed" : ""}`}
+                />
               </div>
             </>
           )}
@@ -478,13 +481,15 @@ export default function Sidebar({
               }}
               onMouseLeave={() => setTooltip(null)}
             >
-              {isCollapsed ? (
-                <>
-                  <img src={getIcon("template")} className="sidebar-icon" />
-                </>
-              ) : (
-                <>{openSections.templates ? "▾" : "▸"} Templates</>
-              )}
+              <div className="sidebar-title-content">
+                <span className="arrow">
+                  {openSections.templates ? "▾" : "▸"}
+                </span>
+
+                <img src={getIcon("template")} className="sidebar-icon" />
+
+                {!isCollapsed && <span>Templates</span>}
+              </div>
             </div>
 
             {openSections.templates && (
@@ -614,13 +619,15 @@ export default function Sidebar({
               }}
               onMouseLeave={() => setTooltip(null)}
             >
-              {isCollapsed ? (
-                <>
-                  <img src="/icons/recipe.svg" className="sidebar-icon" />{" "}
-                </>
-              ) : (
-                <>{openSections.recipes ? "▾" : "▸"} Recipes</>
-              )}
+              <div className="sidebar-title-content">
+                <span className="arrow">
+                  {openSections.recipes ? "▾" : "▸"}
+                </span>
+
+                <img src="/icons/recipe.svg" className="sidebar-icon" />
+
+                {!isCollapsed && <span>Recipes</span>}
+              </div>
             </div>
 
             {openSections.recipes && hasTemplates && (

@@ -22,10 +22,14 @@
   --color-border-strong: #9aa3c7;
   --color-border-muted: rgba(0,0,0,0.08);
 
-  --color-sidebar-bg: #1f242b;
-  --color-sidebar-hover: #2a2f38;
-  --color-sidebar-active: #4f5fbf;
-  --color-sidebar-submenu: #242933;
+  --color-navbar-bg: #070d1a;
+  --color-sidebar-bg: #080f1d;
+  --color-sidebar-hover: #101a2d;
+  --color-sidebar-active: #1f3570;
+  --color-sidebar-submenu: #0f172a;
+  --color-sidebar-scrollbar-track: #070d18;
+  --color-sidebar-scrollbar-thumb: rgba(255,255,255,0.08);
+  --color-sidebar-scrollbar-thumb-hover: rgba(255,255,255,0.18);
 
   --color-accent: #ffe600;
   --color-accent-hover: #ffd000;
