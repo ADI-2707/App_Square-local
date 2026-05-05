@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from datetime import timezone
 
 from app.models.user import User
 from app.utils.security import hash_password
@@ -9,6 +10,16 @@ from app import config
 from app.db_migrations import get_actor_column_health, get_migration_health
 from app.database import engine
 MAX_LOG_PAGE_SIZE = 100
+
+
+def _to_utc_iso(timestamp):
+    if not timestamp:
+        return None
+
+    if timestamp.tzinfo is None:
+        timestamp = timestamp.replace(tzinfo=timezone.utc)
+
+    return timestamp.astimezone(timezone.utc).isoformat()
 
 
 def change_user_password(
@@ -91,7 +102,7 @@ def get_logs(
                 "error_type": log.error_type,
                 "error_message": log.error_message,
                 "extra_data": log.extra_data,
-                "timestamp": log.timestamp.isoformat() if log.timestamp else None,
+                "timestamp": _to_utc_iso(log.timestamp),
             }
             for log in logs
         ]
