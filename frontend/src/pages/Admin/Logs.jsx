@@ -20,28 +20,12 @@ export default function Logs() {
           page,
           page_size: pageSize,
           sort_order: "desc",
+          search,
+          status_filter: statusFilter,
+          action_filter: actionFilter,
         },
       });
-
-      let filtered = res.data.logs;
-
-      if (search) {
-        filtered = filtered.filter(
-          (log) =>
-            log.action.toLowerCase().includes(search.toLowerCase()) ||
-            log.endpoint?.toLowerCase().includes(search.toLowerCase()),
-        );
-      }
-
-      if (statusFilter) {
-        filtered = filtered.filter((log) => log.status === statusFilter);
-      }
-
-      if (actionFilter) {
-        filtered = filtered.filter((log) => log.action === actionFilter);
-      }
-
-      setLogs(filtered);
+      setLogs(res.data.logs);
       setTotal(res.data.total);
     } catch (error) {
       alert(error.response?.data?.detail || "Failed to load logs");
@@ -50,9 +34,9 @@ export default function Logs() {
 
   useEffect(() => {
     fetchLogs();
-  }, [page]);
+  }, [page, search, statusFilter, actionFilter]);
 
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
     <div className="logs-page">
@@ -113,7 +97,11 @@ export default function Logs() {
             <span className="col-error">{log.error_message || "-"}</span>
 
             <span className="col-time">
-              {new Date(log.timestamp).toLocaleString()}
+              {log.timestamp
+                ? new Date(log.timestamp).toLocaleString("en-IN", {
+                    timeZone: "Asia/Kolkata",
+                  })
+                : "-"}
             </span>
           </div>
         ))}
@@ -121,7 +109,7 @@ export default function Logs() {
 
       <div className="logs-pagination">
         <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-          Next
+          Prev
         </button>
 
         <span>
@@ -132,7 +120,7 @@ export default function Logs() {
           disabled={page === totalPages}
           onClick={() => setPage(page + 1)}
         >
-          Prev
+          Next
         </button>
       </div>
     </div>

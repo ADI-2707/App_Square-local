@@ -39,6 +39,9 @@ def test_login_blocked_log_created(client, db_session):
             "password": "wrongpassword"
         })
 
-    log = db_session.query(Log).filter(Log.action == "LOGIN_BLOCKED").first()
+    log = db_session.query(Log).filter(
+        Log.action == "LOGIN",
+        Log.error_type == "429",
+    ).first()
 
     assert log is not None

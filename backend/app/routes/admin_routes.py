@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Body
+from fastapi import APIRouter, Depends, Request, Body, Query
 from sqlalchemy.orm import Session
 
 from app.schemas.user_schema import PasswordChangeRequest
@@ -7,7 +7,8 @@ from app.services.admin_service import (
     get_logs,
     get_all_operators,
     toggle_operator_status,
-    admin_change_operator_password
+    admin_change_operator_password,
+    get_logging_health_summary,
 )
 from app.commands.admin_commands import change_user_password_command
 
@@ -33,7 +34,10 @@ def change_password(
 def view_logs(
     page: int = 1,
     page_size: int = 10,
-    sort_order: str = "desc",
+    sort_order: str = Query("desc", pattern="^(asc|desc)$"),
+    search: str = "",
+    status_filter: str = "",
+    action_filter: str = "",
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -42,7 +46,10 @@ def view_logs(
         page,
         page_size,
         sort_order,
-        current_user
+        current_user,
+        search=search,
+        status_filter=status_filter,
+        action_filter=action_filter,
     )
 
 
@@ -76,3 +83,8 @@ def change_operator_password(
         new_password,
         current_user
     )
+
+
+@router.get("/logs/health")
+def logging_health(current_user=Depends(get_current_user)):
+    return get_logging_health_summary(current_user)

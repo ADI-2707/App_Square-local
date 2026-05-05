@@ -41,9 +41,24 @@ def get_logs_paginated(
     db: Session,
     page: int,
     page_size: int,
-    sort_order: str
+    sort_order: str,
+    search: str = "",
+    status_filter: str = "",
+    action_filter: str = "",
 ):
     query = db.query(Log)
+
+    if search:
+        like_pattern = f"%{search}%"
+        query = query.filter(
+            (Log.action.ilike(like_pattern)) | (Log.endpoint.ilike(like_pattern))
+        )
+
+    if status_filter:
+        query = query.filter(Log.status == status_filter)
+
+    if action_filter:
+        query = query.filter(Log.action == action_filter)
 
     if sort_order == "asc":
         query = query.order_by(asc(Log.timestamp))

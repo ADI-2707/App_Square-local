@@ -31,11 +31,9 @@ def command_logger(action: str):
                     status="SUCCESS",
                     endpoint=endpoint,
                     method=method,
-                    request_id=request_id
+                    request_id=request_id,
+                    defer_until_commit=True,
                 )
-
-                if request:
-                    request.state.already_logged = True
 
                 return result
 

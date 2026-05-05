@@ -1,10 +1,25 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from datetime import timezone
 
 from app.models.user import User
 from app.utils.security import hash_password
 from app.queries import user_queries, log_queries
-from app.services.log_service import convert_utc_to_ist
+from app.services.log_service import get_logging_health
+from app import config
+from app.db_migrations import get_actor_column_health, get_migration_health
+from app.database import engine
+MAX_LOG_PAGE_SIZE = 100
+
+
+def _to_utc_iso(timestamp):
+    if not timestamp:
+        return None
+
+    if timestamp.tzinfo is None:
+        timestamp = timestamp.replace(tzinfo=timezone.utc)
+
+    return timestamp.astimezone(timezone.utc).isoformat()
 
 
 def change_user_password(
@@ -40,7 +55,10 @@ def get_logs(
     page: int,
     page_size: int,
     sort_order: str,
-    current_user: User
+    current_user: User,
+    search: str = "",
+    status_filter: str = "",
+    action_filter: str = "",
 ):
     if current_user.role != "admin":
         raise HTTPException(
@@ -53,12 +71,20 @@ def get_logs(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid pagination parameters"
         )
+    if page_size > MAX_LOG_PAGE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"page_size cannot exceed {MAX_LOG_PAGE_SIZE}"
+        )
 
     total, logs = log_queries.get_logs_paginated(
         db,
         page,
         page_size,
-        sort_order
+        sort_order,
+        search=search,
+        status_filter=status_filter,
+        action_filter=action_filter,
     )
 
     return {
@@ -76,7 +102,7 @@ def get_logs(
                 "error_type": log.error_type,
                 "error_message": log.error_message,
                 "extra_data": log.extra_data,
-                "timestamp": convert_utc_to_ist(log.timestamp).strftime("%d %b %Y, %I:%M %p")
+                "timestamp": _to_utc_iso(log.timestamp),
             }
             for log in logs
         ]
@@ -154,3 +180,25 @@ def admin_change_operator_password(
     )
 
     return {"message": f"{user.username} password updated successfully"}
+
+
+def get_logging_health_summary(current_user: User):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    health = get_logging_health()
+    actor_health = get_actor_column_health(engine)
+    migration_health = get_migration_health()
+    return {
+        "logging_failures": health["logging_failures"],
+        "last_cleanup_status": health["last_cleanup_status"],
+        "last_cleanup_at": health["last_cleanup_at"],
+        "retention_days": config.LOG_RETENTION_DAYS,
+        "cleanup_interval_minutes": config.LOG_CLEANUP_INTERVAL_MINUTES,
+        "actor_column_ok": actor_health["actor_column_ok"],
+        "schema_message": actor_health["message"],
+        "migration_status": migration_health["migration_status"],
+    }
