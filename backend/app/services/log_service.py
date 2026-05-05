@@ -5,10 +5,13 @@ from datetime import timezone
 from app.database import SessionLocal
 from app import config
 import pytz
+from datetime import datetime
 
 IST = pytz.timezone("Asia/Kolkata")
 PENDING_LOGS_KEY = "pending_logs"
 LOGGING_FAILURE_COUNT = 0
+LAST_CLEANUP_STATUS = "not_run"
+LAST_CLEANUP_AT = None
 
 
 def _resolve_actor(user: User | None = None) -> str:
@@ -129,14 +132,23 @@ def clear_deferred_logs(db: Session):
     db.info.pop(PENDING_LOGS_KEY, None)
 
 
-def get_logging_health() -> dict[str, int]:
-    return {"logging_failures": LOGGING_FAILURE_COUNT}
+def get_logging_health() -> dict:
+    return {
+        "logging_failures": LOGGING_FAILURE_COUNT,
+        "last_cleanup_status": LAST_CLEANUP_STATUS,
+        "last_cleanup_at": LAST_CLEANUP_AT.isoformat() if LAST_CLEANUP_AT else None,
+    }
 
 
 def cleanup_old_logs(db: Session):
+    global LAST_CLEANUP_STATUS, LAST_CLEANUP_AT
     try:
         log_queries.delete_older_than(db, config.LOG_RETENTION_DAYS)
         db.commit()
+        LAST_CLEANUP_STATUS = "ok"
+        LAST_CLEANUP_AT = datetime.utcnow()
     except Exception as e:
         db.rollback()
+        LAST_CLEANUP_STATUS = "failed"
+        LAST_CLEANUP_AT = datetime.utcnow()
         print("LOG_CLEANUP_FAILURE", str(e))

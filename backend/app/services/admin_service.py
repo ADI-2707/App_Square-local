@@ -6,6 +6,8 @@ from app.utils.security import hash_password
 from app.queries import user_queries, log_queries
 from app.services.log_service import get_logging_health
 from app import config
+from app.db_migrations import get_actor_column_health, get_migration_health
+from app.database import engine
 MAX_LOG_PAGE_SIZE = 100
 
 
@@ -177,8 +179,15 @@ def get_logging_health_summary(current_user: User):
         )
 
     health = get_logging_health()
+    actor_health = get_actor_column_health(engine)
+    migration_health = get_migration_health()
     return {
         "logging_failures": health["logging_failures"],
+        "last_cleanup_status": health["last_cleanup_status"],
+        "last_cleanup_at": health["last_cleanup_at"],
         "retention_days": config.LOG_RETENTION_DAYS,
         "cleanup_interval_minutes": config.LOG_CLEANUP_INTERVAL_MINUTES,
+        "actor_column_ok": actor_health["actor_column_ok"],
+        "schema_message": actor_health["message"],
+        "migration_status": migration_health["migration_status"],
     }

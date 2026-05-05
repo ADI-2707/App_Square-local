@@ -3,6 +3,8 @@ from sqlalchemy.engine import Engine
 
 
 TARGET_LOG_ACTOR_LENGTH = 20
+LAST_MIGRATION_STATUS = "not_run"
+LAST_MIGRATION_MESSAGE = ""
 
 
 def _should_expand_actor_column(actor_column: dict) -> bool:
@@ -50,7 +52,49 @@ def _migrate_logs_actor_column(engine: Engine):
 
 
 def run_startup_migrations(engine: Engine):
+    global LAST_MIGRATION_STATUS, LAST_MIGRATION_MESSAGE
     try:
         _migrate_logs_actor_column(engine)
+        LAST_MIGRATION_STATUS = "ok"
+        LAST_MIGRATION_MESSAGE = "logs.actor migration check completed"
     except Exception as exc:
+        LAST_MIGRATION_STATUS = "failed"
+        LAST_MIGRATION_MESSAGE = str(exc)
         print("LOG_MIGRATION_FAILURE", str(exc))
+
+
+def get_actor_column_health(engine: Engine) -> dict:
+    try:
+        with engine.begin() as conn:
+            inspector = inspect(conn)
+
+            if not inspector.has_table("logs"):
+                return {"actor_column_ok": False, "message": "logs table missing"}
+
+            columns = {column["name"]: column for column in inspector.get_columns("logs")}
+            actor_column = columns.get("actor")
+
+            if not actor_column:
+                return {"actor_column_ok": False, "message": "actor column missing"}
+
+            actor_type = actor_column.get("type")
+            current_length = getattr(actor_type, "length", None)
+
+            if current_length is None:
+                return {"actor_column_ok": True, "message": "actor length not enforced by engine"}
+
+            is_ok = current_length >= TARGET_LOG_ACTOR_LENGTH
+            return {
+                "actor_column_ok": is_ok,
+                "message": f"actor length is {current_length}",
+            }
+
+    except Exception as exc:
+        return {"actor_column_ok": False, "message": f"actor health check failed: {exc}"}
+
+
+def get_migration_health() -> dict:
+    return {
+        "migration_status": LAST_MIGRATION_STATUS,
+        "migration_message": LAST_MIGRATION_MESSAGE,
+    }
