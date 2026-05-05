@@ -36,7 +36,7 @@ export default function Logs() {
     fetchLogs();
   }, [page, search, statusFilter, actionFilter]);
 
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
     <div className="logs-page">

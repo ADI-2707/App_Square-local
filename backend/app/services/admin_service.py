@@ -4,6 +4,8 @@ from fastapi import HTTPException, status
 from app.models.user import User
 from app.utils.security import hash_password
 from app.queries import user_queries, log_queries
+from app.services.log_service import get_logging_health
+from app import config
 MAX_LOG_PAGE_SIZE = 100
 
 
@@ -165,3 +167,18 @@ def admin_change_operator_password(
     )
 
     return {"message": f"{user.username} password updated successfully"}
+
+
+def get_logging_health_summary(current_user: User):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required"
+        )
+
+    health = get_logging_health()
+    return {
+        "logging_failures": health["logging_failures"],
+        "retention_days": config.LOG_RETENTION_DAYS,
+        "cleanup_interval_minutes": config.LOG_CLEANUP_INTERVAL_MINUTES,
+    }

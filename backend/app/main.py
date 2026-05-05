@@ -6,6 +6,7 @@ import asyncio
 
 from app.database import Base, engine, SessionLocal
 from app.models import user, log
+from app.db_migrations import run_startup_migrations
 from app.services.auth_service import initialize_system_users
 from app.services.log_service import cleanup_old_logs
 from app.routes import auth_routes, admin_routes, template_routes, recipe_routes
@@ -26,6 +27,7 @@ async def lifespan(app: FastAPI):
                 db.close()
 
     Base.metadata.create_all(bind=engine)
+    run_startup_migrations(engine)
 
     db = SessionLocal()
     try:

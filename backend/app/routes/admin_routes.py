@@ -7,7 +7,8 @@ from app.services.admin_service import (
     get_logs,
     get_all_operators,
     toggle_operator_status,
-    admin_change_operator_password
+    admin_change_operator_password,
+    get_logging_health_summary,
 )
 from app.commands.admin_commands import change_user_password_command
 
@@ -82,3 +83,8 @@ def change_operator_password(
         new_password,
         current_user
     )
+
+
+@router.get("/logs/health")
+def logging_health(current_user=Depends(get_current_user)):
+    return get_logging_health_summary(current_user)
