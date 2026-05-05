@@ -1,5 +1,6 @@
 from functools import wraps
 from sqlalchemy.orm import Session
+from app.services.log_service import flush_deferred_logs, clear_deferred_logs
 
 
 def transactional(func):
@@ -16,10 +17,12 @@ def transactional(func):
         try:
             result = func(*args, **kwargs)
             db.commit()
+            flush_deferred_logs(db)
             return result
         
         except Exception:
             db.rollback()
+            clear_deferred_logs(db)
             raise
 
     return wrapper

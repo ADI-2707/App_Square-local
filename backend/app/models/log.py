@@ -9,7 +9,7 @@ class Log(Base):
     
     id = Column(Integer, primary_key=True, index=True)
 
-    actor = Column(String(5), nullable=False)
+    actor = Column(String(20), nullable=False)
 
     action = Column(String(50), nullable=False)
 

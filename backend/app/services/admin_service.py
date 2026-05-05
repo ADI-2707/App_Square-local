@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from app.models.user import User
 from app.utils.security import hash_password
 from app.queries import user_queries, log_queries
-from app.services.log_service import convert_utc_to_ist
+MAX_LOG_PAGE_SIZE = 100
 
 
 def change_user_password(
@@ -40,7 +40,10 @@ def get_logs(
     page: int,
     page_size: int,
     sort_order: str,
-    current_user: User
+    current_user: User,
+    search: str = "",
+    status_filter: str = "",
+    action_filter: str = "",
 ):
     if current_user.role != "admin":
         raise HTTPException(
@@ -53,12 +56,20 @@ def get_logs(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid pagination parameters"
         )
+    if page_size > MAX_LOG_PAGE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"page_size cannot exceed {MAX_LOG_PAGE_SIZE}"
+        )
 
     total, logs = log_queries.get_logs_paginated(
         db,
         page,
         page_size,
-        sort_order
+        sort_order,
+        search=search,
+        status_filter=status_filter,
+        action_filter=action_filter,
     )
 
     return {
@@ -76,7 +87,7 @@ def get_logs(
                 "error_type": log.error_type,
                 "error_message": log.error_message,
                 "extra_data": log.extra_data,
-                "timestamp": convert_utc_to_ist(log.timestamp).strftime("%d %b %Y, %I:%M %p")
+                "timestamp": log.timestamp.isoformat() if log.timestamp else None,
             }
             for log in logs
         ]

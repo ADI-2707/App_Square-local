@@ -3,10 +3,12 @@ from app.models.user import User
 from app.queries import log_queries
 from datetime import timezone
 from app.database import SessionLocal
+from app import config
 import pytz
 
-RETENTION_DAYS = 90
 IST = pytz.timezone("Asia/Kolkata")
+PENDING_LOGS_KEY = "pending_logs"
+LOGGING_FAILURE_COUNT = 0
 
 
 def _resolve_actor(user: User | None = None) -> str:
@@ -21,7 +23,7 @@ def _resolve_actor(user: User | None = None) -> str:
             return actor_code
 
         if user_id:
-            return f"user:{user_id}"
+            return f"U{user_id}"
 
     except Exception:
         pass
@@ -39,8 +41,8 @@ def convert_utc_to_ist(dt):
     return dt.astimezone(IST)
 
 
-def add_log(
-    db: Session,
+def _persist_log(
+    *,
     user: User | None,
     action: str,
     status: str,
@@ -53,12 +55,8 @@ def add_log(
     request_id: str = None,
     metadata: dict = None,
 ):
-    
-    if not user and endpoint in ["/auth/profile", "/auth/logout"]:
-        return
-
+    global LOGGING_FAILURE_COUNT
     actor = _resolve_actor(user)
-
     log_db = SessionLocal()
 
     try:
@@ -76,19 +74,69 @@ def add_log(
             request_id=request_id,
             extra_data=metadata,
         )
-
         log_db.commit()
-
     except Exception as e:
         log_db.rollback()
-        print("⚠️ Logging failed:", str(e))
-
+        LOGGING_FAILURE_COUNT += 1
+        print("LOG_PERSIST_FAILURE", str(e))
     finally:
         log_db.close()
 
 
+def add_log(
+    db: Session,
+    user: User | None,
+    action: str,
+    status: str,
+    endpoint: str = None,
+    method: str = None,
+    error_type: str = None,
+    error_message: str = None,
+    level: str = "INFO",
+    traceback_str: str = None,
+    request_id: str = None,
+    metadata: dict = None,
+    defer_until_commit: bool = False,
+):
+    payload = {
+        "user": user,
+        "action": action,
+        "status": status,
+        "endpoint": endpoint,
+        "method": method,
+        "error_type": error_type,
+        "error_message": error_message,
+        "level": level,
+        "traceback_str": traceback_str,
+        "request_id": request_id,
+        "metadata": metadata,
+    }
+
+    if defer_until_commit and db is not None:
+        db.info.setdefault(PENDING_LOGS_KEY, []).append(payload)
+        return
+
+    _persist_log(**payload)
+
+
+def flush_deferred_logs(db: Session):
+    pending_logs = db.info.pop(PENDING_LOGS_KEY, [])
+    for payload in pending_logs:
+        _persist_log(**payload)
+
+
+def clear_deferred_logs(db: Session):
+    db.info.pop(PENDING_LOGS_KEY, None)
+
+
+def get_logging_health() -> dict[str, int]:
+    return {"logging_failures": LOGGING_FAILURE_COUNT}
+
+
 def cleanup_old_logs(db: Session):
     try:
-        log_queries.delete_older_than(db, RETENTION_DAYS)
+        log_queries.delete_older_than(db, config.LOG_RETENTION_DAYS)
+        db.commit()
     except Exception as e:
-        print("⚠️ Log cleanup failed:", str(e))
+        db.rollback()
+        print("LOG_CLEANUP_FAILURE", str(e))
