@@ -7,14 +7,14 @@
 
 .group-form label {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-text-secondary);
   letter-spacing: 0.2px;
 }
 
 .error-field {
-  border: 2px solid #d32f2f !important;
-  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.15);
+  border: 2px solid var(--color-danger) !important;
+  box-shadow: 0 0 0 3px var(--color-danger-ring);
 }
 
 .group-form input,
@@ -22,7 +22,7 @@
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: var(--color-white);
+  background: var(--color-surface);
   font-size: 14px;
   color: var(--color-text-primary);
   transition: all 0.15s ease-in-out;
@@ -32,7 +32,7 @@
 .group-form select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.15);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .group-form input:disabled,
@@ -49,7 +49,7 @@
   border: none;
   border-radius: 4px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0.3px;
   cursor: pointer;
   transition: all 0.15s ease-in-out;
@@ -58,7 +58,6 @@
 
 .group-form button:hover {
   background: var(--color-primary-dark);
-  transform: translateY(-1px);
 }
 
 .group-form button:active {
@@ -67,7 +66,7 @@
 }
 
 .group-form button:disabled {
-  background: #c5cae9;
+  background: var(--color-neutral);
   cursor: not-allowed;
   transform: none;
 }
@@ -79,11 +78,11 @@
 }
 
 .group-form button:last-of-type {
-  background: #2e7d32;
+  background: var(--color-success);
 }
 
 .group-form button:last-of-type:hover {
-  background: #1b5e20;
+  background: var(--color-success-dark);
 }
 
 .modal-body .group-form {
@@ -100,23 +99,20 @@
 
 .group-form select {
   appearance: none;
-
   background-image:
     linear-gradient(
       45deg,
       transparent 50%,
-      #6b7280 50%
+      var(--color-text-muted) 50%
     ),
     linear-gradient(
       135deg,
-      #6b7280 50%,
+      var(--color-text-muted) 50%,
       transparent 50%
     );
-
   background-position:
     calc(100% - 16px) calc(50% - 3px),
     calc(100% - 11px) calc(50% - 3px);
-    
   background-size: 5px 5px, 5px 5px;
   background-repeat: no-repeat;
   padding-right: 36px;
@@ -128,7 +124,7 @@
   border: 1px solid var(--color-border);
   border-radius: 4px;
   padding: 10px;
-  background: #fafafa;
+  background: var(--color-surface-raised);
 }
 
 .device-row {
@@ -142,12 +138,12 @@
 }
 
 .device-row:hover {
-  background: #f3f4f6;
+  background: var(--color-bg-hover);
 }
 
 .device-name {
   color: var(--color-text-primary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .device-checkbox {
@@ -166,12 +162,12 @@
 .device-actions button {
   padding: 6px 12px;
   font-size: 12px;
-  background: #546e7a;
+  background: var(--color-neutral);
   border-radius: 4px;
 }
 
 .device-actions button:hover {
-  background: #37474f;
+  background: var(--color-neutral-dark);
 }
 
 .device-count {

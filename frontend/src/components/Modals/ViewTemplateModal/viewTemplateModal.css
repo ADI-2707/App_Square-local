@@ -16,15 +16,22 @@
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: 6px;
-  background: var(--color-white);
+  background: var(--color-surface);
   flex: 1;
+}
+
+.view-search input:focus,
+.view-search select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .view-search select {
   padding: 8px 10px;
   border-radius: 6px;
   border: 1px solid var(--color-border);
-  background: var(--color-white);
+  background: var(--color-surface);
   cursor: pointer;
 }
 
@@ -58,26 +65,28 @@
   height: 100%;
   padding: 10px 12px;
   border-radius: 6px;
-  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-raised);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .view-item:hover {
-  background: var(--color-bg-active);
+  background: var(--color-bg-hover);
   z-index: 10;
 }
 
 .view-item.selected {
   border-left: 3px solid var(--color-primary);
-  background: rgba(92, 107, 192, 0.12);
+  border-color: #aac1d6;
+  background: var(--color-primary-soft);
 }
 
 .view-item.placeholder {
   position: relative;
   overflow: hidden;
   border-radius: 6px;
-  background: #f0f2f5;
+  background: var(--color-bg-light);
 }
 
 .view-item.placeholder::after {
@@ -87,14 +96,12 @@
   left: -150%;
   height: 100%;
   width: 150%;
-
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.6),
+    rgba(255, 255, 255, 0.8),
     transparent
   );
-
   animation: shimmer 1.2s infinite;
 }
 
@@ -102,7 +109,7 @@
   height: 12px;
   width: 60%;
   border-radius: 4px;
-  background: rgba(0,0,0,0.08);
+  background: rgba(15, 23, 32, 0.08);
   margin-top: 6px;
 }
 
@@ -111,8 +118,8 @@
   top: 50%;
   left: calc(100% + 8px);
   transform: translateY(-50%);
-  background: #111827;
-  color: white;
+  background: var(--color-tooltip-bg);
+  color: var(--color-tooltip-text);
   padding: 6px 8px;
   font-size: 12px;
   border-radius: 4px;
@@ -145,7 +152,7 @@
 
 .highlight {
   color: var(--color-primary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .modal-actions {

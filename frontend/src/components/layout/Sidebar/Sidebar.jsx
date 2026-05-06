@@ -453,7 +453,6 @@ export default function Sidebar({
           {!isCollapsed && (
             <>
               <div className="sidebar-appname">APP SQUARE</div>
-
               <div className="sidebar-toggle" onClick={toggleSidebar}>
                 <img
                   src="/icons/sidebar-toggle.svg"
@@ -716,7 +715,7 @@ export default function Sidebar({
                                   >
                                     <div className="tree-item-content">
                                       <img
-                                        src={getIcon("recipe")}
+                                        src="/icons/recipe.svg"
                                         className="sidebar-icon"
                                       />
                                       {!isCollapsed && (
@@ -863,8 +862,8 @@ export default function Sidebar({
               top: tooltip.y,
               left: tooltip.x,
               transform: "translateY(-50%)",
-              background: "#111827",
-              color: "white",
+              background: "var(--color-tooltip-bg)",
+              color: "var(--color-tooltip-text)",
               padding: "6px 10px",
               fontSize: "12px",
               borderRadius: "4px",
