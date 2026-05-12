@@ -548,11 +548,7 @@ export default function Sidebar({
                   + Create Recipe Template
                 </button>
 
-                <div
-                  className={`template-tree-scroll ${
-                    recentTemplateIds.length >= 10 ? "limit-scroll" : ""
-                  }`}
-                >
+                <div className="template-tree-scroll">
                   {recentTemplateIds.map((groupId) => {
                     const group = groups.byId[groupId];
                     const deviceIds = devices.byGroupId[groupId] || [];
@@ -683,11 +679,7 @@ export default function Sidebar({
                   + Create Area
                 </button>
 
-                <div
-                  className={`template-tree-scroll ${
-                    flattenedRecipeGroups.length >= 10 ? "limit-scroll" : ""
-                  }`}
-                >
+                <div className="template-tree-scroll">
                   {flattenedRecipeGroups.map((rGroup) => {
                     const recipeList = recipes[rGroup.id]?.[1] || [];
                     const recentRecipeIds =
