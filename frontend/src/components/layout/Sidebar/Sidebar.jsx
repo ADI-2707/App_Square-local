@@ -54,19 +54,28 @@ export default function Sidebar({
   const [contextMenu, setContextMenu] = useState(null);
   const [addRecipeModal, setAddRecipeModal] = useState(null);
 
-  const [openSections, setOpenSections] = useState({
-    templates: false,
-    recipes: false,
+  const [openSections, setOpenSections] = useState(() => {
+    const saved = localStorage.getItem("sidebar_open_sections");
+    return saved ? JSON.parse(saved) : { templates: false, recipes: false };
   });
 
-  const prevOpenSectionsRef = useRef({
-    templates: false,
-    recipes: false,
+  const prevOpenSectionsRef = useRef(openSections);
+
+  const [expandedGroups, setExpandedGroups] = useState(() => {
+    const saved = localStorage.getItem("sidebar_expanded_groups");
+    return saved ? JSON.parse(saved) : {};
   });
 
-  const [expandedGroups, setExpandedGroups] = useState({});
-  const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
-  const [expandedRecipes, setExpandedRecipes] = useState({});
+  const [expandedRecipeGroups, setExpandedRecipeGroups] = useState(() => {
+    const saved = localStorage.getItem("sidebar_expanded_recipe_groups");
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  const [expandedRecipes, setExpandedRecipes] = useState(() => {
+    const saved = localStorage.getItem("sidebar_expanded_recipes");
+    return saved ? JSON.parse(saved) : {};
+  });
+
   const [viewAllTemplatesModal, setViewAllTemplatesModal] = useState(false);
   const [activeRecipeId, setActiveRecipeId] = useState(null);
   const [activeDeviceId, setActiveDeviceId] = useState(null);
@@ -74,6 +83,23 @@ export default function Sidebar({
   const [hasLoaded, setHasLoaded] = useState(false);
   const [viewAllRecipesModal, setViewAllRecipesModal] = useState(false);
   const [tooltip, setTooltip] = useState(null);
+
+  // Persistence Effects
+  useEffect(() => {
+    localStorage.setItem("sidebar_open_sections", JSON.stringify(openSections));
+  }, [openSections]);
+
+  useEffect(() => {
+    localStorage.setItem("sidebar_expanded_groups", JSON.stringify(expandedGroups));
+  }, [expandedGroups]);
+
+  useEffect(() => {
+    localStorage.setItem("sidebar_expanded_recipe_groups", JSON.stringify(expandedRecipeGroups));
+  }, [expandedRecipeGroups]);
+
+  useEffect(() => {
+    localStorage.setItem("sidebar_expanded_recipes", JSON.stringify(expandedRecipes));
+  }, [expandedRecipes]);
 
   const hasTemplates = groups.allIds.length > 0;
 

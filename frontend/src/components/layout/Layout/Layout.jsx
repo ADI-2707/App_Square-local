@@ -56,6 +56,16 @@ export default function Layout({ children }) {
 
   const isAdminView = location.pathname.startsWith("/admin");
 
+  const prevIsAdminRef = useRef(false);
+
+  useEffect(() => {
+    const isAdmin = location.pathname.startsWith("/admin");
+    if (isAdmin && !prevIsAdminRef.current) {
+      setIsSidebarCollapsed(true);
+    }
+    prevIsAdminRef.current = isAdmin;
+  }, [location.pathname, setIsSidebarCollapsed]);
+
   const closeModal = () => {
     setActiveModal(null);
   };
