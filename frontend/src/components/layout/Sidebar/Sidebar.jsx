@@ -25,6 +25,7 @@ export default function Sidebar({
     deleteTemplate,
     getFullTemplate,
     getDeviceWithTags,
+    getRecipeDeviceWithTags,
     deleteDevice,
   } = useEntities();
 
@@ -65,6 +66,7 @@ export default function Sidebar({
 
   const [expandedGroups, setExpandedGroups] = useState({});
   const [expandedRecipeGroups, setExpandedRecipeGroups] = useState({});
+  const [expandedRecipes, setExpandedRecipes] = useState({});
   const [viewAllTemplatesModal, setViewAllTemplatesModal] = useState(false);
   const [activeRecipeId, setActiveRecipeId] = useState(null);
   const [activeDeviceId, setActiveDeviceId] = useState(null);
@@ -236,6 +238,20 @@ export default function Sidebar({
     }));
   };
 
+  const toggleRecipe = async (recipe, templateId, e) => {
+    if (disabled) return;
+    if (e) e.stopPropagation();
+
+    if (!expandedRecipes[recipe.id]) {
+      await loadDevices(templateId);
+    }
+
+    setExpandedRecipes((prev) => ({
+      ...prev,
+      [recipe.id]: !prev[recipe.id],
+    }));
+  };
+
   const handleOpenRecipe = async (recipe) => {
     if (disabled) return;
 
@@ -280,26 +296,53 @@ export default function Sidebar({
     if (disabled) return;
 
     try {
-      const device = await getDeviceWithTags(contextMenu.deviceId);
+      const recipeId =
+        contextMenu.source === "recipe" ? contextMenu.recipeId : null;
+      const recipeName =
+        contextMenu.source === "recipe" ? contextMenu.recipeName : null;
 
-      openWorkspace("device", {
-        id: contextMenu.deviceId,
-        name: contextMenu.deviceName,
-        devices: [device],
-      });
-
-      setActiveDeviceId(contextMenu.deviceId);
-      setActiveRecipeId(null);
-
-      setExpandedGroups((prev) => ({
-        ...prev,
-        [contextMenu.templateId]: true,
-      }));
+      await handleOpenEquipment(
+        contextMenu.deviceId,
+        contextMenu.deviceName,
+        recipeId,
+        recipeName,
+      );
     } catch {
       alert("Failed to load equipment");
     }
 
     setContextMenu(null);
+  };
+
+  const handleOpenEquipment = async (
+    deviceId,
+    deviceName,
+    recipeId = null,
+    recipeName = null,
+  ) => {
+    if (disabled) return;
+
+    try {
+      let device;
+      if (recipeId) {
+        device = await getRecipeDeviceWithTags(recipeId, deviceId);
+      } else {
+        device = await getDeviceWithTags(deviceId);
+      }
+
+      openWorkspace("device", {
+        id: deviceId,
+        name: deviceName,
+        devices: [device],
+        recipeId: recipeId,
+        recipeName: recipeName,
+      });
+
+      setActiveDeviceId(deviceId);
+      setActiveRecipeId(null);
+    } catch {
+      alert("Failed to load equipment");
+    }
   };
 
   const handleRightClick = (e, payload) => {
@@ -310,6 +353,7 @@ export default function Sidebar({
     setContextMenu({
       x: e.pageX,
       y: e.pageY,
+      source: "template",
       ...payload,
     });
   };
@@ -564,6 +608,7 @@ export default function Sidebar({
                                         deviceId: device.id,
                                         deviceName: device.name,
                                         templateId: groupId,
+                                        source: "template",
                                       })
                                     }
                                   >
@@ -696,35 +741,115 @@ export default function Sidebar({
                         {expandedRecipeGroups[rGroup.id] && (
                           <div className="tree-children">
                             {sortedRecipeList.length > 0 ? (
-                              sortedRecipeList.map((recipe) => (
-                                <div key={recipe.id} className="tree-node">
-                                  <div
-                                    className={`tree-item leaf ${
-                                      activeRecipeId === recipe.id
-                                        ? "active-item"
-                                        : ""
-                                    }`}
-                                    onClick={() => handleOpenRecipe(recipe)}
-                                    onContextMenu={(e) =>
-                                      handleRightClick(e, {
-                                        type: "recipe",
-                                        recipe,
-                                        recipeGroupId: rGroup.id,
-                                      })
-                                    }
-                                  >
-                                    <div className="tree-item-content">
-                                      <img
-                                        src="/icons/recipe.svg"
-                                        className="sidebar-icon"
-                                      />
-                                      {!isCollapsed && (
-                                        <span>{recipe.name}</span>
-                                      )}
+                              sortedRecipeList.map((recipe) => {
+                                const deviceIds =
+                                  devices.byGroupId[rGroup.templateId] || [];
+
+                                return (
+                                  <div key={recipe.id} className="tree-node">
+                                    <div
+                                      className={`tree-item expandable ${
+                                        activeRecipeId === recipe.id
+                                          ? "active-item"
+                                          : ""
+                                      }`}
+                                      onClick={() => handleOpenRecipe(recipe)}
+                                      onContextMenu={(e) =>
+                                        handleRightClick(e, {
+                                          type: "recipe",
+                                          recipe,
+                                          recipeGroupId: rGroup.id,
+                                          source: "recipe",
+                                        })
+                                      }
+                                    >
+                                      <div className="tree-item-content">
+                                        <span
+                                          className="arrow"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleRecipe(
+                                              recipe,
+                                              rGroup.templateId,
+                                            );
+                                          }}
+                                        >
+                                          {expandedRecipes[recipe.id]
+                                            ? "▾"
+                                            : "▸"}
+                                        </span>
+
+                                        <img
+                                          src="/icons/recipe.svg"
+                                          className="sidebar-icon"
+                                        />
+                                        {!isCollapsed && (
+                                          <span>{recipe.name}</span>
+                                        )}
+                                      </div>
                                     </div>
+
+                                    {expandedRecipes[recipe.id] && (
+                                      <div className="tree-children">
+                                        {deviceIds.length > 0 ? (
+                                          deviceIds.map((deviceId) => {
+                                            const device = devices.byId[deviceId];
+                                            return (
+                                              <div
+                                                key={deviceId}
+                                                className="tree-node"
+                                              >
+                                                <div
+                                                  className={`tree-item leaf ${
+                                                    activeDeviceId === deviceId
+                                                      ? "active-item"
+                                                      : ""
+                                                  }`}
+                                                  onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleOpenEquipment(
+                                                      deviceId,
+                                                      device.name,
+                                                      recipe.id,
+                                                      recipe.name,
+                                                    );
+                                                  }}
+                                                  onContextMenu={(e) =>
+                                                    handleRightClick(e, {
+                                                      type: "device",
+                                                      deviceId: device.id,
+                                                      deviceName: device.name,
+                                                      templateId:
+                                                        rGroup.templateId,
+                                                      source: "recipe",
+                                                      recipeId: recipe.id,
+                                                      recipeName: recipe.name,
+                                                    })
+                                                  }
+                                                >
+                                                  <div className="tree-item-content">
+                                                    <img
+                                                      src={getIcon("device")}
+                                                      className="sidebar-icon"
+                                                    />
+                                                    {!isCollapsed && (
+                                                      <span>{device.name}</span>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            );
+                                          })
+                                        ) : (
+                                          <div className="tree-empty">
+                                            No equipment
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
-                                </div>
-                              ))
+                                );
+                              })
                             ) : (
                               <div className="tree-empty-centered">
                                 No recipes available
@@ -817,14 +942,16 @@ export default function Sidebar({
                   View Equipment
                 </div>
 
-                <div
-                  className={`context-item ${
-                    !canManageTemplates ? "disabled-item" : ""
-                  }`}
-                  onClick={() => canManageTemplates && handleDelete()}
-                >
-                  Delete Equipment
-                </div>
+                {contextMenu.source === "template" && (
+                  <div
+                    className={`context-item ${
+                      !canManageTemplates ? "disabled-item" : ""
+                    }`}
+                    onClick={() => canManageTemplates && handleDelete()}
+                  >
+                    Delete Equipment
+                  </div>
+                )}
               </>
             )}
           </div>,

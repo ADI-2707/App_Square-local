@@ -195,6 +195,44 @@ def get_full_recipe(db: Session, recipe_id: int):
 
     return response
 
+def get_recipe_device_full(db: Session, recipe_id: int, device_id: int):
+    from app.queries.template_queries import get_device_with_tags
+    template_device = get_device_with_tags(db, device_id)
+    if not template_device:
+        return None
+
+    recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
+    if not recipe:
+        return None
+
+    recipe_device = db.query(RecipeDevice).filter(
+        RecipeDevice.recipe_id == recipe_id,
+        RecipeDevice.device_name == template_device["device_name"]
+    ).first()
+
+    if not recipe_device:
+        return template_device
+
+    values = db.query(RecipeTagValue).filter(
+        RecipeTagValue.recipe_device_id == recipe_device.id
+    ).all()
+    
+    value_map = {v.tag_name: v.value for v in values}
+
+    response = {
+        "id": template_device["id"],
+        "device_name": template_device["device_name"],
+        "tag_values": []
+    }
+
+    for t_tag in template_device["tag_values"]:
+        response["tag_values"].append({
+            "tag_name": t_tag["tag_name"],
+            "value": value_map.get(t_tag["tag_name"], "-")
+        })
+
+    return response
+
 def get_recipe_group_by_id(db: Session, group_id: int):
     return db.query(RecipeGroup).filter(
             RecipeGroup.id == group_id,

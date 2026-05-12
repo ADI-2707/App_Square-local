@@ -109,6 +109,21 @@ def get_full_recipe_route(
     )
 
 
+@router.get("/{recipe_id}/devices/{device_id}")
+def get_recipe_device_full_route(
+    recipe_id: int,
+    device_id: int,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    from app.queries.recipe_queries import get_recipe_device_full
+    return get_recipe_device_full(
+        db=db,
+        recipe_id=recipe_id,
+        device_id=device_id
+    )
+
+
 @router.delete("/{recipe_id}")
 def delete_recipe_route(
     request: Request,

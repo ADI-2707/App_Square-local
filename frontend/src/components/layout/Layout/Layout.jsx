@@ -454,8 +454,16 @@ export default function Layout({ children }) {
                 {workspace.type === "template" &&
                   `Template: ${workspace.data.name}`}
 
-                {workspace.type === "device" &&
-                  `Equipment: ${workspace.data.name}`}
+                {workspace.type === "device" && (
+                  <>
+                    Equipment: {workspace.data.name}
+                    {workspace.data.recipeName && (
+                      <span className="template-label">
+                        ({workspace.data.recipeName})
+                      </span>
+                    )}
+                  </>
+                )}
               </h2>
 
               <WorkspaceToolbar

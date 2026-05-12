@@ -116,6 +116,16 @@ export function EntityProvider({ children }) {
     }
   };
 
+  const getRecipeDeviceWithTags = async (recipeId, deviceId) => {
+    try {
+      const res = await api.get(`/recipes/${recipeId}/devices/${deviceId}`);
+      return res.data;
+    } catch (err) {
+      console.error("Failed to load recipe device with tags:", err);
+      throw err;
+    }
+  };
+
   const openTemplateInWorkspace = (template) => {
     setActiveTemplate(template);
   };
@@ -327,6 +337,7 @@ export function EntityProvider({ children }) {
         loadTags,
         getFullTemplate,
         getDeviceWithTags,
+        getRecipeDeviceWithTags,
         openTemplateInWorkspace,
         clearActiveTemplate,
         addFullTemplateGroup,
