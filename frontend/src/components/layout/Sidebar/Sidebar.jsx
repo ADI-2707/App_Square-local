@@ -536,108 +536,105 @@ export default function Sidebar({
             </div>
 
             {openSections.templates && (
-              <div className="sidebar-submenu">
-                <button
-                  className={`sidebar-action-btn ${
-                    !canManageTemplates || disabled ? "disabled-btn" : ""
-                  }`}
-                  onClick={() =>
-                    canManageTemplates && onOpenModal("createGroup")
-                  }
-                >
-                  + Create Recipe Template
-                </button>
+              <>
+                <div className="sidebar-submenu">
+                  <div className="template-tree-scroll">
+                    {recentTemplateIds.map((groupId) => {
+                      const group = groups.byId[groupId];
+                      const deviceIds = devices.byGroupId[groupId] || [];
 
-                <div className="template-tree-scroll">
-                  {recentTemplateIds.map((groupId) => {
-                    const group = groups.byId[groupId];
-                    const deviceIds = devices.byGroupId[groupId] || [];
+                      return (
+                        <div key={groupId} className="tree-node">
+                          <div
+                            className={`tree-item expandable ${
+                              workspace?.type === "template" &&
+                              workspace?.data?.id === groupId
+                                ? "active-item"
+                                : ""
+                            }`}
+                            onClick={() => toggleGroup(groupId)}
+                            onContextMenu={(e) =>
+                              handleRightClick(e, {
+                                type: "template",
+                                templateId: groupId,
+                                templateName: group.name,
+                              })
+                            }
+                          >
+                            <div className="tree-item-content">
+                              <span className="arrow">
+                                {expandedGroups[groupId] ? "▾" : "▸"}
+                              </span>
 
-                    return (
-                      <div key={groupId} className="tree-node">
-                        <div
-                          className={`tree-item expandable ${
-                            workspace?.type === "template" &&
-                            workspace?.data?.id === groupId
-                              ? "active-item"
-                              : ""
-                          }`}
-                          onClick={() => toggleGroup(groupId)}
-                          onContextMenu={(e) =>
-                            handleRightClick(e, {
-                              type: "template",
-                              templateId: groupId,
-                              templateName: group.name,
-                            })
-                          }
-                        >
-                          <div className="tree-item-content">
-                            <span className="arrow">
-                              {expandedGroups[groupId] ? "▾" : "▸"}
-                            </span>
+                              <img
+                                src={getIcon("template")}
+                                className="sidebar-icon"
+                              />
 
-                            <img
-                              src={getIcon("template")}
-                              className="sidebar-icon"
-                            />
-
-                            {!isCollapsed && <span>{group.name}</span>}
+                              {!isCollapsed && <span>{group.name}</span>}
+                            </div>
                           </div>
-                        </div>
 
-                        {expandedGroups[groupId] && (
-                          <div className="tree-children">
-                            {deviceIds.map((deviceId) => {
-                              const device = devices.byId[deviceId];
+                          {expandedGroups[groupId] && (
+                            <div className="tree-children">
+                              {deviceIds.map((deviceId) => {
+                                const device = devices.byId[deviceId];
 
-                              return (
-                                <div key={deviceId} className="tree-node">
-                                  <div
-                                    className={`tree-item leaf ${
-                                      activeDeviceId === device.id
-                                        ? "active-item"
-                                        : ""
-                                    }`}
-                                    onContextMenu={(e) =>
-                                      handleRightClick(e, {
-                                        type: "device",
-                                        deviceId: device.id,
-                                        deviceName: device.name,
-                                        templateId: groupId,
-                                        source: "template",
-                                      })
-                                    }
-                                  >
-                                    <div className="tree-item-content">
-                                      <img
-                                        src={getIcon("device")}
-                                        className="sidebar-icon"
-                                      />
+                                return (
+                                  <div key={deviceId} className="tree-node">
+                                    <div
+                                      className={`tree-item leaf ${
+                                        activeDeviceId === device.id
+                                          ? "active-item"
+                                          : ""
+                                      }`}
+                                      onContextMenu={(e) =>
+                                        handleRightClick(e, {
+                                          type: "device",
+                                          deviceId: device.id,
+                                          deviceName: device.name,
+                                          templateId: groupId,
+                                          source: "template",
+                                        })
+                                      }
+                                    >
+                                      <div className="tree-item-content">
+                                        <img
+                                          src={getIcon("device")}
+                                          className="sidebar-icon"
+                                        />
 
-                                      {!isCollapsed && (
-                                        <span>{device.name}</span>
-                                      )}
+                                        {!isCollapsed && (
+                                          <span>{device.name}</span>
+                                        )}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-
-                {groups.allIds.length > 10 && (
-                  <div
+                <div className="sidebar-section-footer">
+                  <button
+                    className="sidebar-footer-action-btn"
+                    onClick={() => onOpenModal("createGroup")}
+                    disabled={disabled || !canManageTemplates}
+                  >
+                    + Template
+                  </button>
+                  <button
                     className="view-all-btn"
                     onClick={() => setViewAllTemplatesModal(true)}
                   >
-                    View All Templates →
-                  </div>
-                )}
-              </div>
+                    View All
+                  </button>
+                </div>
+              </>
             )}
           </div>
 
@@ -671,198 +668,199 @@ export default function Sidebar({
             </div>
 
             {openSections.recipes && hasTemplates && (
-              <div className="sidebar-submenu">
-                <button
-                  className="sidebar-action-btn"
-                  onClick={() => onOpenModal("createArea")}
-                >
-                  + Create Area
-                </button>
+              <>
+                <div className="sidebar-submenu">
+                  <div className="template-tree-scroll">
+                    {flattenedRecipeGroups.map((rGroup) => {
+                      const recipeList = recipes[rGroup.id]?.[1] || [];
+                      const recentRecipeIds =
+                        recentRecipesByGroup[rGroup.id] || [];
+                      const sortedRecipeList = [...recipeList].sort((a, b) => {
+                        const aIndex = recentRecipeIds.indexOf(a.id);
+                        const bIndex = recentRecipeIds.indexOf(b.id);
 
-                <div className="template-tree-scroll">
-                  {flattenedRecipeGroups.map((rGroup) => {
-                    const recipeList = recipes[rGroup.id]?.[1] || [];
-                    const recentRecipeIds =
-                      recentRecipesByGroup[rGroup.id] || [];
-                    const sortedRecipeList = [...recipeList].sort((a, b) => {
-                      const aIndex = recentRecipeIds.indexOf(a.id);
-                      const bIndex = recentRecipeIds.indexOf(b.id);
+                        if (aIndex !== -1 && bIndex !== -1)
+                          return aIndex - bIndex;
+                        if (aIndex !== -1) return -1;
+                        if (bIndex !== -1) return 1;
 
-                      if (aIndex !== -1 && bIndex !== -1)
-                        return aIndex - bIndex;
-                      if (aIndex !== -1) return -1;
-                      if (bIndex !== -1) return 1;
+                        return a.name.localeCompare(b.name);
+                      });
 
-                      return a.name.localeCompare(b.name);
-                    });
-
-                    return (
-                      <div key={rGroup.id} className="tree-node">
-                        <div
-                          className="tree-item expandable"
-                          onClick={() => toggleRecipeGroup(rGroup)}
-                          onContextMenu={(e) =>
-                            handleRightClick(e, {
-                              type: "recipeGroup",
-                              recipeGroup: rGroup,
-                              templateId: rGroup.templateId,
-                            })
-                          }
-                        >
-                          <div className="tree-item-content">
-                            <span className="arrow">
-                              {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}
-                            </span>
-
-                            <img
-                              src={getIcon("area")}
-                              className="sidebar-icon"
-                            />
-
-                            {!isCollapsed && (
-                              <span>
-                                {rGroup.name}
-                                <span className="template-label">
-                                  ({rGroup.templateName})
-                                </span>
+                      return (
+                        <div key={rGroup.id} className="tree-node">
+                          <div
+                            className="tree-item expandable"
+                            onClick={() => toggleRecipeGroup(rGroup)}
+                            onContextMenu={(e) =>
+                              handleRightClick(e, {
+                                type: "recipeGroup",
+                                recipeGroup: rGroup,
+                                templateId: rGroup.templateId,
+                              })
+                            }
+                          >
+                            <div className="tree-item-content">
+                              <span className="arrow">
+                                {expandedRecipeGroups[rGroup.id] ? "▾" : "▸"}
                               </span>
-                            )}
+
+                              <img
+                                src={getIcon("area")}
+                                className="sidebar-icon"
+                              />
+
+                              {!isCollapsed && (
+                                <span>
+                                  {rGroup.name}
+                                  <span className="template-label">
+                                    ({rGroup.templateName})
+                                  </span>
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
 
-                        {expandedRecipeGroups[rGroup.id] && (
-                          <div className="tree-children">
-                            {sortedRecipeList.length > 0 ? (
-                              sortedRecipeList.map((recipe) => {
-                                const deviceIds =
-                                  devices.byGroupId[rGroup.templateId] || [];
+                          {expandedRecipeGroups[rGroup.id] && (
+                            <div className="tree-children">
+                              {sortedRecipeList.length > 0 ? (
+                                sortedRecipeList.map((recipe) => {
+                                  const deviceIds =
+                                    devices.byGroupId[rGroup.templateId] || [];
 
-                                return (
-                                  <div key={recipe.id} className="tree-node">
-                                    <div
-                                      className={`tree-item expandable ${
-                                        activeRecipeId === recipe.id
-                                          ? "active-item"
-                                          : ""
-                                      }`}
-                                      onClick={() => handleOpenRecipe(recipe)}
-                                      onContextMenu={(e) =>
-                                        handleRightClick(e, {
-                                          type: "recipe",
-                                          recipe,
-                                          recipeGroupId: rGroup.id,
-                                          source: "recipe",
-                                        })
-                                      }
-                                    >
-                                      <div className="tree-item-content">
-                                        <span
-                                          className="arrow"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            toggleRecipe(
-                                              recipe,
-                                              rGroup.templateId,
-                                            );
-                                          }}
-                                        >
-                                          {expandedRecipes[recipe.id]
-                                            ? "▾"
-                                            : "▸"}
-                                        </span>
+                                  return (
+                                    <div key={recipe.id} className="tree-node">
+                                      <div
+                                        className={`tree-item expandable ${
+                                          activeRecipeId === recipe.id
+                                            ? "active-item"
+                                            : ""
+                                        }`}
+                                        onClick={() => handleOpenRecipe(recipe)}
+                                        onContextMenu={(e) =>
+                                          handleRightClick(e, {
+                                            type: "recipe",
+                                            recipe,
+                                            recipeGroupId: rGroup.id,
+                                            source: "recipe",
+                                          })
+                                        }
+                                      >
+                                        <div className="tree-item-content">
+                                          <span
+                                            className="arrow"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toggleRecipe(
+                                                recipe,
+                                                rGroup.templateId,
+                                              );
+                                            }}
+                                          >
+                                            {expandedRecipes[recipe.id]
+                                              ? "▾"
+                                              : "▸"}
+                                          </span>
 
-                                        <img
-                                          src="/icons/recipe.svg"
-                                          className="sidebar-icon"
-                                        />
-                                        {!isCollapsed && (
-                                          <span>{recipe.name}</span>
-                                        )}
+                                          <img
+                                            src="/icons/recipe.svg"
+                                            className="sidebar-icon"
+                                          />
+                                          {!isCollapsed && (
+                                            <span>{recipe.name}</span>
+                                          )}
+                                        </div>
                                       </div>
-                                    </div>
 
-                                    {expandedRecipes[recipe.id] && (
-                                      <div className="tree-children">
-                                        {deviceIds.length > 0 ? (
-                                          deviceIds.map((deviceId) => {
-                                            const device = devices.byId[deviceId];
-                                            return (
-                                              <div
-                                                key={deviceId}
-                                                className="tree-node"
-                                              >
+                                      {expandedRecipes[recipe.id] && (
+                                        <div className="tree-children">
+                                          {deviceIds.length > 0 ? (
+                                            deviceIds.map((deviceId) => {
+                                              const device = devices.byId[deviceId];
+                                              return (
                                                 <div
-                                                  className={`tree-item leaf ${
-                                                    activeDeviceId === deviceId
-                                                      ? "active-item"
-                                                      : ""
-                                                  }`}
-                                                  onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleOpenEquipment(
-                                                      deviceId,
-                                                      device.name,
-                                                      recipe.id,
-                                                      recipe.name,
-                                                    );
-                                                  }}
-                                                  onContextMenu={(e) =>
-                                                    handleRightClick(e, {
-                                                      type: "device",
-                                                      deviceId: device.id,
-                                                      deviceName: device.name,
-                                                      templateId:
-                                                        rGroup.templateId,
-                                                      source: "recipe",
-                                                      recipeId: recipe.id,
-                                                      recipeName: recipe.name,
-                                                    })
-                                                  }
+                                                  key={deviceId}
+                                                  className="tree-node"
                                                 >
-                                                  <div className="tree-item-content">
-                                                    <img
-                                                      src={getIcon("device")}
-                                                      className="sidebar-icon"
-                                                    />
-                                                    {!isCollapsed && (
-                                                      <span>{device.name}</span>
-                                                    )}
+                                                  <div
+                                                    className={`tree-item leaf ${
+                                                      activeDeviceId === deviceId
+                                                        ? "active-item"
+                                                        : ""
+                                                    }`}
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      handleOpenEquipment(
+                                                        deviceId,
+                                                        device.name,
+                                                        recipe.id,
+                                                        recipe.name,
+                                                      );
+                                                    }}
+                                                    onContextMenu={(e) =>
+                                                      handleRightClick(e, {
+                                                        type: "device",
+                                                        deviceId: device.id,
+                                                        deviceName: device.name,
+                                                        templateId:
+                                                          rGroup.templateId,
+                                                        source: "recipe",
+                                                        recipeId: recipe.id,
+                                                        recipeName: recipe.name,
+                                                      })
+                                                    }
+                                                  >
+                                                    <div className="tree-item-content">
+                                                      <img
+                                                        src={getIcon("device")}
+                                                        className="sidebar-icon"
+                                                      />
+                                                      {!isCollapsed && (
+                                                        <span>{device.name}</span>
+                                                      )}
+                                                    </div>
                                                   </div>
                                                 </div>
-                                              </div>
-                                            );
-                                          })
-                                        ) : (
-                                          <div className="tree-empty">
-                                            No equipment
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })
-                            ) : (
-                              <div className="tree-empty-centered">
-                                No recipes available
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                                              );
+                                            })
+                                          ) : (
+                                            <div className="tree-empty">
+                                              No equipment
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })
+                              ) : (
+                                <div className="tree-empty-centered">
+                                  No recipes available
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-
-                {flattenedRecipeGroups.length > 10 && (
-                  <div
+                <div className="sidebar-section-footer">
+                  <button
+                    className="sidebar-footer-action-btn"
+                    onClick={() => onOpenModal("createArea")}
+                    disabled={disabled || !canManageRecipes}
+                  >
+                    + Area
+                  </button>
+                  <button
                     className="view-all-btn"
                     onClick={() => setViewAllRecipesModal(true)}
                   >
-                    View All Recipes →
-                  </div>
-                )}
-              </div>
+                    View All
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
