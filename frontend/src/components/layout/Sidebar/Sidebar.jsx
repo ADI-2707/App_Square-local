@@ -192,7 +192,55 @@ export default function Sidebar({
         loadRecipeGroups(templateId);
       }
     });
-  }, [openSections.recipes, groups.allIds]);
+  }, [openSections.recipes, groups.allIds, recipeGroups, loadRecipeGroups]);
+
+  useEffect(() => {
+    if (!groups.allIds.length) return;
+
+    Object.keys(expandedGroups).forEach((groupId) => {
+      if (expandedGroups[groupId] && !devices.byGroupId[groupId]) {
+        loadDevices(groupId);
+      }
+    });
+  }, [groups.allIds, expandedGroups, devices.byGroupId, loadDevices]);
+
+  useEffect(() => {
+    if (!openSections.recipes || !flattenedRecipeGroups.length) return;
+
+    flattenedRecipeGroups.forEach((group) => {
+      if (expandedRecipeGroups[group.id] && !recipes[group.id]) {
+        loadRecipesPaginated(group.id, 1);
+      }
+    });
+  }, [
+    openSections.recipes,
+    flattenedRecipeGroups,
+    expandedRecipeGroups,
+    recipes,
+    loadRecipesPaginated,
+  ]);
+
+  useEffect(() => {
+    if (!openSections.recipes || !flattenedRecipeGroups.length) return;
+
+    Object.keys(expandedRecipes).forEach((recipeId) => {
+      if (expandedRecipes[recipeId]) {
+        const group = flattenedRecipeGroups.find((g) =>
+          (recipes[g.id]?.[1] || []).some((r) => r.id === recipeId),
+        );
+        if (group && !devices.byGroupId[group.templateId]) {
+          loadDevices(group.templateId);
+        }
+      }
+    });
+  }, [
+    openSections.recipes,
+    flattenedRecipeGroups,
+    expandedRecipes,
+    recipes,
+    devices.byGroupId,
+    loadDevices,
+  ]);
 
   useEffect(() => {
     const handleGlobalClick = (e) => {
