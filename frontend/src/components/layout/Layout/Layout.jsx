@@ -7,6 +7,7 @@ import GroupModal from "../../Modals/GroupModal/GroupModal";
 import RecipeModal from "../../Modals/RecipeModal/RecipeModal";
 import AboutModal from "../../Modals/AboutModal/AboutModal";
 import HelpModal from "../../Modals/HelpModal/HelpModal";
+import DeviceModal from "../../Modals/DeviceModal/DeviceModal";
 import { useWorkspace } from "../../../context/WorkspaceContext/WorkspaceContext";
 import { useRecipes } from "../../../context/RecipeContext/RecipeContext";
 import { useEntities } from "../../../context/EntityContext/EntityContext";
@@ -29,6 +30,10 @@ export default function Layout({ children }) {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
 
+  const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
+  const [deviceModalMode, setDeviceModalMode] = useState("addEquipment"); // addEquipment | addTag
+  const [deviceModalInitial, setDeviceModalInitial] = useState(null);
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem("sidebarCollapsed");
     return saved === "true";
@@ -41,7 +46,7 @@ export default function Layout({ children }) {
 
   const { workspace, openWorkspace } = useWorkspace();
   const { openRecipeInWorkspace } = useRecipes();
-  const { deleteTag } = useEntities();
+  const { deleteTag, addDeviceToTemplate, addTagsToDevice } = useEntities();
   const { lockUI, unlockUI } = useUiLock();
   const { isLocked } = useUiLock();
   const { role } = useAuth();
@@ -142,6 +147,7 @@ export default function Layout({ children }) {
 
   const isRecipe = workspace?.type === "recipe";
   const isTemplate = workspace?.type === "template";
+  const isDeviceWorkspace = workspace?.type === "device";
   const showValues = isRecipe;
 
   const devices = isTemplate
@@ -345,6 +351,56 @@ export default function Layout({ children }) {
     }
   };
 
+  const handleAddEquipment = () => {
+    if (role !== "admin") return;
+    setDeviceModalMode("addEquipment");
+    setDeviceModalInitial(null);
+    setIsDeviceModalOpen(true);
+  };
+
+  const handleAddTag = () => {
+    if (role !== "admin") return;
+    setDeviceModalMode("addTag");
+
+    // Equipment workspace data structure: { id, name, devices: [ { id, device_name, tag_values: [] } ] }
+    const device = workspace.data.devices[0];
+
+    setDeviceModalInitial({
+      device_name: device.device_name,
+      tags: device.tag_values.map((t) => ({ name: t.tag_name, id: t.id })),
+    });
+    setIsDeviceModalOpen(true);
+  };
+
+  const handleDeviceModalSave = async (deviceData) => {
+    try {
+      lockUI(
+        deviceModalMode === "addEquipment"
+          ? "Adding equipment..."
+          : "Adding tags...",
+      );
+
+      if (deviceModalMode === "addEquipment") {
+        const updated = await addDeviceToTemplate(workspace.data.id, deviceData);
+        openWorkspace("template", updated);
+      } else {
+        const deviceId = workspace.data.devices[0].id;
+        const updatedDevice = await addTagsToDevice(deviceId, deviceData.tags);
+
+        openWorkspace("device", {
+          ...workspace.data,
+          devices: [updatedDevice],
+        });
+      }
+
+      setIsDeviceModalOpen(false);
+    } catch (err) {
+      // Error handled in context
+    } finally {
+      unlockUI();
+    }
+  };
+
   return (
     <>
       {isSmallScreen && showBanner && (
@@ -411,6 +467,9 @@ export default function Layout({ children }) {
                 showEdit={workspace?.type === "recipe"}
                 viewMode={viewMode}
                 setViewMode={setViewMode}
+                workspaceType={workspace.type}
+                onAddEquipment={handleAddEquipment}
+                onAddTag={handleAddTag}
               />
 
               <div
@@ -619,6 +678,14 @@ export default function Layout({ children }) {
         <RecipeModal
           isOpen={activeModal === "createArea"}
           onClose={closeModal}
+        />
+
+        <DeviceModal
+          isOpen={isDeviceModalOpen}
+          onClose={() => setIsDeviceModalOpen(false)}
+          onSave={handleDeviceModalSave}
+          initialDevice={deviceModalInitial}
+          readOnlyDeviceName={deviceModalMode === "addTag"}
         />
       </div>
       <Footer

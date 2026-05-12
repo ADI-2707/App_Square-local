@@ -14,6 +14,7 @@ from app.models.recipe import RecipeDevice, RecipeGroup, Recipe
 from app.models.template_group import TemplateGroup
 from app.services.log_service import add_log
 from app.services.tag_source_service import resolve_tag_names
+from app.models.template_change_log import TemplateChangeLog
 
 
 @transactional
@@ -247,3 +248,90 @@ def delete_tag_from_device(
     return {
         "message": f"Tag '{tag_name}' deleted successfully"
     }
+
+
+@transactional
+@command_logger(action="TEMPLATE_DEVICE_ADD")
+def add_device_to_template(
+    db: Session,
+    template_group_id: int,
+    data,
+    current_user: User,
+    request: Request = None
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin required")
+
+    group = db.query(TemplateGroup).filter(TemplateGroup.id == template_group_id).first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Template not found")
+
+    if not data.name or not data.name.strip():
+        raise HTTPException(400, "Device name cannot be empty")
+
+    if not data.tags:
+        raise HTTPException(400, f"Device '{data.name}' must have at least one tag")
+
+    device = template_queries.create_device_instance(
+        db=db,
+        name=data.name,
+        type=data.type,
+        group_id=template_group_id
+    )
+    db.flush()
+
+    resolved_tags = resolve_tag_names([tag_data.name for tag_data in data.tags])
+    
+    for resolved_tag in resolved_tags:
+        tag_name = resolved_tag["tag_name"]
+        template_queries.create_tag(db=db, name=tag_name, device_id=device.id)
+
+    log = TemplateChangeLog(
+        template_group_id=template_group_id,
+        change_type="EQUIPMENT_ADDED",
+        entity_name=data.name,
+        entity_id=device.id,
+        deleted_by=current_user.username
+    )
+    db.add(log)
+
+    return template_queries.get_full_template(db, template_group_id)
+
+
+@transactional
+@command_logger(action="TEMPLATE_TAGS_ADD")
+def add_tags_to_device(
+    db: Session,
+    device_id: int,
+    tags_data,
+    current_user: User,
+    request: Request = None
+):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin required")
+
+    device = db.query(DeviceInstance).filter(DeviceInstance.id == device_id).first()
+    if not device:
+        raise HTTPException(status_code=404, detail="Equipment not found")
+
+    resolved_tags = resolve_tag_names([tag_data.name for tag_data in tags_data])
+    
+    for resolved_tag in resolved_tags:
+        tag_name = resolved_tag["tag_name"]
+        try:
+            tag = template_queries.create_tag(db=db, name=tag_name, device_id=device.id)
+            db.flush()
+            
+            log = TemplateChangeLog(
+                template_group_id=device.template_group_id,
+                change_type="TAG_ADDED",
+                entity_name=tag_name,
+                entity_id=tag.id,
+                device_name=device.name,
+                deleted_by=current_user.username
+            )
+            db.add(log)
+        except ValueError:
+            continue
+
+    return template_queries.get_device_with_tags(db, device_id)

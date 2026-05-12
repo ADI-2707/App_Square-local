@@ -91,7 +91,7 @@
 
 .recipe-matrix-table {
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
   min-width: 100%;
 }
 
@@ -130,11 +130,11 @@
 
 .recipe-matrix-table th,
 .recipe-matrix-table td {
-  width: 150px;
   min-width: 150px;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 800px;
+  padding: 10px 15px;
+  overflow: visible;
+  text-overflow: clip;
   white-space: nowrap;
 }
 
@@ -279,9 +279,14 @@
 
 .template-device-mode th,
 .template-device-mode td {
-  width: 150px;
-  min-width: 150px;
-  max-width: 150px;
+  min-width: 200px;
+  max-width: none;
+}
+
+.template-device-mode td span {
+  white-space: nowrap;
+  word-break: keep-all;
+  line-height: 1.4;
 }
 
 .template-column {

@@ -12,6 +12,7 @@ export default function DeviceModal({
   onClose,
   onSave,
   initialDevice,
+  readOnlyDeviceName = false,
 }) {
   const { searchTemplateTags } = useEntities();
   const [deviceName, setDeviceName] = useState("");
@@ -202,7 +203,13 @@ export default function DeviceModal({
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={initialDevice ? "Edit Equipment" : "Create Equipment"}
+      title={
+        readOnlyDeviceName
+          ? "Add Tag"
+          : initialDevice
+            ? "Edit Equipment"
+            : "Create Equipment"
+      }
     >
       <div className="device-form">
         <div className="form-field">
@@ -211,6 +218,7 @@ export default function DeviceModal({
             type="text"
             value={deviceName}
             className={errors.deviceName ? "error-field" : ""}
+            disabled={readOnlyDeviceName}
             onChange={(e) => {
               setDeviceName(e.target.value);
               if (errors.deviceName) {

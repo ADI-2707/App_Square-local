@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
+from typing import List
 from sqlalchemy.orm import Session
 
 from app.utils.dependencies import get_db, get_current_user
@@ -12,12 +13,16 @@ from app.schemas.template_schema import (
     TagResolveRequest,
     ResolvedTagResponse,
     TagSearchResponse,
+    DeviceCreate,
+    TagCreate,
 )
 from app.commands.template_commands import (
     create_full_template_group,
     delete_device_from_template,
     delete_template_group as delete_template_group_command,
-    delete_tag_from_device
+    delete_tag_from_device,
+    add_device_to_template,
+    add_tags_to_device
 )
 
 from app.services.template_service import (
@@ -186,6 +191,40 @@ def delete_tag(
     return delete_tag_from_device(
         db=db,
         tag_id=tag_id,
+        current_user=current_user,
+        request=request
+    )
+
+
+@router.post("/{group_id}/devices")
+def add_device(
+    group_id: int,
+    request: Request,
+    data: DeviceCreate,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return add_device_to_template(
+        db=db,
+        template_group_id=group_id,
+        data=data,
+        current_user=current_user,
+        request=request
+    )
+
+
+@router.post("/devices/{device_id}/tags")
+def add_tags(
+    device_id: int,
+    request: Request,
+    data: List[TagCreate],
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return add_tags_to_device(
+        db=db,
+        device_id=device_id,
+        tags_data=data,
         current_user=current_user,
         request=request
     )

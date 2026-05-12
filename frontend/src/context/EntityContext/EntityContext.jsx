@@ -283,6 +283,38 @@ export function EntityProvider({ children }) {
     }
   };
 
+  const addDeviceToTemplate = async (templateId, deviceData) => {
+    try {
+      const res = await api.post(`/templates/${templateId}/devices`, {
+        name: deviceData.device_name,
+        type: deviceData.type || "generic",
+        tags: deviceData.tags.map((t) => ({ name: (t.lookup_value || t.name).trim() })),
+      });
+
+      const newFullTemplate = res.data;
+      
+      return newFullTemplate;
+    } catch (err) {
+      console.error("Failed to add device:", err);
+      alert(err?.response?.data?.detail || "Failed to add device");
+      throw err;
+    }
+  };
+
+  const addTagsToDevice = async (deviceId, tagsData) => {
+    try {
+      const res = await api.post(`/templates/devices/${deviceId}/tags`, 
+        tagsData.map((t) => ({ name: (t.lookup_value || t.name).trim() }))
+      );
+
+      return res.data;
+    } catch (err) {
+      console.error("Failed to add tags:", err);
+      alert(err?.response?.data?.detail || "Failed to add tags");
+      throw err;
+    }
+  };
+
   return (
     <EntityContext.Provider
       value={{
@@ -303,6 +335,8 @@ export function EntityProvider({ children }) {
         deleteTag,
         fetchTemplates,
         searchTemplateTags,
+        addDeviceToTemplate,
+        addTagsToDevice,
       }}
     >
       {children}

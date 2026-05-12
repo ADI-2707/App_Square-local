@@ -9,9 +9,14 @@ export default function WorkspaceToolbar({
   showEdit,
   viewMode,
   setViewMode,
+  workspaceType,
+  onAddEquipment,
+  onAddTag,
 }) {
 
   const isToggleDisabled = isEditing;
+  const isTemplate = workspaceType === "template";
+  const isDevice = workspaceType === "device";
 
   const handleToggle = () => {
     if (isToggleDisabled) return;
@@ -76,15 +81,33 @@ export default function WorkspaceToolbar({
           </button>
         )}
 
-        <button className="hmi-btn" onClick={onUpload}>
-          <img src="/icons/upload.svg" className="btn-icon" alt="upload" />
-          Upload
-        </button>
+        {isTemplate && (
+          <button className="hmi-btn" onClick={onAddEquipment}>
+            <img src="/icons/plus.svg" className="btn-icon" alt="add" />
+            Add Equipment
+          </button>
+        )}
 
-        <button className="hmi-btn" onClick={onDownload}>
-          <img src="/icons/download.svg" className="btn-icon" alt="download" />
-          Download
-        </button>
+        {isDevice && (
+          <button className="hmi-btn" onClick={onAddTag}>
+            <img src="/icons/plus.svg" className="btn-icon" alt="add" />
+            Add Tag
+          </button>
+        )}
+
+        {!isTemplate && !isDevice && (
+          <>
+            <button className="hmi-btn" onClick={onUpload}>
+              <img src="/icons/upload.svg" className="btn-icon" alt="upload" />
+              Upload
+            </button>
+
+            <button className="hmi-btn" onClick={onDownload}>
+              <img src="/icons/download.svg" className="btn-icon" alt="download" />
+              Download
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
